@@ -6,6 +6,7 @@ import { useState } from 'react';
 import { Button } from '../ui/button';
 import Modal from '../shared/modal/Modal';
 import Dropdown from '../shared/dropdown/Dropdown';
+import DropdownOption from '../shared/dropdown/DropdownOption';
 
 const Day2 = () => {
 
@@ -50,11 +51,21 @@ const Day2 = () => {
             </Modal>
 
 
+            <Dropdown placeholder="Select framework" onChange={(val) => console.log(val)}>
+                <DropdownOption value="react">React</DropdownOption>
+                <DropdownOption value="angular">Angular</DropdownOption>
+                <DropdownOption value="vue">Vue</DropdownOption>
+            </Dropdown>
+
             <Dropdown
-                label="Select framework"
-                options={['React', 'Angular', 'Vue']}
-                onSelect={(val) => console.log(val)}
-            />
+                placeholder="Select frameworks"
+                multiple
+                onChange={(val) => console.log(val)}
+            >
+                <DropdownOption value="react">React</DropdownOption>
+                <DropdownOption value="angular">Angular</DropdownOption>
+                <DropdownOption value="vue">Vue</DropdownOption>
+            </Dropdown>
         </>
     )
 }
