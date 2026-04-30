@@ -1,14 +1,10 @@
 'use client';
 
 import List from "@/components/shared/list/List";
+import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import Input from "@/components/ui/input";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useListControls } from "@/lib/hooks/userListControls";
-type User = {
-    id: number;
-    name: string;
-    email: string;
-};
 
 const Day3Client = () => {
     const { users, loading, error } = useUsers();
@@ -20,6 +16,11 @@ const Day3Client = () => {
         totalPages,
         data,
     } = useListControls({ data: users, searchKey: "name", itemsPerPage: 3 })
+
+    const columns = [
+        { key: "name", label: "Name" },
+        { key: "email", label: "Email" },
+    ] as const;
 
     return (
         <section
@@ -42,20 +43,20 @@ const Day3Client = () => {
                 </div>
             </header>
 
-            <List
+            <ResponsiveList
                 data={data}
                 loading={loading}
                 error={error}
                 getKey={(u) => String(u.id)}
+                columns={columns}
                 renderItem={(user) => (
-                    <article className="border rounded-md p-4 hover:shadow-sm transition">
+                    <article className="border rounded-md p-4">
                         <h2 className="font-medium">{user.name}</h2>
                         <p className="text-sm text-gray-500">{user.email}</p>
                     </article>
                 )}
             />
 
-            {/* Pagination */}
             <nav
                 aria-label="Pagination"
                 className="flex items-center justify-between"
