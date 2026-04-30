@@ -14,6 +14,9 @@ export function Sidebar() {
         <Link href="/day2" className="block px-3 py-2 rounded hover:bg-gray-100">
           Day 2 Tasks
         </Link>
+        <Link href="/day3" className="block px-3 py-2 rounded hover:bg-gray-100">
+          Day 3 Tasks
+        </Link>
         <Link href="/testing" className="block px-3 py-2 rounded hover:bg-gray-100">
           Testing
         </Link>
