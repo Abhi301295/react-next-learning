@@ -18,7 +18,7 @@ const Day3Client = () => {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
-                const res = await fetch("api/use7rs");
+                const res = await fetch("api/users");
 
                 if (!res.ok) {
                     throw new Error('failed to fetch data');

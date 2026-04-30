@@ -1,3 +1,7 @@
+import { EmptyState } from "../feedback/EmptyState";
+import { ErrorState } from "../feedback/ErrorState";
+import { LoadingState } from "../feedback/LoadingState";
+
 type ListProps<T> = {
   data: T[];
   renderItem: (item: T) => React.ReactNode;
@@ -22,15 +26,15 @@ export default function List<T>({
   emptyComponent,
 }: ListProps<T>) {
   if (loading) {
-    return loadingComponent || <p>Loading...</p>;
+    return loadingComponent || <LoadingState />;
   }
 
   if (error) {
-    return errorComponent || <p className="text-red-500">{error}</p>;
+    return errorComponent || <ErrorState message={error} />;
   }
 
   if (!data || data.length === 0) {
-    return emptyComponent || <p>No data available</p>;
+    return emptyComponent || <EmptyState />;
   }
 
   return (
