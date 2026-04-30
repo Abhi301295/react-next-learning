@@ -1,8 +1,9 @@
 'use client';
 
 import List from "@/components/shared/list/List";
-import { useEffect, useState } from "react";
-
+import Input from "@/components/ui/input";
+import { useUsers } from "@/lib/hooks/useUsers";
+import { useListControls } from "@/lib/hooks/userListControls";
 type User = {
     id: number;
     name: string;
@@ -10,48 +11,76 @@ type User = {
 };
 
 const Day3Client = () => {
-    const [users, setUsers] = useState<User[]>([]);
-    const [loading, setLoading] = useState(true);
-    const [error, setError] = useState<string | null>(null);
-
-    useEffect(() => {
-        const fetchUsers = async () => {
-            try {
-                setLoading(true);
-                const res = await fetch("api/users");
-
-                if (!res.ok) {
-                    throw new Error('failed to fetch data');
-                }
-
-                const data: User[] = await res.json();
-                setUsers(data);
-            } catch (err: any) {
-                setError(err.message || 'something went wrong');
-            } finally {
-                setLoading(false);
-            }
-        }
-        fetchUsers();
-    }, []);
+    const { users, loading, error } = useUsers();
+    const {
+        search,
+        setSearch,
+        page,
+        setPage,
+        totalPages,
+        data,
+    } = useListControls({ data: users, searchKey: "name", itemsPerPage: 3 })
 
     return (
-        <div className="p-4">
-            <h1 className="text-2xl font-bold mb-4">Users</h1>
+        <section
+            aria-labelledby="users-heading"
+            className="max-w-3xl mx-auto space-y-6"
+        >
+            <header className="space-y-3">
+                <h1 id="users-heading" className="text-2xl font-bold">
+                    Users
+                </h1>
+
+                <div className="max-w-sm">
+                    <Input
+                        placeholder="Search users..."
+                        value={search}
+                        onChange={(e) => setSearch(e.target.value)}
+                        inputSize="sm"
+                        variant="outline"
+                    />
+                </div>
+            </header>
 
             <List
-                data={users}
+                data={data}
                 loading={loading}
                 error={error}
                 getKey={(u) => String(u.id)}
                 renderItem={(user) => (
-                    <div className="border p-3 rounded">
-                        <h2>{user.name}</h2>
-                        <p>{user.email}</p>
-                    </div>
+                    <article className="border rounded-md p-4 hover:shadow-sm transition">
+                        <h2 className="font-medium">{user.name}</h2>
+                        <p className="text-sm text-gray-500">{user.email}</p>
+                    </article>
                 )}
             />
-        </div>
+
+            {/* Pagination */}
+            <nav
+                aria-label="Pagination"
+                className="flex items-center justify-between"
+            >
+                <button
+                    disabled={page === 1}
+                    onClick={() => setPage(page - 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Prev
+                </button>
+
+                <span className="text-sm text-gray-600">
+                    Page {page} of {totalPages}
+                </span>
+
+                <button
+                    disabled={page === totalPages}
+                    onClick={() => setPage(page + 1)}
+                    className="px-3 py-1 border rounded disabled:opacity-50"
+                >
+                    Next
+                </button>
+            </nav>
+        </section>
     );
 }
 
