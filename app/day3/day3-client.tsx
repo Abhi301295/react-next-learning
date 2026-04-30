@@ -18,7 +18,7 @@ const Day3Client = () => {
         const fetchUsers = async () => {
             try {
                 setLoading(true);
-                const res = await fetch("api/users");
+                const res = await fetch("api/use7rs");
 
                 if (!res.ok) {
                     throw new Error('failed to fetch data');
@@ -34,9 +34,6 @@ const Day3Client = () => {
         }
         fetchUsers();
     }, []);
-    if (loading) return <p>Loading users...</p>;
-    if (error) return <p className="text-red-500">{error}</p>;
-    if (users.length === 0) return <p>No users found</p>;
 
     return (
         <div className="p-4">
@@ -44,11 +41,13 @@ const Day3Client = () => {
 
             <List
                 data={users}
+                loading={loading}
+                error={error}
                 getKey={(u) => String(u.id)}
                 renderItem={(user) => (
                     <div className="border p-3 rounded">
-                        <h2 className="font-semibold">{user.name}</h2>
-                        <p className="text-sm text-gray-500">{user.email}</p>
+                        <h2>{user.name}</h2>
+                        <p>{user.email}</p>
                     </div>
                 )}
             />
