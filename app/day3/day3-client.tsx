@@ -33,7 +33,7 @@ const Day3Client = () => {
                     Users
                 </h1>
 
-                <div className="max-w-sm">
+                <div className="w-full sm:max-w-sm md:max-w-md">
                     <Input
                         placeholder="Search users..."
                         value={search}
