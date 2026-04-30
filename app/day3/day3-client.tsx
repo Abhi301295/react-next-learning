@@ -1,7 +1,8 @@
 'use client';
 
-import List from "@/components/shared/list/List";
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import Input from "@/components/ui/input";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useListControls } from "@/lib/hooks/userListControls";
@@ -50,36 +51,47 @@ const Day3Client = () => {
                 getKey={(u) => String(u.id)}
                 columns={columns}
                 renderItem={(user) => (
-                    <article className="border rounded-md p-4">
-                        <h2 className="font-medium">{user.name}</h2>
-                        <p className="text-sm text-gray-500">{user.email}</p>
-                    </article>
+                    <Card>
+                        <CardHeader>
+                            <CardTitle>{user.name}</CardTitle>
+                        </CardHeader>
+
+                        <CardContent>
+                            <p className="text-sm text-gray-500">{user.email}</p>
+                        </CardContent>
+                    </Card>
                 )}
             />
 
             <nav
                 aria-label="Pagination"
-                className="flex items-center justify-between"
+                className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-4"
             >
-                <button
+                <Button
+                    size="md"
+                    variant="outline"
+                    className="w-full sm:w-auto"
                     disabled={page === 1}
                     onClick={() => setPage(page - 1)}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
+                    aria-label="Previous page"
                 >
-                    Prev
-                </button>
+                    ← Prev
+                </Button>
 
                 <span className="text-sm text-gray-600">
-                    Page {page} of {totalPages}
+                    Page <strong>{page}</strong> of <strong>{totalPages}</strong>
                 </span>
 
-                <button
+                <Button
+                    size="md"
+                    variant="outline"
+                    className="w-full sm:w-auto"
                     disabled={page === totalPages}
                     onClick={() => setPage(page + 1)}
-                    className="px-3 py-1 border rounded disabled:opacity-50"
+                    aria-label="Next page"
                 >
-                    Next
-                </button>
+                    Next →
+                </Button>
             </nav>
         </section>
     );

@@ -5,12 +5,12 @@ type ButtonVariant = "primary" | "secondary" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none";
+  "inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-gray-600 text-white",
-  outline: "border border-gray-300 text-gray-800",
+  secondary: "bg-gray-600 text-white hover:bg-gray-700",
+  outline: "border border-gray-300 text-gray-800 hover:bg-gray-100",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
