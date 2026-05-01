@@ -1,11 +1,12 @@
 'use client';
 
-import { Card, CardContent, CardTitle, CardHeader } from "../ui/card";
-import Input from "../ui/input";
-import { Button } from "../ui/button";
-import React, { useState } from "react";
-import { validateEmail, validatePassword } from "@/lib/validation";
+import { useState } from 'react';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import Input from '@/components/ui/input';
+import { validateEmail, validatePassword } from '@/lib/validation';
 
+// Types
 type FormState = {
   email: string;
   password: string;
@@ -15,17 +16,26 @@ type FormField = keyof FormState;
 
 type ErrorState = Record<FormField, string>;
 
+const LoginForm = () => {
+  const [form, setForm] = useState<FormState>({
+    email: '',
+    password: '',
+  });
 
-const LoginFrom = () => {
+  const [errors, setErrors] = useState<ErrorState>({
+    email: '',
+    password: '',
+  });
 
-  const [form, setForm] = useState<FormState>({ email: '', password: '' });
-  const [errors, setErrors] = useState<ErrorState>({ email: '', password: '' });
+  const [submitted, setSubmitted] = useState(false);
 
+  // Validators map (type-safe)
   const validators: Record<FormField, (value: string) => string> = {
     email: validateEmail,
     password: validatePassword,
   };
 
+  // Change handler
   const handleChange = (field: FormField, value: string) => {
     setForm((prev) => ({
       ...prev,
@@ -33,19 +43,24 @@ const LoginFrom = () => {
     }));
   };
 
+  // Validate single field
   const validateField = (field: FormField, value: string) => {
     return validators[field](value);
   };
 
+  // Validate full form
   const validateForm = () => {
     const newErrors: ErrorState = {
       email: validateField('email', form.email),
       password: validateField('password', form.password),
     };
+
     setErrors(newErrors);
+
     return !newErrors.email && !newErrors.password;
   };
 
+  // Blur validation
   const handleBlur = (field: FormField, value: string) => {
     setErrors((prev) => ({
       ...prev,
@@ -53,28 +68,30 @@ const LoginFrom = () => {
     }));
   };
 
+  // Submit
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitted(true);
+
     if (!validateForm()) return;
+
     console.log('Form Submitted:', form);
   };
 
   return (
     <section className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
-
+      
       <div className="w-full max-w-md">
-
+        
         <Card>
-
+          
           <CardHeader>
             <CardTitle className="text-center text-xl">
               Login
             </CardTitle>
-
           </CardHeader>
 
           <CardContent>
-
             <form onSubmit={handleSubmit} className="space-y-4">
 
               <Input
@@ -85,8 +102,8 @@ const LoginFrom = () => {
                 placeholder="Enter your email"
                 value={form.email}
                 onChange={(e) => handleChange('email', e.target.value)}
-                error={errors.email}
-                onBlur={handleBlur}
+                onBlur={(e) => handleBlur('email', e.target.value)}
+                error={submitted ? errors.email : ''}
                 aria-invalid={!!errors.email}
               />
 
@@ -98,8 +115,8 @@ const LoginFrom = () => {
                 placeholder="Enter your password"
                 value={form.password}
                 onChange={(e) => handleChange('password', e.target.value)}
-                onBlur={handleBlur}
-                error={errors.password}
+                onBlur={(e) => handleBlur('password', e.target.value)}
+                error={submitted ? errors.password : ''}
                 aria-invalid={!!errors.password}
               />
 
@@ -115,7 +132,7 @@ const LoginFrom = () => {
       </div>
 
     </section>
-  )
-}
+  );
+};
 
-export default LoginFrom;
+export default LoginForm;

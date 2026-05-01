@@ -80,7 +80,7 @@ const Input = ({
       </div>
 
       {error ? (
-        <span className="text-sm text-red-500">{error}</span>
+        <span id={`${props.id}-error`} className="text-sm text-red-500">{error}</span>
       ) : (
         helperText && (
           <span className="text-sm text-gray-500">{helperText}</span>
