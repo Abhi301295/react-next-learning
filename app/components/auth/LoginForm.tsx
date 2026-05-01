@@ -4,43 +4,61 @@ import { Card, CardContent, CardTitle, CardHeader } from "../ui/card";
 import Input from "../ui/input";
 import { Button } from "../ui/button";
 import React, { useState } from "react";
+import { validateEmail, validatePassword } from "@/lib/validation";
+
+type FormState = {
+  email: string;
+  password: string;
+};
+
+type FormField = keyof FormState;
+
+type ErrorState = Record<FormField, string>;
+
 
 const LoginFrom = () => {
 
-  const [form, setForm] = useState({ email: '', password: '' });
-  const [errors, setErrors] = useState({ email: '', password: '' });
+  const [form, setForm] = useState<FormState>({ email: '', password: '' });
+  const [errors, setErrors] = useState<ErrorState>({ email: '', password: '' });
 
+  const validators: Record<FormField, (value: string) => string> = {
+    email: validateEmail,
+    password: validatePassword,
+  };
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setForm((prev) => ({ ...prev, [name]: value }));
-  }
+  const handleChange = (field: FormField, value: string) => {
+    setForm((prev) => ({
+      ...prev,
+      [field]: value,
+    }));
+  };
 
-  const validate = () => {
-    const newErrors = { email: '', password: '' };
-    if (!form.email) {
-      newErrors.email = 'Email is required';
-    } else if (!/\S+@\S+\.\S+/.test(form.email)) {
-      newErrors.email = 'Invalid Email';
-    }
+  const validateField = (field: FormField, value: string) => {
+    return validators[field](value);
+  };
 
-    if (!form.password) {
-      newErrors.password = "Password is required";
-    } else if (form.password.length < 6) {
-      newErrors.password = 'Minimum 6 characters required';
-    }
-
+  const validateForm = () => {
+    const newErrors: ErrorState = {
+      email: validateField('email', form.email),
+      password: validateField('password', form.password),
+    };
     setErrors(newErrors);
     return !newErrors.email && !newErrors.password;
-  }
+  };
+
+  const handleBlur = (field: FormField, value: string) => {
+    setErrors((prev) => ({
+      ...prev,
+      [field]: validateField(field, value),
+    }));
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!validate()) return;
+    if (!validateForm()) return;
+    console.log('Form Submitted:', form);
+  };
 
-    console.log(form);
-
-
-  }
   return (
     <section className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
 
@@ -66,8 +84,9 @@ const LoginFrom = () => {
                 label="Email"
                 placeholder="Enter your email"
                 value={form.email}
-                onChange={handleChange}
+                onChange={(e) => handleChange('email', e.target.value)}
                 error={errors.email}
+                onBlur={handleBlur}
                 aria-invalid={!!errors.email}
               />
 
@@ -78,7 +97,8 @@ const LoginFrom = () => {
                 label="Password"
                 placeholder="Enter your password"
                 value={form.password}
-                onChange={handleChange}
+                onChange={(e) => handleChange('password', e.target.value)}
+                onBlur={handleBlur}
                 error={errors.password}
                 aria-invalid={!!errors.password}
               />
