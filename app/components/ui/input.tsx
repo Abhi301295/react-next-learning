@@ -1,9 +1,11 @@
 'use client';
 
-import React from 'react';
+import React, { useId } from 'react';
+
 import { cn } from '@/lib/utils';
 
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  id?: string;
   label?: string;
   error?: string;
   helperText?: string;
@@ -37,11 +39,13 @@ const Input = ({
     ghost: 'border-none bg-gray-100',
   };
 
+  const generatedId = useId();
+  const inputId = props.id || generatedId;
   return (
     <div className="flex flex-col gap-1 w-full">
 
       {label && (
-        <label htmlFor={props.id} className="text-sm font-medium text-gray-700">
+        <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
@@ -65,6 +69,9 @@ const Input = ({
 
         <input
           {...props}
+          id={inputId}
+          aria-invalid={!!error}
+          aria-describedby={error ? `${inputId}-error` : undefined}
           className={cn(
             'w-full bg-transparent outline-none',
             'placeholder:text-gray-400',
@@ -80,7 +87,7 @@ const Input = ({
       </div>
 
       {error ? (
-        <span id={`${props.id}-error`} className="text-sm text-red-500">{error}</span>
+        <span id={`${inputId}-error`} className="text-sm text-red-500">{error}</span>
       ) : (
         helperText && (
           <span className="text-sm text-gray-500">{helperText}</span>
