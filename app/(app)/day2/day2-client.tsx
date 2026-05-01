@@ -1,15 +1,15 @@
 'use client';
 
-import Counter from '../components/features/counter/counter'
-import Tabs from '../components/shared/tabs/Tabs'
-import Tab from '../components/shared/tabs/Tab'
+import Counter from '../../components/features/counter/counter'
+import Tabs from '../../components/shared/tabs/Tabs'
+import Tab from '../../components/shared/tabs/Tab'
 import { useState } from 'react';
-import { Button } from '../components/ui/button';
-import Modal from '../components/shared/modal/Modal';
-import Dropdown from '../components/shared/dropdown/Dropdown';
-import DropdownOption from '../components/shared/dropdown/DropdownOption';
-import Input from '../components/ui/input';
-import Badge from '../components/ui/badge';
+import { Button } from '../../components/ui/button';
+import Modal from '../../components/shared/modal/Modal';
+import Dropdown from '../../components/shared/dropdown/Dropdown';
+import DropdownOption from '../../components/shared/dropdown/DropdownOption';
+import Input from '../../components/ui/input';
+import Badge from '../../components/ui/badge';
 
 const Day2Client = () => {
 
