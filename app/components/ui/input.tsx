@@ -41,7 +41,7 @@ const Input = ({
     <div className="flex flex-col gap-1 w-full">
 
       {label && (
-        <label className="text-sm font-medium text-gray-700">
+        <label htmlFor={props.id} className="text-sm font-medium text-gray-700">
           {label}
         </label>
       )}
