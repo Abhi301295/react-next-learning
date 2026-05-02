@@ -14,6 +14,8 @@ import Badge from '../../components/ui/Badge';
 const Day2Client = () => {
 
     const [modalType, setModalType] = useState<string | null>(null);
+    const [framework, setFramework] = useState<string | undefined>();
+    const [frameworks, setFrameworks] = useState<string[]>([]);
 
     return (
         <section className="space-y-8">
@@ -23,7 +25,7 @@ const Day2Client = () => {
             </section>
             <section>
                 <h2 className="text-lg font-semibold mb-2">Counter with no limit</h2>
-                <Counter  />
+                <Counter />
             </section>
 
             <section>
@@ -73,16 +75,21 @@ const Day2Client = () => {
 
                 <div className="space-y-4">
 
-                    <Dropdown placeholder="Select framework" onChange={(val) => console.log(val)}>
+                    <Dropdown
+                        value={framework}
+                        onChange={(val) => setFramework(val as string)}
+                        placeholder="Select framework"
+                    >
                         <DropdownOption value="react">React</DropdownOption>
                         <DropdownOption value="angular">Angular</DropdownOption>
                         <DropdownOption value="vue">Vue</DropdownOption>
                     </Dropdown>
 
                     <Dropdown
-                        placeholder="Select frameworks"
                         multiple
-                        onChange={(val) => console.log(val)}
+                        value={frameworks}
+                        onChange={(val) => setFrameworks(val as string[])}
+                        placeholder="Select frameworks"
                     >
                         <DropdownOption value="react">React</DropdownOption>
                         <DropdownOption value="angular">Angular</DropdownOption>
