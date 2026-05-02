@@ -1,19 +1,15 @@
 'use client';
 
-import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import Input from '@/components/ui/input';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/Card';
+import { Button } from '@/components/ui/Button';
+import Input from '@/components/ui/Input';
 import { useLoginForm } from '@/lib/hooks/useLoginForm';
 
 const LoginForm = () => {
   const {
-    form,
-    errors,
-    submitted,
-    loading,
-    handleChange,
-    handleBlur,
-    handleSubmit,
+    register,
+    onSubmit,
+    formState: { errors, isSubmitting },
   } = useLoginForm();
 
   return (
@@ -30,36 +26,30 @@ const LoginForm = () => {
           </CardHeader>
 
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={onSubmit} className="space-y-4">
 
               <Input
                 id="email"
-                name="email"
                 type="email"
                 label="Email"
                 placeholder="Enter your email"
-                value={form.email}
-                onChange={(e) => handleChange('email', e.target.value)}
-                onBlur={(e) => handleBlur('email', e.target.value)}
-                error={submitted ? errors.email : ''}
+                {...register("email")}
+                error={errors.email?.message}
                 aria-invalid={!!errors.email}
               />
 
               <Input
                 id="password"
-                name="password"
                 type="password"
                 label="Password"
                 placeholder="Enter your password"
-                value={form.password}
-                onChange={(e) => handleChange('password', e.target.value)}
-                onBlur={(e) => handleBlur('password', e.target.value)}
-                error={submitted ? errors.password : ''}
+                {...register("password")}
+                error={errors.password?.message}
                 aria-invalid={!!errors.password}
               />
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                {loading ? 'Logging in...' : 'Login'}
+              <Button type="submit" className="w-full" disabled={isSubmitting}>
+                {isSubmitting ? 'Logging in...' : 'Login'}
               </Button>
 
             </form>

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useState } from "react";
 import { sidebarItems } from "@/lib/config/sidebar";
 import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/button";
+import { Button } from "@/components/ui/Button";
 
 type Props = {
   mobileOpen: boolean;
@@ -18,7 +18,6 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
 
   return (
     <>
-      {/* ================= DESKTOP ================= */}
       <aside
         className={cn(
           "hidden md:flex flex-col border-r bg-white transition-all duration-300",
@@ -60,7 +59,6 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
         </nav>
       </aside>
 
-      {/* ================= MOBILE DRAWER ================= */}
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
           {/* Overlay */}

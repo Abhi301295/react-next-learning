@@ -1,8 +1,8 @@
 'use client';
 
 import { useState, ReactNode } from "react";
-import { Sidebar } from "./sidebar";
-import { Header } from "./header";
+import { Sidebar } from "./Sidebar";
+import { Header } from "./Header";
 
 export function AppLayoutClient({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);

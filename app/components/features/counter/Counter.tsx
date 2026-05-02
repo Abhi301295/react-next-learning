@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect } from 'react'
-import { Button } from '../../ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '../../ui/card';
+import { Button } from '../../ui/Button'
+import { Card, CardContent, CardHeader, CardTitle } from '../../ui/Card';
 
 type CounterProps = {
     initialValue?: number;

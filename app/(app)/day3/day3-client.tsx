@@ -1,9 +1,9 @@
 'use client';
 
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import Input from "@/components/ui/input";
+import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import Input from "@/components/ui/Input";
 import { useUsers } from "@/lib/hooks/useUsers";
 import { useListControls } from "@/lib/hooks/userListControls";
 

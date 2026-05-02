@@ -1,89 +1,29 @@
-import { useState } from "react";
-import { validateEmail, validatePassword } from "../validation";
+'use client';
 
-type FormState = {
-    email: string;
-    password: string;
-};
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { loginSchema } from "@/lib/validation/auth.schema";
+import { z } from "zod";
 
-type FormField = keyof FormState;
-
-type ErrorState = Record<FormField, string>;
+type LoginFormData = z.infer<typeof loginSchema>;
 
 export const useLoginForm = () => {
-    const [loading, setLoading] = useState(false);
+  const form = useForm<LoginFormData>({
+    resolver: zodResolver(loginSchema),
+    mode: "onBlur", // matches your previous behavior
+  });
 
-    const [form, setForm] = useState<FormState>({
-        email: '',
-        password: '',
-    });
+  const onSubmit = async (data: LoginFormData) => {
+    try {
+      await new Promise((res) => setTimeout(res, 1000));
+      console.log("Form Submitted:", data);
+    } catch (err) {
+      console.error(err);
+    }
+  };
 
-    const [errors, setErrors] = useState<ErrorState>({
-        email: '',
-        password: '',
-    });
-
-    const [submitted, setSubmitted] = useState(false);
-
-    const validators: Record<FormField, (value: string) => string> = {
-        email: validateEmail,
-        password: validatePassword,
-    };
-
-    const validateField = (field: FormField, value: string) => {
-        return validators[field](value);
-    };
-
-    const handleChange = (field: FormField, value: string) => {
-        setForm((prev) => ({
-            ...prev,
-            [field]: value,
-        }));
-    };
-
-    const validateForm = () => {
-        const newErrors: ErrorState = {
-            email: validateField('email', form.email),
-            password: validateField('password', form.password),
-        };
-
-        setErrors(newErrors);
-
-        return !newErrors.email && !newErrors.password;
-    };
-
-
-    const handleBlur = (field: FormField, value: string) => {
-        setErrors((prev) => ({
-            ...prev,
-            [field]: validateField(field, value),
-        }));
-    };
-
-
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        setSubmitted(true);
-
-        if (!validateForm()) return;
-
-        try {
-            setLoading(true);
-            await new Promise((res) => setTimeout(res, 1000));
-
-            console.log('Form Submitted:', form);
-        } finally {
-            setLoading(false);
-        }
-
-    };
-    return {
-        form,
-        errors,
-        submitted,
-        loading,
-        handleChange,
-        handleBlur,
-        handleSubmit,
-    };
-}
+  return {
+    ...form,
+    onSubmit: form.handleSubmit(onSubmit),
+  };
+};
