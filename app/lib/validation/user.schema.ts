@@ -14,8 +14,13 @@ export const userSchema = z.object({
             (val) => /^\S+@\S+\.\S+$/.test(val),
             { message: 'Invalid email address' }
         ),
+    phone: z
+        .string()
+        .trim()
+        .regex(/^\d{10}$/, { message: "Phone must be 10 digits" })
+        .optional(),
     role: z.enum(["admin", "user"]),
-    status: z.enum(["active", "inactive"]).default("active"),
+    status: z.enum(["active", "inactive"]),
 
     address: z
         .object({
@@ -24,7 +29,7 @@ export const userSchema = z.object({
             state: z.string().trim().min(2, { message: 'State required' }),
             zip: z.string().trim().min(4, { message: "Invalid ZIP" }),
             country: z.string().trim().min(2, { message: "Country required" }),
-        }),
+        }).optional(),
     description: z
         .string()
         .trim()
@@ -38,4 +43,4 @@ export const userSchema = z.object({
     updatedAt: z.string().optional(),
 });
 
-export type UserFromData = z.infer<typeof userSchema>;
+export type UserFormData = z.infer<typeof userSchema>;
