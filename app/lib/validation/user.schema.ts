@@ -22,14 +22,15 @@ export const userSchema = z.object({
     role: z.enum(["admin", "user"]),
     status: z.enum(["active", "inactive"]),
 
-    address: z
-        .object({
-            street: z.string().trim().min(3, { message: 'Street is required' }),
-            city: z.string().trim().min(2, { message: 'City is required' }),
-            state: z.string().trim().min(2, { message: 'State required' }),
-            zip: z.string().trim().min(4, { message: "Invalid ZIP" }),
-            country: z.string().trim().min(2, { message: "Country required" }),
-        }).optional(),
+    addresses: z.array(
+        z.object({
+            street: z.string().min(3, "Street required"),
+            city: z.string().min(2, "City required"),
+            state: z.string().min(2, "State required"),
+            zip: z.string().min(4, "Invalid ZIP"),
+            country: z.string().min(2, "Country required"),
+        })
+    ).min(1, "At least one address required"),
     description: z
         .string()
         .trim()
