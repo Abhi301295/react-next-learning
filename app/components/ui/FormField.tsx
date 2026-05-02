@@ -1,27 +1,54 @@
-import React from "react";
+'use client';
 
-interface Props {
-    label?: string;
-    error?: string;
-    children: React.ReactNode;
+import React from 'react';
+import { cn } from '@/lib/utils';
+
+interface FormFieldProps {
+  label?: string;
+  error?: string;
+  success?: string;
+  helperText?: string;
+  children: React.ReactNode;
 }
 
-const FormField = ({ label, error, children }: Props) => {
-    return (
-        <div className="space-y-1">
-            {label && (
-                <label className="text-sm font-medium text-gray-700">
-                    {label}
-                </label>
-            )}
+const FormField = ({
+  label,
+  error,
+  success,
+  helperText,
+  children,
+}: FormFieldProps) => {
+  const isError = !!error;
+  const isSuccess = !!success && !error;
 
-            {children}
+  return (
+    <div className="flex flex-col gap-1 w-full">
 
-            {error && (
-                <p className="text-sm text-red-500">{error}</p>
-            )}
-        </div>
-    );
+      {label && (
+        <label className="text-sm font-medium text-gray-700">
+          {label}
+        </label>
+      )}
+
+      <div
+        className={cn(
+          "rounded-md transition",
+          isError && "ring-2 ring-red-500",
+          isSuccess && "ring-2 ring-green-500"
+        )}
+      >
+        {children}
+      </div>
+
+      {isError ? (
+        <span className="text-sm text-red-500">{error}</span>
+      ) : isSuccess ? (
+        <span className="text-sm text-green-600">{success}</span>
+      ) : helperText ? (
+        <span className="text-sm text-gray-500">{helperText}</span>
+      ) : null}
+    </div>
+  );
 };
 
 export default FormField;
