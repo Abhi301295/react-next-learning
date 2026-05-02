@@ -1,14 +1,17 @@
 'use client';
 import { Button } from "../ui/Button";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import FormField from "../ui/FormField";
 import Input from "../ui/Input";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { userSchema, UserFormData } from "@/lib/validation/user.schema";
+import Dropdown from "../shared/dropdown/Dropdown";
+import DropdownOption from "../shared/dropdown/DropdownOption";
 
 export default function AddUserForm() {
     const {
         register,
+        control,
         handleSubmit,
         formState: { errors, isSubmitting },
     } = useForm<UserFormData>({
@@ -36,23 +39,37 @@ export default function AddUserForm() {
             </FormField>
 
             <FormField label="Role" error={errors.role?.message}>
-                <select
-                    {...register("role")}
-                    className="w-full border px-3 py-2 rounded"
-                >
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
-                </select>
+                <Controller
+                    name="role"
+                    control={control}
+                    render={({ field }) => (
+                        <Dropdown
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select role"
+                        >
+                            <DropdownOption value="user">User</DropdownOption>
+                            <DropdownOption value="admin">Admin</DropdownOption>
+                        </Dropdown>
+                    )}
+                />
             </FormField>
 
             <FormField label="Status" error={errors.status?.message}>
-                <select
-                    {...register("status")}
-                    className="w-full border px-3 py-2 rounded"
-                >
-                    <option value="active">Active</option>
-                    <option value="inactive">Inactive</option>
-                </select>
+                <Controller
+                    name="status"
+                    control={control}
+                    render={({ field }) => (
+                        <Dropdown
+                            value={field.value}
+                            onChange={field.onChange}
+                            placeholder="Select status"
+                        >
+                            <DropdownOption value="active">Active</DropdownOption>
+                            <DropdownOption value="inactive">Inactive</DropdownOption>
+                        </Dropdown>
+                    )}
+                />
             </FormField>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
