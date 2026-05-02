@@ -19,6 +19,13 @@ export default function AddUserForm() {
         defaultValues: {
             status: "active",
             role: "user",
+            address: {
+                street: "",
+                city: "",
+                state: "",
+                zip: "",
+                country: "",
+            },
         },
     });
     const onSubmit = async (data: UserFormData) => {
@@ -71,6 +78,31 @@ export default function AddUserForm() {
                     )}
                 />
             </FormField>
+            <div className="border rounded-md p-4 space-y-4">
+                <h3 className="text-lg font-medium">Address</h3>
+
+                <FormField label="Street" error={errors.address?.street?.message}>
+                    <Input {...register("address.street")} placeholder="Street" />
+                </FormField>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <FormField label="City" error={errors.address?.city?.message}>
+                        <Input {...register("address.city")} />
+                    </FormField>
+
+                    <FormField label="State" error={errors.address?.state?.message}>
+                        <Input {...register("address.state")} />
+                    </FormField>
+
+                    <FormField label="ZIP" error={errors.address?.zip?.message}>
+                        <Input {...register("address.zip")} />
+                    </FormField>
+
+                    <FormField label="Country" error={errors.address?.country?.message}>
+                        <Input {...register("address.country")} />
+                    </FormField>
+                </div>
+            </div>
 
             <Button type="submit" className="w-full" disabled={isSubmitting}>
                 {isSubmitting ? "Creating user..." : "Create User"}
