@@ -1,7 +1,21 @@
-export function ErrorState({ message }: { message: string }) {
+import { Button } from '@/components/ui/Button';
+
+export function ErrorState({
+  message = "Something went wrong",
+  onRetry,
+}: {
+  message?: string;
+  onRetry?: () => void;
+}) {
   return (
-    <div className="text-center py-6 text-red-500">
-      <p>{message}</p>
+    <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
+      <p className="text-red-500 font-medium">{message}</p>
+
+      {onRetry && (
+        <Button onClick={onRetry}>
+          Retry
+        </Button>
+      )}
     </div>
   );
 }

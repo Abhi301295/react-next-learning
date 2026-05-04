@@ -1,12 +1,15 @@
-export function LoadingState({ rows = 5 }: { rows?: number }) {
+'use client';
+
+export default function TableSkeleton({ rows = 5 }: { rows?: number }) {
   return (
     <div className="overflow-x-auto border rounded-md">
       <table className="w-full">
+
         <thead className="bg-gray-100">
           <tr>
-            {[1, 2, 3, 4].map((i) => (
+            {Array.from({ length: 4 }).map((_, i) => (
               <th key={i} className="p-3">
-                <div className="h-4 w-20 bg-gray-200 rounded animate-pulse" />
+                <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
               </th>
             ))}
           </tr>
@@ -15,7 +18,7 @@ export function LoadingState({ rows = 5 }: { rows?: number }) {
         <tbody>
           {Array.from({ length: rows }).map((_, i) => (
             <tr key={i} className="border-t">
-              {[1, 2, 3, 4].map((j) => (
+              {Array.from({ length: 4 }).map((_, j) => (
                 <td key={j} className="p-3">
                   <div className="h-4 w-full bg-gray-200 rounded animate-pulse" />
                 </td>
@@ -23,6 +26,7 @@ export function LoadingState({ rows = 5 }: { rows?: number }) {
             </tr>
           ))}
         </tbody>
+
       </table>
     </div>
   );

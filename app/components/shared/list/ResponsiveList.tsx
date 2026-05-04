@@ -1,4 +1,4 @@
-import Table from "../table/table";
+import Table from "../table/Table";
 import List from "./List";
 
 type Column<T> = {
