@@ -6,7 +6,7 @@ export interface DropdownOptionProps {
 }
 
 const DropdownOption = (_props: DropdownOptionProps) => {
-  return null; // config only
+  return null;
 };
 
 export default DropdownOption;

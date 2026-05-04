@@ -6,7 +6,7 @@ type User = {
   id: number;
   name: string;
 };
-// created to test the redirects of nextjs.config.ts
+
 export default function UsersClient() {
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -17,7 +17,6 @@ export default function UsersClient() {
         const res = await fetch("/api/users");
         const data = await res.json();
         setUsers(data);
-      } catch (err: any) {
       } finally {
         setLoading(false);
       }
@@ -27,8 +26,6 @@ export default function UsersClient() {
   }, []);
 
   if (loading) return <p>Loading users...</p>;
-
-
   if (users.length === 0) return <p>No users found</p>;
 
   return (

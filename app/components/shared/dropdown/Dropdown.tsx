@@ -2,7 +2,7 @@
 
 import React, { useState, useRef, useEffect } from 'react';
 import { cn } from '@/lib/utils';
-import { DropdownOptionProps } from './DropdownOption';
+import DropdownOption, { DropdownOptionProps } from './DropdownOption';
 
 interface DropdownProps {
   children: React.ReactNode;
@@ -21,7 +21,6 @@ const Dropdown = ({
   multiple = false,
   value,
 }: DropdownProps) => {
-
   const [isOpen, setIsOpen] = useState(false);
   const [selected, setSelected] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -30,7 +29,7 @@ const Dropdown = ({
   const listRef = useRef<HTMLUListElement>(null);
 
   useEffect(() => {
-    if (value) {
+    if (value !== undefined) {
       setSelected(Array.isArray(value) ? value : [value]);
     }
   }, [value]);
@@ -43,29 +42,32 @@ const Dropdown = ({
     };
 
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    return () =>
+      document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const options = React.Children.toArray(children)
-    .filter(Boolean)
-    .map(child => child as React.ReactElement<DropdownOptionProps>);
+  const options = React.Children.toArray(children).filter(
+    (child): child is React.ReactElement<DropdownOptionProps> =>
+      React.isValidElement(child) &&
+      typeof (child as React.ReactElement<DropdownOptionProps>).props.value === 'string'
+  );
 
-  const handleSelect = (value: string) => {
+  const handleSelect = (val: string) => {
     if (multiple) {
       let updated: string[];
 
-      if (selected.includes(value)) {
-        updated = selected.filter(v => v !== value);
+      if (selected.includes(val)) {
+        updated = selected.filter((v) => v !== val);
       } else {
-        updated = [...selected, value];
+        updated = [...selected, val];
       }
 
       setSelected(updated);
       onChange?.(updated);
     } else {
-      setSelected([value]);
+      setSelected([val]);
       setIsOpen(false);
-      onChange?.(value);
+      onChange?.(val);
     }
   };
 
@@ -81,12 +83,12 @@ const Dropdown = ({
     switch (e.key) {
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex(prev => (prev + 1) % options.length);
+        setActiveIndex((prev) => (prev + 1) % options.length);
         break;
 
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex(prev => (prev - 1 + options.length) % options.length);
+        setActiveIndex((prev) => (prev - 1 + options.length) % options.length);
         break;
 
       case 'Enter':
@@ -102,8 +104,8 @@ const Dropdown = ({
   };
 
   const selectedLabels = options
-    .filter(opt => selected.includes(opt.props.value))
-    .map(opt => opt.props.children);
+    .filter((opt) => selected.includes(opt.props.value))
+    .map((opt) => opt.props.children);
 
   const displayText =
     selectedLabels.length > 0
@@ -112,10 +114,9 @@ const Dropdown = ({
 
   return (
     <div ref={ref} className={cn('relative w-full', className)}>
-
       <button
         type="button"
-        onClick={() => setIsOpen(prev => !prev)}
+        onClick={() => setIsOpen((prev) => !prev)}
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}
@@ -138,16 +139,16 @@ const Dropdown = ({
           className="absolute left-0 mt-2 w-full border rounded-md bg-white shadow-lg z-20"
         >
           {options.map((option, index) => {
-            const value = option.props.value;
-            const isSelected = selected.includes(value);
+            const val = option.props.value;
+            const isSelected = selected.includes(val);
             const isActive = index === activeIndex;
 
             return (
               <li
-                key={value}
+                key={val}
                 role="option"
                 aria-selected={isSelected}
-                onClick={() => handleSelect(value)}
+                onClick={() => handleSelect(val)}
                 className={cn(
                   'px-4 py-2 cursor-pointer flex items-center justify-between',
                   isSelected && 'font-medium',
@@ -172,4 +173,10 @@ const Dropdown = ({
   );
 };
 
-export default Dropdown;
+type DropdownComponent = typeof Dropdown & {
+  Option: typeof DropdownOption;
+};
+
+(Dropdown as DropdownComponent).Option = DropdownOption;
+
+export default Dropdown as DropdownComponent;
