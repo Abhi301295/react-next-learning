@@ -46,11 +46,23 @@ const Dropdown = ({
       document.removeEventListener('mousedown', handleClickOutside);
   }, []);
 
-  const options = React.Children.toArray(children).filter(
-    (child): child is React.ReactElement<DropdownOptionProps> =>
-      React.isValidElement(child) &&
-      typeof (child as React.ReactElement<DropdownOptionProps>).props.value === 'string'
-  );
+  useEffect(() => {
+    if (isOpen) {
+      setActiveIndex(0);
+    }
+  }, [isOpen]);
+
+  const isDropdownOption = (
+    child: React.ReactNode
+  ): child is React.ReactElement<DropdownOptionProps> => {
+    if (!React.isValidElement(child)) return false;
+
+    const props = child.props as Partial<DropdownOptionProps>;
+
+    return typeof props.value === 'string';
+  };
+
+  const options = React.Children.toArray(children).filter(isDropdownOption);
 
   const handleSelect = (val: string) => {
     if (multiple) {
@@ -78,7 +90,7 @@ const Dropdown = ({
       return;
     }
 
-    if (!isOpen) return;
+    if (!isOpen || options.length === 0) return;
 
     switch (e.key) {
       case 'ArrowDown':
@@ -88,7 +100,9 @@ const Dropdown = ({
 
       case 'ArrowUp':
         e.preventDefault();
-        setActiveIndex((prev) => (prev - 1 + options.length) % options.length);
+        setActiveIndex(
+          (prev) => (prev - 1 + options.length) % options.length
+        );
         break;
 
       case 'Enter':
@@ -109,7 +123,7 @@ const Dropdown = ({
 
   const displayText =
     selectedLabels.length > 0
-      ? selectedLabels.join(', ')
+      ? selectedLabels.map((label) => String(label)).join(', ')
       : placeholder;
 
   return (
@@ -148,6 +162,7 @@ const Dropdown = ({
                 key={val}
                 role="option"
                 aria-selected={isSelected}
+                tabIndex={-1}
                 onClick={() => handleSelect(val)}
                 className={cn(
                   'px-4 py-2 cursor-pointer flex items-center justify-between',

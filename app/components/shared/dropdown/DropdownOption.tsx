@@ -5,8 +5,6 @@ export interface DropdownOptionProps {
   children: React.ReactNode;
 }
 
-const DropdownOption = (_props: DropdownOptionProps) => {
-  return null;
-};
+const DropdownOption: React.FC<DropdownOptionProps> = () => null;
 
 export default DropdownOption;
