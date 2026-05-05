@@ -5,5 +5,6 @@ export const sidebarItems = [
   { label: "Day 3 Tasks", href: "/day3" },
   { label: "Day 5 Tasks", href: "/day5" },
   { label: "Day 6 Tasks", href: "/day6" },
+  { label: "Day 7 Tasks", href: "/day7" },
   { label: "Testing", href: "/testing" },
 ];
