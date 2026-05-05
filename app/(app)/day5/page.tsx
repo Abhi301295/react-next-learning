@@ -1,4 +1,13 @@
 import AddUserForm from "@/components/forms/AddUserForm";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Day 5 - Add User Form",
+  description: "Create users with React Hook Form and Zod validation.",
+  alternates: {
+    canonical: "/day5",
+  },
+};
 
 export default function AddUserPage() {
   return (

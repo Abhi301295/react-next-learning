@@ -1,9 +1,18 @@
 import UsersClient from "./client-page";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Testing",
+  description: "Testing area for redirects and users flow.",
+  alternates: {
+    canonical: "/testing",
+  },
+};
 
 export default function TestingPage() {
   return (
     <div className="p-6">
-      <h1 className="text-xl font-bold mb-4">This is to text redirects | Users</h1>
+      <h1 className="mb-4 text-xl font-bold">Testing Redirects and Users</h1>
       <UsersClient />
     </div>
   );

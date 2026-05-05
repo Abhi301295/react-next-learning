@@ -7,21 +7,13 @@ import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import Input from "@/components/ui/Input";
+import { useListControls } from "@/lib/hooks/useListControls";
 import { useUsers } from "@/lib/hooks/useUsers";
-import { useListControls } from "@/lib/hooks/userListControls";
-  
 
 const Day3Client = () => {
   const { users, loading, error, refetch } = useUsers();
 
-  const {
-    search,
-    setSearch,
-    page,
-    setPage,
-    totalPages,
-    data,
-  } = useListControls({
+  const { search, setSearch, page, setPage, totalPages, data } = useListControls({
     data: users,
     searchKey: "name",
     itemsPerPage: 3,
@@ -33,10 +25,7 @@ const Day3Client = () => {
   ] as const;
 
   return (
-    <main
-      aria-labelledby="users-heading"
-      className="max-w-3xl mx-auto space-y-6"
-    >
+    <main aria-labelledby="users-heading" className="mx-auto max-w-3xl space-y-6">
       <header className="space-y-3">
         <h1 id="users-heading" className="text-2xl font-bold">
           Users
@@ -53,7 +42,7 @@ const Day3Client = () => {
             value={search}
             onChange={(e) => {
               setSearch(e.target.value);
-              setPage(1); 
+              setPage(1);
             }}
             inputSize="sm"
             variant="outline"
@@ -63,9 +52,7 @@ const Day3Client = () => {
 
       {loading && <LoadingState />}
 
-      {!loading && error && (
-        <ErrorState message={error} onRetry={refetch} />
-      )}
+      {!loading && error && <ErrorState message={error} onRetry={refetch} />}
 
       {!loading && !error && users.length === 0 && (
         <EmptyState
@@ -87,9 +74,7 @@ const Day3Client = () => {
                 </CardHeader>
 
                 <CardContent>
-                  <p className="text-sm text-gray-500">
-                    {user.email}
-                  </p>
+                  <p className="text-sm text-gray-500">{user.email}</p>
                 </CardContent>
               </Card>
             )}
@@ -97,7 +82,7 @@ const Day3Client = () => {
 
           <nav
             aria-label="Pagination"
-            className="flex flex-col sm:flex-row items-center justify-between gap-3 border-t pt-4"
+            className="flex flex-col items-center justify-between gap-3 border-t pt-4 sm:flex-row"
           >
             <Button
               size="md"
@@ -111,8 +96,7 @@ const Day3Client = () => {
             </Button>
 
             <span className="text-sm text-gray-600">
-              Page <strong>{page}</strong> of{" "}
-              <strong>{totalPages || 1}</strong>
+              Page <strong>{page}</strong> of <strong>{totalPages || 1}</strong>
             </span>
 
             <Button

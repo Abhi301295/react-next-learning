@@ -1,9 +1,13 @@
 import Day7Client from './Day7Client';
+import type { Metadata } from "next";
 
-export const metadata = {
-  title: 'Day 7 - Search, Filter, and Pagination',
+export const metadata: Metadata = {
+  title: 'Day 7 - Table Features',
   description:
-    'Search users by name/email and filter by status in the user management dashboard.',
+    'Reusable table features: search, filtering, pagination, selection, bulk actions, and row actions.',
+  alternates: {
+    canonical: "/day7",
+  },
 };
 
 export default function Day7Page() {

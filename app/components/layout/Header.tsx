@@ -10,11 +10,12 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
         size="sm"
         className="md:hidden"
         onClick={onMenuClick}
+        aria-label="Open navigation menu"
       >
         ☰
       </Button>
 
-      <h1 className="text-lg font-semibold">Header</h1>
+      <p className="text-lg font-semibold">Dashboard</p>
     </header>
   );
 }

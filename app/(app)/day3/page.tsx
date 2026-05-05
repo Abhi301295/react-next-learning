@@ -1,9 +1,16 @@
-import Day3Client from "./day3-client"
+import Day3Client from "./Day3Client";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Day 3 - Lists and States",
+  description: "List rendering with loading, error, empty state, and pagination.",
+  alternates: {
+    canonical: "/day3",
+  },
+};
 
 const Day3 = () => {
-  return (
-    <Day3Client></Day3Client>
-  )
-}
+  return <Day3Client />;
+};
 
-export default Day3
+export default Day3;

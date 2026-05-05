@@ -60,7 +60,7 @@ export default function AddUserForm() {
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
-      <h1 className="text-2xl font-bold">Add User</h1>
+      <h2 className="text-2xl font-bold">Add User Details</h2>
 
       {Object.keys(errors).length > 0 && (
         <div

@@ -19,21 +19,68 @@ const sizeClasses: Record<ButtonSize, string> = {
   lg: "px-6 py-3",
 };
 
+const iconOnlySizeClasses: Record<ButtonSize, string> = {
+  sm: "h-8 w-8 p-0",
+  md: "h-10 w-10 p-0",
+  lg: "h-12 w-12 p-0",
+};
+
 type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   variant?: ButtonVariant;
   size?: ButtonSize;
+  icon?: React.ReactNode;
+  iconPosition?: "left" | "right";
+  iconOnly?: boolean;
 };
 
-export function Button({ className, variant, size, ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant,
+  size,
+  icon,
+  iconPosition = "left",
+  iconOnly = false,
+  children,
+  "aria-label": ariaLabel,
+  ...props
+}: ButtonProps) {
+  const resolvedSize = size ?? "md";
+
+  if (iconOnly && !ariaLabel) {
+    console.warn('Button with iconOnly requires an "aria-label" for accessibility.');
+  }
+
   return (
     <button
       className={cn(
         base,
         variantClasses[variant ?? "primary"],
-        sizeClasses[size ?? "md"],
+        iconOnly ? iconOnlySizeClasses[resolvedSize] : sizeClasses[resolvedSize],
+        !iconOnly && icon && "gap-2",
         className
       )}
+      aria-label={ariaLabel}
       {...props}
-    />
+    >
+      {iconOnly ? (
+        <span aria-hidden="true" className="inline-flex items-center justify-center">
+          {icon}
+        </span>
+      ) : (
+        <>
+          {icon && iconPosition === "left" && (
+            <span aria-hidden="true" className="inline-flex items-center justify-center">
+              {icon}
+            </span>
+          )}
+          {children}
+          {icon && iconPosition === "right" && (
+            <span aria-hidden="true" className="inline-flex items-center justify-center">
+              {icon}
+            </span>
+          )}
+        </>
+      )}
+    </button>
   );
 }
