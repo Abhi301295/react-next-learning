@@ -22,17 +22,14 @@ const Dropdown = ({
   value,
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selected, setSelected] = useState<string[]>([]);
+  const [internalSelected, setInternalSelected] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
 
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
 
-  useEffect(() => {
-    if (value !== undefined) {
-      setSelected(Array.isArray(value) ? value : [value]);
-    }
-  }, [value]);
+  const selected =
+    value === undefined ? internalSelected : Array.isArray(value) ? value : [value];
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -45,12 +42,6 @@ const Dropdown = ({
     return () =>
       document.removeEventListener('mousedown', handleClickOutside);
   }, []);
-
-  useEffect(() => {
-    if (isOpen) {
-      setActiveIndex(0);
-    }
-  }, [isOpen]);
 
   const isDropdownOption = (
     child: React.ReactNode
@@ -74,10 +65,14 @@ const Dropdown = ({
         updated = [...selected, val];
       }
 
-      setSelected(updated);
+      if (value === undefined) {
+        setInternalSelected(updated);
+      }
       onChange?.(updated);
     } else {
-      setSelected([val]);
+      if (value === undefined) {
+        setInternalSelected([val]);
+      }
       setIsOpen(false);
       onChange?.(val);
     }
@@ -86,6 +81,7 @@ const Dropdown = ({
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (!isOpen && (e.key === 'Enter' || e.key === ' ')) {
       e.preventDefault();
+      setActiveIndex(0);
       setIsOpen(true);
       return;
     }
@@ -130,7 +126,15 @@ const Dropdown = ({
     <div ref={ref} className={cn('relative w-full', className)}>
       <button
         type="button"
-        onClick={() => setIsOpen((prev) => !prev)}
+        onClick={() =>
+          setIsOpen((prev) => {
+            const next = !prev;
+            if (next) {
+              setActiveIndex(0);
+            }
+            return next;
+          })
+        }
         onKeyDown={handleKeyDown}
         aria-haspopup="listbox"
         aria-expanded={isOpen}

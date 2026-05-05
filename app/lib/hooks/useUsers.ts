@@ -38,8 +38,8 @@ export function useUsers() {
         id: user.id,
         name: user.name,
         email: user.email,
-        role: Math.random() > 0.5 ? "admin" : "user",
-        status: Math.random() > 0.5 ? "active" : "inactive",
+        role: user.id % 2 === 0 ? "admin" : "user",
+        status: user.id % 3 === 0 ? "inactive" : "active",
       }));
 
       setUsers(mappedUsers);
@@ -55,7 +55,9 @@ export function useUsers() {
   }, []);
 
   useEffect(() => {
-    fetchUsers();
+    queueMicrotask(() => {
+      void fetchUsers();
+    });
   }, [fetchUsers]);
 
   return {
