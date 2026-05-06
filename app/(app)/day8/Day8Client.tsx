@@ -2,9 +2,12 @@
 
 import { Button } from "@/components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import ConfigurableTable from "@/components/shared/table/core/ConfigurableTable";
 import { initialItems, shuffleList } from "@/lib/utils";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import Search from "./Search";
+import { Day8ApiKey, Day8PostRow } from "./tableConfigs";
+import { useDay8ApiTable } from "./useDay8ApiTable";
 
 
 const allUsers = [
@@ -15,10 +18,12 @@ const allUsers = [
   "jack",
   "simon",
 ]
+
 const Day8Client = () => {
   const [count, setCount] = useState(0);
   const [items] = useState(initialItems);
   const [users, setUsers] = useState(allUsers);
+  const { tableRows, tableLoading, tableError, tableConfig, retry } = useDay8ApiTable();
 
   // use effect
   useEffect(() => {
@@ -188,6 +193,17 @@ const Day8Client = () => {
             <CardContent className="mt-18 text-muted">Uses custom spacing token (`mt-18`) for layout rhythm.</CardContent>
           </Card>
         </div>
+      </section>
+
+      <section className="space-y-3 rounded-card border border-border p-4" aria-label="api driven table">
+        <h2 className="text-lg font-semibold text-brand-600">API Driven Table (Posts API with 100 records)</h2>
+        <ConfigurableTable<Day8PostRow, Day8ApiKey>
+          data={tableRows}
+          loading={tableLoading}
+          error={tableError}
+          onRetry={retry}
+          config={tableConfig}
+        />
       </section>
     </section>
   );

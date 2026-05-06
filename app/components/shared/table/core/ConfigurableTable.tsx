@@ -56,6 +56,21 @@ export type TableConfig<T, K extends string> = {
     noResultsTitle?: string;
     noResultsDescription?: string;
   };
+  server?: {
+    enabled: boolean;
+    state: {
+      search: string;
+      page: number;
+      pageSize: number;
+      totalItems: number;
+      sortBy: keyof T | null;
+      sortDirection: SortDirection;
+    };
+    onSearchChange: (value: string) => void;
+    onPageChange: (page: number) => void;
+    onPageSizeChange: (size: number) => void;
+    onSortChange: (key: keyof T, direction: SortDirection) => void;
+  };
 };
 
 type ConfigurableTableProps<T, K extends string> = {
@@ -93,7 +108,9 @@ export default function ConfigurableTable<T, K extends string>({
     pagination: paginationConfig,
     selection: selectionConfig,
     emptyState: emptyStateConfig,
+    server: serverConfig,
   } = config;
+  const isServerMode = Boolean(serverConfig?.enabled);
 
   const hasSearch = Boolean(searchConfig?.enabled);
   const hasFilters = Boolean(filtersConfig?.enabled);
@@ -116,6 +133,18 @@ export default function ConfigurableTable<T, K extends string>({
     [filterDefinitions]
   );
   const nonPaginatedPageSize = Math.max(data.length, 1);
+
+  const clientControls = useTableControls({
+    data,
+    searchFields,
+    filters: filterDefinitions,
+    initialSortKey: hasSorting ? sortingConfig?.initialSortKey : undefined,
+    initialSortDirection: sortingConfig?.initialSortDirection ?? "asc",
+    // When pagination UI is disabled, keep all rows visible in one page.
+    initialPageSize: hasPagination ? paginationConfig?.initialPageSize ?? 5 : nonPaginatedPageSize,
+    debounceMs: 300,
+    getRowKey: getKey,
+  });
 
   const {
     search,
@@ -141,17 +170,87 @@ export default function ConfigurableTable<T, K extends string>({
     toggleSelectAllVisible,
     clearSelection,
     emptyStateVariant,
-  } = useTableControls({
-    data,
-    searchFields,
-    filters: filterDefinitions,
-    initialSortKey: hasSorting ? sortingConfig?.initialSortKey : undefined,
-    initialSortDirection: sortingConfig?.initialSortDirection ?? "asc",
-    // When pagination UI is disabled, keep all rows visible in one page.
-    initialPageSize: hasPagination ? paginationConfig?.initialPageSize ?? 5 : nonPaginatedPageSize,
-    debounceMs: 300,
-    getRowKey: getKey,
-  });
+  } = clientControls;
+
+  const [serverSelectedRowKeys, setServerSelectedRowKeys] = useState<Set<string | number>>(new Set());
+  const serverSearch = serverConfig?.state.search ?? "";
+  const serverPage = serverConfig?.state.page ?? 1;
+  const serverPageSize = serverConfig?.state.pageSize ?? (paginationConfig?.initialPageSize ?? 5);
+  const serverTotalItems = serverConfig?.state.totalItems ?? data.length;
+  const serverTotalPages = Math.max(1, Math.ceil(serverTotalItems / Math.max(serverPageSize, 1)));
+  const serverSortBy = serverConfig?.state.sortBy ?? null;
+  const serverSortDirection = serverConfig?.state.sortDirection ?? "asc";
+  const serverAllVisibleSelected =
+    data.length > 0 && data.every((row) => serverSelectedRowKeys.has(getKey(row)));
+  const serverSelectedCount = serverSelectedRowKeys.size;
+  const serverEmptyStateVariant =
+    data.length === 0
+      ? serverSearch.trim().length > 0
+        ? "no-results"
+        : "no-data"
+      : "has-results";
+
+  const effectiveSearch = isServerMode ? serverSearch : search;
+  const effectiveOnSearchChange = isServerMode ? serverConfig!.onSearchChange : onSearchChange;
+  const effectiveCurrentPage = isServerMode ? serverPage : currentPage;
+  const effectiveTotalPages = isServerMode ? serverTotalPages : totalPages;
+  const effectivePageSize = isServerMode ? serverPageSize : pageSize;
+  const effectiveFilteredCount = isServerMode ? serverTotalItems : filteredCount;
+  const effectiveData = isServerMode ? data : paginatedData;
+  const effectiveSortBy = isServerMode ? serverSortBy : hasSorting ? sortBy : null;
+  const effectiveSortDirection = isServerMode ? serverSortDirection : sortDirection;
+  const effectiveEmptyStateVariant = isServerMode ? serverEmptyStateVariant : emptyStateVariant;
+  const effectiveSelectedKeys = isServerMode ? serverSelectedRowKeys : selectedRowKeys;
+  const effectiveSelectedCount = isServerMode ? serverSelectedCount : selectedCount;
+  const effectiveAllVisibleSelected = isServerMode ? serverAllVisibleSelected : allVisibleSelected;
+
+  const effectiveToggleRow = (rowKey: string | number) => {
+    if (!isServerMode) {
+      toggleRowSelection(rowKey);
+      return;
+    }
+    setServerSelectedRowKeys((prev) => {
+      const next = new Set(prev);
+      if (next.has(rowKey)) next.delete(rowKey);
+      else next.add(rowKey);
+      return next;
+    });
+  };
+
+  const effectiveToggleAllVisible = () => {
+    if (!isServerMode) {
+      toggleSelectAllVisible();
+      return;
+    }
+    setServerSelectedRowKeys((prev) => {
+      const next = new Set(prev);
+      if (serverAllVisibleSelected) {
+        data.forEach((row) => next.delete(getKey(row)));
+      } else {
+        data.forEach((row) => next.add(getKey(row)));
+      }
+      return next;
+    });
+  };
+
+  const effectiveClearSelection = () => {
+    if (!isServerMode) {
+      clearSelection();
+      return;
+    }
+    setServerSelectedRowKeys(new Set());
+  };
+
+  const effectiveOnSortChange = (key: keyof T) => {
+    if (!hasSorting) return;
+    if (!isServerMode) {
+      onSortChange(key);
+      return;
+    }
+    const nextDirection: SortDirection =
+      serverSortBy === key ? (serverSortDirection === "asc" ? "desc" : "asc") : "asc";
+    serverConfig!.onSortChange(key, nextDirection);
+  };
 
   const [draftFilters, setDraftFilters] = useState<Record<K, FilterValue>>(defaultDraftFilters);
   const tableStateChangeRef = useRef(onTableStateChange);
@@ -174,20 +273,20 @@ export default function ConfigurableTable<T, K extends string>({
 
   useEffect(() => {
     tableStateChangeRef.current?.({
-      search,
+      search: effectiveSearch,
       filters: filterValues,
-      page: currentPage,
-      pageSize,
-      sortBy,
-      sortDirection,
+      page: effectiveCurrentPage,
+      pageSize: effectivePageSize,
+      sortBy: effectiveSortBy,
+      sortDirection: effectiveSortDirection,
     });
   }, [
-    currentPage,
+    effectiveCurrentPage,
+    effectivePageSize,
+    effectiveSortBy,
+    effectiveSortDirection,
     filterValues,
-    pageSize,
-    search,
-    sortBy,
-    sortDirection,
+    effectiveSearch,
   ]);
 
   return (
@@ -196,8 +295,8 @@ export default function ConfigurableTable<T, K extends string>({
         <section className="grid gap-3 md:grid-cols-2">
           {hasSearch && (
             <TableSearch
-              value={search}
-              onChange={onSearchChange}
+              value={effectiveSearch}
+              onChange={effectiveOnSearchChange}
               placeholder={searchConfig?.placeholder ?? "Search..."}
               label={searchConfig?.label ?? "Search"}
             />
@@ -230,14 +329,14 @@ export default function ConfigurableTable<T, K extends string>({
       {loading && <TableSkeleton rows={5} columnCount={columns.length + 1} />}
       {!loading && error && <ErrorState message={error} onRetry={onRetry} />}
 
-      {!loading && !error && emptyStateVariant === "no-data" && (
+      {!loading && !error && effectiveEmptyStateVariant === "no-data" && (
         <EmptyState
           title={emptyStateConfig?.noDataTitle ?? "No data available"}
           description={emptyStateConfig?.noDataDescription ?? "No records found for this table."}
         />
       )}
 
-      {!loading && !error && emptyStateVariant === "no-results" && (
+      {!loading && !error && effectiveEmptyStateVariant === "no-results" && (
         <EmptyState
           title={emptyStateConfig?.noResultsTitle ?? "No matching results"}
           description={
@@ -246,45 +345,63 @@ export default function ConfigurableTable<T, K extends string>({
         />
       )}
 
-      {!loading && !error && filteredCount > 0 && (
+      {!loading && !error && effectiveFilteredCount > 0 && (
         <>
           {hasSelection && (
             <TableBulkActions
-              selectedCount={selectedCount}
-              onClearSelection={clearSelection}
-              onAction={() => selectionConfig?.onBulkAction?.(selectedRowKeys)}
+              selectedCount={effectiveSelectedCount}
+              onClearSelection={effectiveClearSelection}
+              onAction={() => selectionConfig?.onBulkAction?.(effectiveSelectedKeys)}
               actionLabel={selectionConfig?.bulkActionLabel ?? "Bulk Action"}
             />
           )}
 
           <Table
-            data={paginatedData}
+            data={effectiveData}
             columns={columns}
             getKey={getKey}
             rowActions={rowActions}
             rowActionsLabel={rowActionsLabel}
             selectable={hasSelection}
-            selectedKeys={selectedRowKeys}
-            allVisibleSelected={allVisibleSelected}
-            onToggleRow={toggleRowSelection}
-            onToggleAllVisible={toggleSelectAllVisible}
-            sortBy={hasSorting ? sortBy : null}
-            sortDirection={sortDirection}
-            onSortChange={hasSorting ? onSortChange : undefined}
+            selectedKeys={effectiveSelectedKeys}
+            allVisibleSelected={effectiveAllVisibleSelected}
+            onToggleRow={effectiveToggleRow}
+            onToggleAllVisible={effectiveToggleAllVisible}
+            sortBy={effectiveSortBy}
+            sortDirection={effectiveSortDirection}
+            onSortChange={hasSorting ? effectiveOnSortChange : undefined}
           />
 
           {hasPagination && (
             <TablePagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              totalItems={filteredCount}
-              pageSize={pageSize}
+              currentPage={effectiveCurrentPage}
+              totalPages={effectiveTotalPages}
+              totalItems={effectiveFilteredCount}
+              pageSize={effectivePageSize}
               pageSizeOptions={paginationConfig?.pageSizeOptions}
-              onPageSizeChange={onPageSizeChange}
-              onFirst={() => setPage(1)}
-              onPrevious={() => setPage(Math.max(1, currentPage - 1))}
-              onNext={() => setPage(Math.min(totalPages, currentPage + 1))}
-              onLast={() => setPage(totalPages)}
+              onPageSizeChange={
+                isServerMode ? serverConfig!.onPageSizeChange : onPageSizeChange
+              }
+              onFirst={() =>
+                isServerMode ? serverConfig!.onPageChange(1) : setPage(1)
+              }
+              onPrevious={() =>
+                isServerMode
+                  ? serverConfig!.onPageChange(Math.max(1, effectiveCurrentPage - 1))
+                  : setPage(Math.max(1, effectiveCurrentPage - 1))
+              }
+              onNext={() =>
+                isServerMode
+                  ? serverConfig!.onPageChange(
+                      Math.min(effectiveTotalPages, effectiveCurrentPage + 1)
+                    )
+                  : setPage(Math.min(effectiveTotalPages, effectiveCurrentPage + 1))
+              }
+              onLast={() =>
+                isServerMode
+                  ? serverConfig!.onPageChange(effectiveTotalPages)
+                  : setPage(effectiveTotalPages)
+              }
             />
           )}
         </>

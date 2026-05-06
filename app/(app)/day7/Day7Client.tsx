@@ -2,10 +2,7 @@
 
 import ConfigurableTable from '@/components/shared/table/core/ConfigurableTable';
 import { User, useUsers } from '@/lib/hooks/useUsers';
-import {
-  Day7FilterKey,
-  panelTableConfig,
-} from './tableConfigs';
+import { Day7FilterKey, panelTableConfig } from './tableConfigs';
 
 export default function Day7Client() {
   const { users, loading, hasFetched, error, refetch } = useUsers();
@@ -18,7 +15,6 @@ export default function Day7Client() {
           Demo: configurable filters with select, date, and checkbox inputs.
         </p>
       </header>
-
       <ConfigurableTable<User, Day7FilterKey>
         data={users}
         loading={loading || !hasFetched}
