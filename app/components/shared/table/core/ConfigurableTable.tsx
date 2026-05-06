@@ -10,6 +10,7 @@ import TablePagination from "@/components/shared/table/controls/TablePagination"
 import TableSearch from "@/components/shared/table/controls/TableSearch";
 import TableSkeleton from "@/components/shared/table/core/TableSkeleton";
 import { FilterConfig, useTableControls } from "@/lib/hooks/useTableControls";
+import { useRef } from "react";
 
 export type FilterTemplateContext<K extends string> = {
   values: Record<K, string>;
@@ -131,6 +132,15 @@ export default function ConfigurableTable<T, K extends string>({
   });
 
   const [draftFilters, setDraftFilters] = useState<Record<K, string>>(filterValues);
+  const tableStateChangeRef = useRef(onTableStateChange);
+
+  useEffect(() => {
+    tableStateChangeRef.current = onTableStateChange;
+  }, [onTableStateChange]);
+
+  useEffect(() => {
+    setDraftFilters(filterValues);
+  }, [filterValues]);
 
   const setDraftFilterValue = (key: K, value: string) => {
     setDraftFilters((prev) => ({ ...prev, [key]: value }));
@@ -144,7 +154,7 @@ export default function ConfigurableTable<T, K extends string>({
   };
 
   useEffect(() => {
-    onTableStateChange?.({
+    tableStateChangeRef.current?.({
       search,
       filters: filterValues,
       page: currentPage,
@@ -155,7 +165,6 @@ export default function ConfigurableTable<T, K extends string>({
   }, [
     currentPage,
     filterValues,
-    onTableStateChange,
     pageSize,
     search,
     sortBy,

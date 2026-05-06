@@ -2,8 +2,8 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { sidebarItems } from "@/lib/config/sidebar";
+import { useEffect, useState } from "react";
+import { sidebarItems, type SidebarItem } from "@/lib/config/sidebar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 
@@ -15,6 +15,24 @@ type Props = {
 export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
   const pathname = usePathname();
   const [collapsed, setCollapsed] = useState(false);
+  const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
+
+  const hasActiveChild = (item: SidebarItem) => {
+    if (!item.children) return false;
+    return item.children.some((child) => child.href === pathname);
+  };
+
+  useEffect(() => {
+    setOpenGroups((prev) => {
+      const next = { ...prev };
+      for (const item of sidebarItems) {
+        if (item.children && item.children.some((child) => child.href === pathname)) {
+          next[item.label] = true;
+        }
+      }
+      return next;
+    });
+  }, [pathname]);
 
   return (
     <>
@@ -38,12 +56,58 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
         <nav className="flex flex-col gap-1 px-2">
           {sidebarItems.map((item) => {
             const isActive = pathname === item.href;
+            const isGroupOpen = openGroups[item.label];
+            const groupHasActiveChild = hasActiveChild(item);
             const firstLetter = item.label.charAt(0).toUpperCase();
+
+            if (item.children) {
+              return (
+                <div key={item.label} className="space-y-1">
+                  <button
+                    type="button"
+                    onClick={() =>
+                      setOpenGroups((prev) => ({ ...prev, [item.label]: !prev[item.label] }))
+                    }
+                    title={collapsed ? item.label : undefined}
+                    className={cn(
+                      "flex w-full items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100",
+                      groupHasActiveChild && "bg-gray-100 font-medium",
+                      collapsed && "justify-center px-0"
+                    )}
+                  >
+                    <span className="truncate">{collapsed ? firstLetter : item.label}</span>
+                    {!collapsed && (
+                      <span className="ml-auto text-xs">{isGroupOpen ? "▾" : "▸"}</span>
+                    )}
+                  </button>
+
+                  {!collapsed && isGroupOpen && (
+                    <div className="ml-3 border-l border-gray-200 pl-2">
+                      {item.children.map((child) => {
+                        const isChildActive = pathname === child.href;
+                        return (
+                          <Link
+                            key={child.href}
+                            href={child.href ?? "#"}
+                            className={cn(
+                              "block rounded-md px-3 py-2 text-sm hover:bg-gray-100",
+                              isChildActive && "bg-gray-200 font-medium"
+                            )}
+                          >
+                            {child.label}
+                          </Link>
+                        );
+                      })}
+                    </div>
+                  )}
+                </div>
+              );
+            }
 
             return (
               <Link
                 key={item.href}
-                href={item.href}
+                href={item.href ?? "#"}
                 title={collapsed ? item.label : undefined}
                 className={cn(
                   "flex items-center rounded-md px-3 py-2 text-sm",
@@ -82,6 +146,49 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.href;
+                const isGroupOpen = openGroups[item.label];
+                const groupHasActiveChild = hasActiveChild(item);
+
+                if (item.children) {
+                  return (
+                    <div key={item.label} className="space-y-1">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setOpenGroups((prev) => ({ ...prev, [item.label]: !prev[item.label] }))
+                        }
+                        className={cn(
+                          "flex w-full items-center rounded px-3 py-2 text-left hover:bg-gray-100",
+                          groupHasActiveChild && "bg-gray-100 font-medium"
+                        )}
+                      >
+                        <span>{item.label}</span>
+                        <span className="ml-auto text-xs">{isGroupOpen ? "▾" : "▸"}</span>
+                      </button>
+
+                      {isGroupOpen && (
+                        <div className="ml-3 border-l border-gray-200 pl-2">
+                          {item.children.map((child) => {
+                            const isChildActive = pathname === child.href;
+                            return (
+                              <Link
+                                key={child.href}
+                                href={child.href ?? "#"}
+                                onClick={() => setMobileOpen(false)}
+                                className={cn(
+                                  "block rounded px-3 py-2 hover:bg-gray-100",
+                                  isChildActive && "bg-gray-200 font-medium"
+                                )}
+                              >
+                                {child.label}
+                              </Link>
+                            );
+                          })}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
 
                 return (
                   <Link

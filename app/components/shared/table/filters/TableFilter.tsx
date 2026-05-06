@@ -53,7 +53,14 @@ export default function TableFilter({
           {children}
           <div className="flex justify-end gap-2">
             {onClear && (
-              <Button type="button" variant="outline" onClick={onClear}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => {
+                  onClear();
+                  setIsOpen(false);
+                }}
+              >
                 Clear
               </Button>
             )}

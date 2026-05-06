@@ -1,11 +1,22 @@
-export const sidebarItems = [
-  { label: "Dashboard", href: "/" },
-  { label: "Day 1 Tasks", href: "/day1" },
-  { label: "Day 2 Tasks", href: "/day2" },
-  { label: "Day 3 Tasks", href: "/day3" },
-  { label: "Day 5 Tasks", href: "/day5" },
-  { label: "Day 6 Tasks", href: "/day6" },
-  { label: "Day 7 Tasks", href: "/day7" },
-  { label: "Day 8 Tasks", href: "/day8" },
+export type SidebarItem = {
+  label: string;
+  href?: string;
+  children?: SidebarItem[];
+};
+
+export const sidebarItems: SidebarItem[] = [
+  { label: "Dashboard", href: "/dashboard" },
+  {
+    label: "Daily Tasks",
+    children: [
+      { label: "Day 1", href: "/day1" },
+      { label: "Day 2", href: "/day2" },
+      { label: "Day 3", href: "/day3" },
+      { label: "Day 5", href: "/day5" },
+      { label: "Day 6", href: "/day6" },
+      { label: "Day 7", href: "/day7" },
+      { label: "Day 8", href: "/day8" },
+    ],
+  },
   { label: "Testing", href: "/testing" },
 ];
