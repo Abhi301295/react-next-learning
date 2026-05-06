@@ -1,32 +1,45 @@
 import { useEffect, useMemo, useState } from "react";
-import type { SortDirection } from "@/components/shared/table/Table";
+import type { SortDirection } from "@/components/shared/table/core/Table";
 
-type UseTableControlsOptions<T, F extends string> = {
+export type FilterConfig<T, K extends string> = {
+  key: K;
+  initialValue: string;
+  predicate: (item: T, value: string) => boolean;
+};
+
+type UseTableControlsOptions<T, K extends string> = {
   data: T[];
   searchFields: Array<keyof T>;
-  initialFilter: F;
+  filters: Array<FilterConfig<T, K>>;
   initialSortKey?: keyof T;
   initialSortDirection?: SortDirection;
   initialPageSize?: number;
   debounceMs?: number;
   getRowKey: (row: T) => string | number;
-  filterFn: (item: T, activeFilter: F) => boolean;
 };
 
-export function useTableControls<T, F extends string>({
+export function useTableControls<T, K extends string>({
   data,
   searchFields,
-  initialFilter,
+  filters,
   initialSortKey,
   initialSortDirection = "asc",
   initialPageSize = 5,
   debounceMs = 300,
   getRowKey,
-  filterFn,
-}: UseTableControlsOptions<T, F>) {
+}: UseTableControlsOptions<T, K>) {
+  const initialFilterValues = useMemo(
+    () =>
+      filters.reduce((acc, filter) => {
+        acc[filter.key] = filter.initialValue;
+        return acc;
+      }, {} as Record<K, string>),
+    [filters]
+  );
+
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [activeFilter, setActiveFilter] = useState<F>(initialFilter);
+  const [filterValues, setFilterValues] = useState<Record<K, string>>(initialFilterValues);
   const [sortBy, setSortBy] = useState<keyof T | null>(initialSortKey ?? null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialSortDirection);
   const [page, setPage] = useState(1);
@@ -53,9 +66,13 @@ export function useTableControls<T, F extends string>({
           String(item[field]).toLowerCase().includes(normalizedQuery)
         );
 
-      return matchesSearch && filterFn(item, activeFilter);
+      const matchesFilters = filters.every((filter) =>
+        filter.predicate(item, filterValues[filter.key])
+      );
+
+      return matchesSearch && matchesFilters;
     });
-  }, [activeFilter, data, filterFn, search, searchFields]);
+  }, [data, filterValues, filters, search, searchFields]);
 
   const sortedData = useMemo(() => {
     if (!sortBy) {
@@ -98,8 +115,16 @@ export function useTableControls<T, F extends string>({
     setPage(1);
   };
 
-  const onFilterChange = (value: F) => {
-    setActiveFilter(value);
+  const onFilterChange = (key: K, value: string) => {
+    setFilterValues((prev) => ({
+      ...prev,
+      [key]: value,
+    }));
+    setPage(1);
+  };
+
+  const resetFilters = () => {
+    setFilterValues(initialFilterValues);
     setPage(1);
   };
 
@@ -147,14 +172,19 @@ export function useTableControls<T, F extends string>({
   };
 
   const selectedCount = selectedRowKeys.size;
+  const activeFilterCount = filters.filter(
+    (filter) => filterValues[filter.key] !== filter.initialValue
+  ).length;
   const emptyStateVariant =
     data.length === 0 ? "no-data" : filteredData.length === 0 ? "no-results" : "has-results";
 
   return {
     search: searchInput,
     onSearchChange,
-    activeFilter,
+    filterValues,
     onFilterChange,
+    resetFilters,
+    activeFilterCount,
     pageSize,
     onPageSizeChange,
     sortBy,

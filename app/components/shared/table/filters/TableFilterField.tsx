@@ -8,7 +8,7 @@ type FilterOption = {
   value: string;
 };
 
-type TableFilterProps = {
+type TableFilterFieldProps = {
   label?: string;
   value: string;
   options: FilterOption[];
@@ -17,14 +17,14 @@ type TableFilterProps = {
   className?: string;
 };
 
-export default function TableFilter({
+export default function TableFilterField({
   label = 'Filter',
   value,
   options,
   onChange,
   placeholder = 'Select option',
   className,
-}: TableFilterProps) {
+}: TableFilterFieldProps) {
   return (
     <div className="space-y-1">
       <span className="text-sm font-medium text-gray-700">{label}</span>

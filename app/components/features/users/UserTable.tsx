@@ -1,10 +1,10 @@
-import Table from "@/components/shared/table/Table";
+import Table from "@/components/shared/table/core/Table";
 import Badge from "@/components/ui/Badge";
 import { User } from "@/lib/hooks/useUsers";
 
-import type { Column, SortDirection } from "@/components/shared/table/Table";
+import type { Column, SortDirection } from "@/components/shared/table/core/Table";
 
-const columns: Column<User>[] = [
+export const userTableColumns: Column<User>[] = [
   { key: "name", label: "Name", sortable: true },
   { key: "email", label: "Email", sortable: true },
   {
@@ -57,7 +57,7 @@ export default function UserTable({
   return (
     <Table
       data={users}
-      columns={columns}
+      columns={userTableColumns}
       getKey={(user) => user.id}
       rowActions={rowActions}
       rowActionsLabel={rowActionsLabel}

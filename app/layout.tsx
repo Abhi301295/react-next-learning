@@ -17,11 +17,12 @@ export const metadata: Metadata = {
     description: "Manage users with reusable table controls and form workflows.",
     type: "website",
     url: "/",
-  },
-  twitter: {
-    card: "summary",
-    title: "User Dashboard",
-    description: "Manage users with reusable table controls and form workflows.",
+    images: [
+      {
+        url: "/file.svg",
+        alt: "User Dashboard Open Graph preview image",
+      },
+    ],
   },
   alternates: {
     canonical: "/",
