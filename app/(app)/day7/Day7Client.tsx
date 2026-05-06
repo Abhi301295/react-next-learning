@@ -8,17 +8,20 @@ import {
 } from './tableConfigs';
 
 export default function Day7Client() {
-  const { users, loading, error, refetch } = useUsers();
+  const { users, loading, hasFetched, error, refetch } = useUsers();
 
   return (
     <div className="p-4 space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">Day 7</h1>
+        <p className="text-sm text-muted">
+          Demo: configurable filters with select, date, and checkbox inputs.
+        </p>
       </header>
 
       <ConfigurableTable<User, Day7FilterKey>
         data={users}
-        loading={loading}
+        loading={loading || !hasFetched}
         error={error}
         onRetry={refetch}
         config={panelTableConfig}

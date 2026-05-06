@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, useId } from 'react';
 import { cn } from '@/lib/utils';
 import DropdownOption, { DropdownOptionProps } from './DropdownOption';
 
@@ -11,6 +11,9 @@ interface DropdownProps {
   className?: string;
   multiple?: boolean;
   value?: string | string[];
+  size?: 'sm' | 'md' | 'lg';
+  ariaLabel?: string;
+  ariaLabelledBy?: string;
 }
 
 const Dropdown = ({
@@ -20,6 +23,9 @@ const Dropdown = ({
   className,
   multiple = false,
   value,
+  size = 'md',
+  ariaLabel,
+  ariaLabelledBy,
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalSelected, setInternalSelected] = useState<string[]>([]);
@@ -27,6 +33,8 @@ const Dropdown = ({
 
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
+  const id = useId();
+  const listboxId = `${id}-listbox`;
 
   const selected =
     value === undefined ? internalSelected : Array.isArray(value) ? value : [value];
@@ -89,6 +97,9 @@ const Dropdown = ({
     if (!isOpen || options.length === 0) return;
 
     switch (e.key) {
+      case 'Tab':
+        setIsOpen(false);
+        break;
       case 'ArrowDown':
         e.preventDefault();
         setActiveIndex((prev) => (prev + 1) % options.length);
@@ -110,6 +121,16 @@ const Dropdown = ({
       case 'Escape':
         setIsOpen(false);
         break;
+
+      case 'Home':
+        e.preventDefault();
+        setActiveIndex(0);
+        break;
+
+      case 'End':
+        e.preventDefault();
+        setActiveIndex(options.length - 1);
+        break;
     }
   };
 
@@ -121,6 +142,11 @@ const Dropdown = ({
     selectedLabels.length > 0
       ? selectedLabels.map((label) => String(label)).join(', ')
       : placeholder;
+  const sizeClasses = {
+    sm: 'h-8 px-3 text-sm',
+    md: 'h-10 px-4 text-sm',
+    lg: 'h-12 px-4 text-base',
+  };
 
   return (
     <div ref={ref} className={cn('relative w-full', className)}>
@@ -136,9 +162,18 @@ const Dropdown = ({
           })
         }
         onKeyDown={handleKeyDown}
+        role="combobox"
         aria-haspopup="listbox"
+        aria-controls={listboxId}
         aria-expanded={isOpen}
-        className="flex items-center justify-between w-full border rounded-md px-4 py-2 bg-white shadow-sm"
+        aria-activedescendant={isOpen ? `${id}-option-${activeIndex}` : undefined}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        className={cn(
+          'flex items-center justify-between w-full rounded-md border bg-white shadow-sm',
+          'focus:outline-none focus:ring-2 focus:ring-blue-500',
+          sizeClasses[size]
+        )}
       >
         <span className={cn(selected.length === 0 && 'text-gray-400')}>
           {displayText}
@@ -151,8 +186,10 @@ const Dropdown = ({
 
       {isOpen && (
         <ul
+          id={listboxId}
           ref={listRef}
           role="listbox"
+          aria-multiselectable={multiple || undefined}
           tabIndex={-1}
           className="absolute left-0 mt-2 w-full border rounded-md bg-white shadow-lg z-20"
         >
@@ -163,11 +200,13 @@ const Dropdown = ({
 
             return (
               <li
+                id={`${id}-option-${index}`}
                 key={val}
                 role="option"
                 aria-selected={isSelected}
                 tabIndex={-1}
                 onClick={() => handleSelect(val)}
+                onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
                   'px-4 py-2 cursor-pointer flex items-center justify-between',
                   isSelected && 'font-medium',

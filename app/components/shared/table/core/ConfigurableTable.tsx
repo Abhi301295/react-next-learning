@@ -9,11 +9,11 @@ import TableFilter from "@/components/shared/table/filters/TableFilter";
 import TablePagination from "@/components/shared/table/controls/TablePagination";
 import TableSearch from "@/components/shared/table/controls/TableSearch";
 import TableSkeleton from "@/components/shared/table/core/TableSkeleton";
-import { FilterConfig, useTableControls } from "@/lib/hooks/useTableControls";
+import { FilterConfig, FilterValue, useTableControls } from "@/lib/hooks/useTableControls";
 
 export type FilterTemplateContext<K extends string> = {
-  values: Record<K, string>;
-  setValue: (key: K, value: string) => void;
+  values: Record<K, FilterValue>;
+  setValue: (key: K, value: FilterValue) => void;
 };
 
 export type TableConfig<T, K extends string> = {
@@ -66,7 +66,7 @@ type ConfigurableTableProps<T, K extends string> = {
   config: TableConfig<T, K>;
   onTableStateChange?: (state: {
     search: string;
-    filters: Record<K, string>;
+    filters: Record<K, FilterValue>;
     page: number;
     pageSize: number;
     sortBy: keyof T | null;
@@ -112,7 +112,7 @@ export default function ConfigurableTable<T, K extends string>({
     () =>
       Object.fromEntries(
         filterDefinitions.map((filter) => [filter.key, filter.initialValue])
-      ) as Record<K, string>,
+      ) as Record<K, FilterValue>,
     [filterDefinitions]
   );
   const nonPaginatedPageSize = Math.max(data.length, 1);
@@ -153,14 +153,14 @@ export default function ConfigurableTable<T, K extends string>({
     getRowKey: getKey,
   });
 
-  const [draftFilters, setDraftFilters] = useState<Record<K, string>>(defaultDraftFilters);
+  const [draftFilters, setDraftFilters] = useState<Record<K, FilterValue>>(defaultDraftFilters);
   const tableStateChangeRef = useRef(onTableStateChange);
 
   useEffect(() => {
     tableStateChangeRef.current = onTableStateChange;
   }, [onTableStateChange]);
 
-  const setDraftFilterValue = (key: K, value: string) => {
+  const setDraftFilterValue = (key: K, value: FilterValue) => {
     setDraftFilters((prev) => ({ ...prev, [key]: value }));
   };
 

@@ -30,6 +30,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
+    const isCheckbox = props.type === 'checkbox';
 
     const sizeStyles = {
       sm: 'h-8 text-sm px-2',
@@ -45,6 +46,39 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     const generatedId = useId();
     const inputId = id || generatedId;
+
+    if (isCheckbox) {
+      return (
+        <div className="flex flex-col gap-1">
+          <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-gray-700">
+            <input
+              ref={ref}
+              id={inputId}
+              type="checkbox"
+              checked={Boolean(props.checked)}
+              onChange={props.onChange}
+              disabled={props.disabled}
+              aria-invalid={!!error}
+              aria-describedby={error ? `${inputId}-error` : undefined}
+              className={cn(
+                'h-4 w-4 rounded border-gray-300 accent-blue-600',
+                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                props.disabled && 'cursor-not-allowed opacity-50',
+                className
+              )}
+            />
+            {label && <span>{label}</span>}
+          </label>
+          {error ? (
+            <span id={`${inputId}-error`} className="text-sm text-red-500">
+              {error}
+            </span>
+          ) : (
+            helperText && <span className="text-sm text-gray-500">{helperText}</span>
+          )}
+        </div>
+      );
+    }
 
     return (
       <div className="flex flex-col gap-1 w-full">
@@ -73,7 +107,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           )}
 
           <input
-            ref={ref} // 🔥 THIS IS THE KEY CHANGE
+            ref={ref}
             id={inputId}
             aria-invalid={!!error}
             aria-describedby={error ? `${inputId}-error` : undefined}

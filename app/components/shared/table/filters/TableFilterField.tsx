@@ -1,36 +1,106 @@
 'use client';
 
+import { useId } from 'react';
 import Dropdown from '@/components/shared/dropdown/Dropdown';
 import DropdownOption from '@/components/shared/dropdown/DropdownOption';
+import Input from '@/components/ui/Input';
+import { FilterValue } from '@/lib/hooks/useTableControls';
 
 type FilterOption = {
   label: string;
   value: string;
 };
 
+type FieldType = 'select' | 'multi-select' | 'date' | 'checkbox' | 'checkbox-group';
+
 type TableFilterFieldProps = {
   label?: string;
-  value: string;
-  options: FilterOption[];
-  onChange: (value: string) => void;
+  type?: FieldType;
+  value: FilterValue;
+  options?: FilterOption[];
+  onChange: (value: FilterValue) => void;
   placeholder?: string;
   className?: string;
 };
 
 export default function TableFilterField({
   label = 'Filter',
+  type = 'select',
   value,
-  options,
+  options = [],
   onChange,
   placeholder = 'Select option',
   className,
 }: TableFilterFieldProps) {
+  const labelId = useId();
+
+  if (type === 'date') {
+    return (
+      <Input
+        type="date"
+        label={label}
+        value={typeof value === 'string' ? value : ''}
+        onChange={(event) => onChange(event.target.value)}
+        inputSize="sm"
+      />
+    );
+  }
+
+  if (type === 'checkbox') {
+    return (
+      <Input
+        type="checkbox"
+        label={label}
+        checked={Boolean(value)}
+        onChange={(event) => onChange(event.target.checked)}
+        className="shrink-0"
+      />
+    );
+  }
+
+  if (type === 'checkbox-group') {
+    const selectedValues = Array.isArray(value) ? value : [];
+
+    return (
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-gray-700">{label}</legend>
+        <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-md border p-3">
+          {options.map((option) => {
+            const checked = selectedValues.includes(option.value);
+            return (
+              <div key={option.value} className="shrink-0">
+                <Input
+                  type="checkbox"
+                  label={option.label}
+                  checked={checked}
+                  onChange={(event) => {
+                    if (event.target.checked) {
+                      onChange([...selectedValues, option.value]);
+                      return;
+                    }
+                    onChange(selectedValues.filter((selected) => selected !== option.value));
+                  }}
+                  className="shrink-0"
+                />
+              </div>
+            );
+          })}
+        </div>
+      </fieldset>
+    );
+  }
+
   return (
     <div className="space-y-1">
-      <span className="text-sm font-medium text-gray-700">{label}</span>
+      <span id={labelId} className="text-sm font-medium text-gray-700">
+        {label}
+      </span>
       <Dropdown
-        value={value}
-        onChange={(nextValue) => onChange(nextValue as string)}
+        value={Array.isArray(value) ? value : String(value)}
+        multiple={type === 'multi-select'}
+        size="sm"
+        ariaLabelledBy={labelId}
+        onChange={(nextValue) => onChange(nextValue)}
         placeholder={placeholder}
         className={className}
       >

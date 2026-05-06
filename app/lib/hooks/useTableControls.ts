@@ -1,10 +1,12 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SortDirection } from "@/components/shared/table/core/Table";
 
+export type FilterValue = string | boolean | string[];
+
 export type FilterConfig<T, K extends string> = {
   key: K;
-  initialValue: string;
-  predicate: (item: T, value: string) => boolean;
+  initialValue: FilterValue;
+  predicate: (item: T, value: FilterValue) => boolean;
 };
 
 type UseTableControlsOptions<T, K extends string> = {
@@ -33,13 +35,13 @@ export function useTableControls<T, K extends string>({
       filters.reduce((acc, filter) => {
         acc[filter.key] = filter.initialValue;
         return acc;
-      }, {} as Record<K, string>),
+      }, {} as Record<K, FilterValue>),
     [filters]
   );
 
   const [searchInput, setSearchInput] = useState("");
   const [search, setSearch] = useState("");
-  const [filterValues, setFilterValues] = useState<Record<K, string>>(initialFilterValues);
+  const [filterValues, setFilterValues] = useState<Record<K, FilterValue>>(initialFilterValues);
   const [sortBy, setSortBy] = useState<keyof T | null>(initialSortKey ?? null);
   const [sortDirection, setSortDirection] = useState<SortDirection>(initialSortDirection);
   const [page, setPage] = useState(1);
@@ -118,7 +120,7 @@ export function useTableControls<T, K extends string>({
     setPage(1);
   }, []);
 
-  const onFilterChange = useCallback((key: K, value: string) => {
+  const onFilterChange = useCallback((key: K, value: FilterValue) => {
     setFilterValues((prev) => ({
       ...prev,
       [key]: value,
@@ -175,9 +177,17 @@ export function useTableControls<T, K extends string>({
   }, []);
 
   const selectedCount = selectedRowKeys.size;
+  const isFilterValueEqual = (a: FilterValue, b: FilterValue) => {
+    if (Array.isArray(a) && Array.isArray(b)) {
+      if (a.length !== b.length) return false;
+      return a.every((value, index) => value === b[index]);
+    }
+    return a === b;
+  };
   const activeFilterCount = useMemo(
     () =>
-      filters.filter((filter) => filterValues[filter.key] !== filter.initialValue).length,
+      filters.filter((filter) => !isFilterValueEqual(filterValues[filter.key], filter.initialValue))
+        .length,
     [filterValues, filters]
   );
   const emptyStateVariant =

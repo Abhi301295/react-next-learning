@@ -6,25 +6,55 @@ import type {
 } from "@/components/shared/table/core/ConfigurableTable";
 import { Button } from "@/components/ui/Button";
 import type { User } from "@/lib/hooks/useUsers";
+import type { FilterValue } from "@/lib/hooks/useTableControls";
 
-export type Day7FilterKey = "status" | "role";
+export type Day7FilterKey = "status" | "joinedAfter" | "includeInactive" | "roles";
+
+const getJoinedDate = (userId: number) => {
+  const month = (userId % 12) + 1;
+  const day = (userId % 27) + 1;
+  return `2024-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+};
 
 const filterDefinitions = [
   {
     key: "status" as Day7FilterKey,
     initialValue: "all",
-    predicate: (user: User, value: string) => value === "all" || user.status === value,
+    predicate: (user: User, value: FilterValue) =>
+      value === "all" || user.status === String(value),
   },
   {
-    key: "role" as Day7FilterKey,
-    initialValue: "all",
-    predicate: (user: User, value: string) => value === "all" || user.role === value,
+    key: "joinedAfter" as Day7FilterKey,
+    initialValue: "",
+    predicate: (user: User, value: FilterValue) => {
+      const dateValue = String(value);
+      if (!dateValue) return true;
+      return getJoinedDate(user.id) >= dateValue;
+    },
+  },
+  {
+    key: "includeInactive" as Day7FilterKey,
+    initialValue: true,
+    predicate: (user: User, value: FilterValue) => {
+      const includeInactive = Boolean(value);
+      if (includeInactive) return true;
+      return user.status === "active";
+    },
+  },
+  {
+    key: "roles" as Day7FilterKey,
+    initialValue: [] as string[],
+    predicate: (user: User, value: FilterValue) => {
+      const selectedRoles = Array.isArray(value) ? value : [];
+      if (selectedRoles.length === 0) return true;
+      return selectedRoles.includes(user.role);
+    },
   },
 ];
 
 const renderFilterFields = (
-  values: Record<Day7FilterKey, string>,
-  setValue: (key: Day7FilterKey, value: string) => void,
+  values: Record<Day7FilterKey, FilterValue>,
+  setValue: (key: Day7FilterKey, value: FilterValue) => void,
   layoutClassName?: string
 ) => (
   <div className={layoutClassName}>
@@ -39,11 +69,23 @@ const renderFilterFields = (
       ]}
     />
     <TableFilterField
-      label="Role"
-      value={values.role}
-      onChange={(value) => setValue("role", value)}
+      type="date"
+      label="Joined After"
+      value={values.joinedAfter}
+      onChange={(value) => setValue("joinedAfter", value)}
+    />
+    <TableFilterField
+      type="checkbox"
+      label="Include Inactive Users"
+      value={values.includeInactive}
+      onChange={(value) => setValue("includeInactive", value)}
+    />
+    <TableFilterField
+      type="checkbox-group"
+      label="Roles"
+      value={values.roles}
+      onChange={(value) => setValue("roles", value)}
       options={[
-        { label: "All", value: "all" },
         { label: "Admin", value: "admin" },
         { label: "User", value: "user" },
       ]}
@@ -90,7 +132,7 @@ export const panelTableConfig: TableConfig<User, Day7FilterKey> = {
   filters: {
     enabled: true,
     mode: "panel",
-    title: "Configure Filters",
+    title: "Configurable Filters (Select + Date + Checkboxes)",
     triggerLabel: "Open Filter Panel",
     definitions: filterDefinitions,
     template: ({ values, setValue }: FilterTemplateContext<Day7FilterKey>) =>

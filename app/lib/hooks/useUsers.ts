@@ -18,7 +18,8 @@ export type User = {
 
 export function useUsers() {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
@@ -51,18 +52,21 @@ export function useUsers() {
       }
     } finally {
       setLoading(false);
+      setHasFetched(true);
     }
   }, []);
 
   useEffect(() => {
-    queueMicrotask(() => {
+    const timerId = setTimeout(() => {
       void fetchUsers();
-    });
+    }, 0);
+    return () => clearTimeout(timerId);
   }, [fetchUsers]);
 
   return {
     users,
     loading,
+    hasFetched,
     error,
     refetch: fetchUsers,
   };
