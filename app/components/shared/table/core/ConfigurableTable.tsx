@@ -1,6 +1,6 @@
 'use client';
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useRef, useState } from "react";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import { ErrorState } from "@/components/shared/feedback/ErrorState";
 import Table, { Column, SortDirection } from "@/components/shared/table/core/Table";
@@ -10,7 +10,6 @@ import TablePagination from "@/components/shared/table/controls/TablePagination"
 import TableSearch from "@/components/shared/table/controls/TableSearch";
 import TableSkeleton from "@/components/shared/table/core/TableSkeleton";
 import { FilterConfig, useTableControls } from "@/lib/hooks/useTableControls";
-import { useRef } from "react";
 
 export type FilterTemplateContext<K extends string> = {
   values: Record<K, string>;
@@ -51,6 +50,12 @@ export type TableConfig<T, K extends string> = {
     bulkActionLabel?: string;
     onBulkAction?: (selectedKeys: Set<string | number>) => void;
   };
+  emptyState?: {
+    noDataTitle?: string;
+    noDataDescription?: string;
+    noResultsTitle?: string;
+    noResultsDescription?: string;
+  };
 };
 
 type ConfigurableTableProps<T, K extends string> = {
@@ -77,22 +82,40 @@ export default function ConfigurableTable<T, K extends string>({
   config,
   onTableStateChange,
 }: ConfigurableTableProps<T, K>) {
-  const columns = config.columns;
-  const getKey = config.getKey;
-  const rowActions = config.rowActions;
-  const rowActionsLabel = config.rowActionsLabel;
-  const searchConfig = config.search;
-  const filtersConfig = config.filters;
-  const sortingConfig = config.sorting;
-  const paginationConfig = config.pagination;
-  const selectionConfig = config.selection;
+  const {
+    columns,
+    getKey,
+    rowActions,
+    rowActionsLabel,
+    search: searchConfig,
+    filters: filtersConfig,
+    sorting: sortingConfig,
+    pagination: paginationConfig,
+    selection: selectionConfig,
+    emptyState: emptyStateConfig,
+  } = config;
 
-  const filterDefinitions = filtersConfig?.enabled ? filtersConfig.definitions : [];
   const hasSearch = Boolean(searchConfig?.enabled);
   const hasFilters = Boolean(filtersConfig?.enabled);
   const hasSorting = Boolean(sortingConfig?.enabled);
   const hasPagination = Boolean(paginationConfig?.enabled);
   const hasSelection = Boolean(selectionConfig?.enabled);
+  const searchFields = useMemo(
+    () => (hasSearch ? searchConfig!.fields : ([] as Array<keyof T>)),
+    [hasSearch, searchConfig]
+  );
+  const filterDefinitions = useMemo(
+    () => (hasFilters ? filtersConfig!.definitions : ([] as Array<FilterConfig<T, K>>)),
+    [filtersConfig, hasFilters]
+  );
+  const defaultDraftFilters = useMemo(
+    () =>
+      Object.fromEntries(
+        filterDefinitions.map((filter) => [filter.key, filter.initialValue])
+      ) as Record<K, string>,
+    [filterDefinitions]
+  );
+  const nonPaginatedPageSize = Math.max(data.length, 1);
 
   const {
     search,
@@ -120,33 +143,29 @@ export default function ConfigurableTable<T, K extends string>({
     emptyStateVariant,
   } = useTableControls({
     data,
-    searchFields: hasSearch ? searchConfig!.fields : [],
-    filters: filterDefinitions as Array<FilterConfig<T, K>>,
+    searchFields,
+    filters: filterDefinitions,
     initialSortKey: hasSorting ? sortingConfig?.initialSortKey : undefined,
     initialSortDirection: sortingConfig?.initialSortDirection ?? "asc",
-    initialPageSize: hasPagination
-      ? paginationConfig?.initialPageSize ?? 5
-      : Math.max(data.length, 1),
+    // When pagination UI is disabled, keep all rows visible in one page.
+    initialPageSize: hasPagination ? paginationConfig?.initialPageSize ?? 5 : nonPaginatedPageSize,
     debounceMs: 300,
     getRowKey: getKey,
   });
 
-  const [draftFilters, setDraftFilters] = useState<Record<K, string>>(filterValues);
+  const [draftFilters, setDraftFilters] = useState<Record<K, string>>(defaultDraftFilters);
   const tableStateChangeRef = useRef(onTableStateChange);
 
   useEffect(() => {
     tableStateChangeRef.current = onTableStateChange;
   }, [onTableStateChange]);
 
-  useEffect(() => {
-    setDraftFilters(filterValues);
-  }, [filterValues]);
-
   const setDraftFilterValue = (key: K, value: string) => {
     setDraftFilters((prev) => ({ ...prev, [key]: value }));
   };
 
   const applyDraftFilters = () => {
+    if (!hasFilters) return;
     (Object.keys(draftFilters) as K[]).forEach((key) => {
       onFilterChange(key, draftFilters[key]);
     });
@@ -193,7 +212,7 @@ export default function ConfigurableTable<T, K extends string>({
                 onOpen={() => setDraftFilters(filterValues)}
                 onClear={() => {
                   resetFilters();
-                  setDraftFilters(filterValues);
+                  setDraftFilters(defaultDraftFilters);
                   setPage(1);
                 }}
                 onApply={applyDraftFilters}
@@ -213,15 +232,17 @@ export default function ConfigurableTable<T, K extends string>({
 
       {!loading && !error && emptyStateVariant === "no-data" && (
         <EmptyState
-          title="No data available"
-          description="No records found for this table."
+          title={emptyStateConfig?.noDataTitle ?? "No data available"}
+          description={emptyStateConfig?.noDataDescription ?? "No records found for this table."}
         />
       )}
 
       {!loading && !error && emptyStateVariant === "no-results" && (
         <EmptyState
-          title="No matching results"
-          description="Try changing your search or filter values."
+          title={emptyStateConfig?.noResultsTitle ?? "No matching results"}
+          description={
+            emptyStateConfig?.noResultsDescription ?? "Try changing your search or filter values."
+          }
         />
       )}
 

@@ -44,19 +44,16 @@ const Day8Client = () => {
 
   const [note, setNote] = useState("");
   const [seconds, setSeconds] = useState(0);
+  const [previousCount, setPreviousCount] = useState(count);
 
   const noteInputRef = useRef<HTMLInputElement | null>(null);
   const prevCountRef = useRef(count);
-  const renderCountRef = useRef(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   useEffect(() => {
+    setPreviousCount(prevCountRef.current);
     prevCountRef.current = count;
   }, [count]);
-
-  useEffect(() => {
-    renderCountRef.current += 1;
-  });
 
   useEffect(() => {
     return () => {
@@ -131,16 +128,12 @@ const Day8Client = () => {
         </div>
 
         <div className="space-y-1">
-          <p>2) Previous count with ref: {prevCountRef.current}</p>
+          <p>2) Previous count with ref: {previousCount}</p>
           <p>Current count: {count}</p>
         </div>
 
-        <div>
-          <p>3) Render count with ref: {renderCountRef.current}</p>
-        </div>
-
         <div className="space-y-2">
-          <p>4) Timer id in ref: {seconds}s</p>
+          <p>3) Timer id in ref: {seconds}s</p>
           <div className="flex gap-2 pt-18">
             <Button variant="primary" onClick={handleStartTimer}>
               Start Timer
@@ -181,11 +174,11 @@ const Day8Client = () => {
             <CardContent className="text-muted">Border-focused neutral card for secondary sections.</CardContent>
           </Card>
 
-          <Card className="rounded-card border-none bg-brand-500 text-white shadow-soft">
+          <Card className="rounded-card border-none bg-brand-500 shadow-soft">
             <CardHeader>
-              <CardTitle className="text-display-sm text-white">Variant 3: Brand Card</CardTitle>
+              <CardTitle className="text-display-sm text-gray-900">Variant 3: Brand Card</CardTitle>
             </CardHeader>
-            <CardContent className="text-white/90">Primary emphasis block using brand color token.</CardContent>
+            <CardContent className="text-gray-800">Primary emphasis block using brand color token.</CardContent>
           </Card>
 
           <Card className="rounded-card border-border bg-surface shadow-none">

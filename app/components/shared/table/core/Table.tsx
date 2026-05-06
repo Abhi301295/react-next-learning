@@ -83,15 +83,17 @@ export default function Table<
         </thead>
 
         <tbody>
-          {data.map((item) => (
-            <tr key={getKey(item)} className="border-t hover:bg-gray-50 transition">
+          {data.map((item) => {
+            const rowKey = getKey(item);
+            return (
+            <tr key={rowKey} className="border-t hover:bg-gray-50 transition">
               {selectable && (
                 <td className="p-3">
                   <input
                     type="checkbox"
-                    checked={selectedKeys?.has(getKey(item)) ?? false}
-                    onChange={() => onToggleRow?.(getKey(item))}
-                    aria-label={`Select row ${String(getKey(item))}`}
+                    checked={selectedKeys?.has(rowKey) ?? false}
+                    onChange={() => onToggleRow?.(rowKey)}
+                    aria-label={`Select row ${String(rowKey)}`}
                   />
                 </td>
               )}
@@ -114,7 +116,8 @@ export default function Table<
                 </td>
               )}
             </tr>
-          ))}
+          );
+          })}
         </tbody>
 
       </table>

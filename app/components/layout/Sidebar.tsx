@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { sidebarItems, type SidebarItem } from "@/lib/config/sidebar";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
@@ -21,18 +21,6 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
     if (!item.children) return false;
     return item.children.some((child) => child.href === pathname);
   };
-
-  useEffect(() => {
-    setOpenGroups((prev) => {
-      const next = { ...prev };
-      for (const item of sidebarItems) {
-        if (item.children && item.children.some((child) => child.href === pathname)) {
-          next[item.label] = true;
-        }
-      }
-      return next;
-    });
-  }, [pathname]);
 
   return (
     <>
@@ -56,8 +44,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
         <nav className="flex flex-col gap-1 px-2">
           {sidebarItems.map((item) => {
             const isActive = pathname === item.href;
-            const isGroupOpen = openGroups[item.label];
             const groupHasActiveChild = hasActiveChild(item);
+            const isGroupOpen = openGroups[item.label] ?? groupHasActiveChild;
             const firstLetter = item.label.charAt(0).toUpperCase();
 
             if (item.children) {
@@ -146,8 +134,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
             <nav className="space-y-2">
               {sidebarItems.map((item) => {
                 const isActive = pathname === item.href;
-                const isGroupOpen = openGroups[item.label];
                 const groupHasActiveChild = hasActiveChild(item);
+                const isGroupOpen = openGroups[item.label] ?? groupHasActiveChild;
 
                 if (item.children) {
                   return (
@@ -193,7 +181,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                 return (
                   <Link
                     key={item.href}
-                    href={item.href}
+                    href={item.href ?? "#"}
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "block px-3 py-2 rounded",

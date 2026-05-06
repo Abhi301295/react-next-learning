@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { SortDirection } from "@/components/shared/table/core/Table";
 
 export type FilterConfig<T, K extends string> = {
@@ -106,34 +106,37 @@ export function useTableControls<T, K extends string>({
     return sortedData.slice(start, start + pageSize);
   }, [currentPage, sortedData, pageSize]);
 
-  const allVisibleSelected =
-    paginatedData.length > 0 &&
-    paginatedData.every((row) => selectedRowKeys.has(getRowKey(row)));
+  const allVisibleSelected = useMemo(
+    () =>
+      paginatedData.length > 0 &&
+      paginatedData.every((row) => selectedRowKeys.has(getRowKey(row))),
+    [getRowKey, paginatedData, selectedRowKeys]
+  );
 
-  const onSearchChange = (value: string) => {
+  const onSearchChange = useCallback((value: string) => {
     setSearchInput(value);
     setPage(1);
-  };
+  }, []);
 
-  const onFilterChange = (key: K, value: string) => {
+  const onFilterChange = useCallback((key: K, value: string) => {
     setFilterValues((prev) => ({
       ...prev,
       [key]: value,
     }));
     setPage(1);
-  };
+  }, []);
 
-  const resetFilters = () => {
+  const resetFilters = useCallback(() => {
     setFilterValues(initialFilterValues);
     setPage(1);
-  };
+  }, [initialFilterValues]);
 
-  const onPageSizeChange = (value: number) => {
+  const onPageSizeChange = useCallback((value: number) => {
     setPageSize(value);
     setPage(1);
-  };
+  }, []);
 
-  const onSortChange = (key: keyof T) => {
+  const onSortChange = useCallback((key: keyof T) => {
     setPage(1);
     if (sortBy === key) {
       setSortDirection((prev) => (prev === "asc" ? "desc" : "asc"));
@@ -141,9 +144,9 @@ export function useTableControls<T, K extends string>({
     }
     setSortBy(key);
     setSortDirection("asc");
-  };
+  }, [sortBy]);
 
-  const toggleRowSelection = (rowKey: string | number) => {
+  const toggleRowSelection = useCallback((rowKey: string | number) => {
     setSelectedRowKeys((prev) => {
       const next = new Set(prev);
       if (next.has(rowKey)) {
@@ -153,9 +156,9 @@ export function useTableControls<T, K extends string>({
       }
       return next;
     });
-  };
+  }, []);
 
-  const toggleSelectAllVisible = () => {
+  const toggleSelectAllVisible = useCallback(() => {
     setSelectedRowKeys((prev) => {
       const next = new Set(prev);
       if (allVisibleSelected) {
@@ -165,16 +168,18 @@ export function useTableControls<T, K extends string>({
       }
       return next;
     });
-  };
+  }, [allVisibleSelected, getRowKey, paginatedData]);
 
-  const clearSelection = () => {
+  const clearSelection = useCallback(() => {
     setSelectedRowKeys(new Set());
-  };
+  }, []);
 
   const selectedCount = selectedRowKeys.size;
-  const activeFilterCount = filters.filter(
-    (filter) => filterValues[filter.key] !== filter.initialValue
-  ).length;
+  const activeFilterCount = useMemo(
+    () =>
+      filters.filter((filter) => filterValues[filter.key] !== filter.initialValue).length,
+    [filterValues, filters]
+  );
   const emptyStateVariant =
     data.length === 0 ? "no-data" : filteredData.length === 0 ? "no-results" : "has-results";
 

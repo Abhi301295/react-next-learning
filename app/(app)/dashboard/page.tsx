@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Card, CardContent, CardHeader } from "@/components/ui/Card";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -33,11 +33,12 @@ export default function DashboardPage() {
         </p>
       </header>
 
+      <h2 className="text-base font-semibold text-brand-600">Key Metrics</h2>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="KPI cards">
         {kpiItems.map((item) => (
           <Card key={item.label} className="rounded-card border-border bg-surface shadow-soft">
             <CardHeader>
-              <CardTitle className="text-sm text-muted">{item.label}</CardTitle>
+              <p className="text-sm font-semibold text-muted">{item.label}</p>
             </CardHeader>
             <CardContent className="text-display-sm font-semibold text-brand-600">
               {item.value}
@@ -48,7 +49,7 @@ export default function DashboardPage() {
 
       <Card className="rounded-card border-border bg-surface shadow-soft">
         <CardHeader>
-          <CardTitle>Recent Activity</CardTitle>
+          <h2 className="text-base font-semibold">Recent Activity</h2>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">

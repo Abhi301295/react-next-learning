@@ -25,7 +25,7 @@ const Day3Client = () => {
   ] as const;
 
   return (
-    <main aria-labelledby="users-heading" className="mx-auto max-w-3xl space-y-6">
+    <section aria-labelledby="users-heading" className="mx-auto max-w-3xl space-y-6">
       <header className="space-y-3">
         <h1 id="users-heading" className="text-2xl font-bold">
           Users
@@ -112,7 +112,7 @@ const Day3Client = () => {
           </nav>
         </>
       )}
-    </main>
+    </section>
   );
 };
 
