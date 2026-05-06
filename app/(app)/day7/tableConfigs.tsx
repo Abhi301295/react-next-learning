@@ -59,6 +59,7 @@ const renderFilterFields = (
 ) => (
   <div className={layoutClassName}>
     <TableFilterField
+      type="radio-group"
       label="Status"
       value={values.status}
       onChange={(value) => setValue("status", value)}
@@ -132,7 +133,7 @@ export const panelTableConfig: TableConfig<User, Day7FilterKey> = {
   filters: {
     enabled: true,
     mode: "panel",
-    title: "Configurable Filters (Select + Date + Checkboxes)",
+    title: "Configurable Filters (Radio + Date + Checkboxes)",
     triggerLabel: "Open Filter Panel",
     definitions: filterDefinitions,
     template: ({ values, setValue }: FilterTemplateContext<Day7FilterKey>) =>

@@ -11,7 +11,13 @@ type FilterOption = {
   value: string;
 };
 
-type FieldType = 'select' | 'multi-select' | 'date' | 'checkbox' | 'checkbox-group';
+type FieldType =
+  | 'select'
+  | 'multi-select'
+  | 'date'
+  | 'checkbox'
+  | 'checkbox-group'
+  | 'radio-group';
 
 type TableFilterFieldProps = {
   label?: string;
@@ -85,6 +91,32 @@ export default function TableFilterField({
               </div>
             );
           })}
+        </div>
+      </fieldset>
+    );
+  }
+
+  if (type === 'radio-group') {
+    const selectedValue = typeof value === 'string' ? value : '';
+    const groupName = `${labelId}-radio-group`;
+
+    return (
+      <fieldset className="space-y-2">
+        <legend className="text-sm font-medium text-gray-700">{label}</legend>
+        <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-md border p-3">
+          {options.map((option) => (
+            <div key={option.value} className="shrink-0">
+              <Input
+                type="radio"
+                name={groupName}
+                value={option.value}
+                label={option.label}
+                checked={selectedValue === option.value}
+                onChange={() => onChange(option.value)}
+                className="shrink-0"
+              />
+            </div>
+          ))}
         </div>
       </fieldset>
     );

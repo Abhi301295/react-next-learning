@@ -30,7 +30,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     },
     ref
   ) => {
-    const isCheckbox = props.type === 'checkbox';
+    const isCheckboxLike = props.type === 'checkbox' || props.type === 'radio';
 
     const sizeStyles = {
       sm: 'h-8 text-sm px-2',
@@ -47,21 +47,25 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     const generatedId = useId();
     const inputId = id || generatedId;
 
-    if (isCheckbox) {
+    if (isCheckboxLike) {
+      const isRadio = props.type === 'radio';
       return (
         <div className="flex flex-col gap-1">
           <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-gray-700">
             <input
               ref={ref}
               id={inputId}
-              type="checkbox"
+              type={props.type}
               checked={Boolean(props.checked)}
               onChange={props.onChange}
+              name={props.name}
+              value={props.value}
               disabled={props.disabled}
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               className={cn(
-                'h-4 w-4 rounded border-gray-300 accent-blue-600',
+                'h-4 w-4 border-gray-300 accent-blue-600',
+                isRadio ? 'rounded-full' : 'rounded',
                 'focus:outline-none focus:ring-2 focus:ring-blue-500',
                 props.disabled && 'cursor-not-allowed opacity-50',
                 className
