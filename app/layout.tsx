@@ -24,6 +24,12 @@ export const metadata: Metadata = {
       },
     ],
   },
+  twitter: {
+    card: "summary_large_image",
+    title: "User Dashboard",
+    description: "Manage users with reusable table controls and form workflows.",
+    images: ["/file.svg"],
+  },
   alternates: {
     canonical: "/",
   },
