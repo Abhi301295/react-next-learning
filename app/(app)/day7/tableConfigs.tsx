@@ -8,13 +8,28 @@ import { Button } from "@/components/ui/Button";
 import type { User } from "@/lib/hooks/useUsers";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 
-export type Day7FilterKey = "status" | "joinedAfter" | "includeInactive" | "roles";
+export type Day7FilterKey =
+  | "status"
+  | "joinedAfter"
+  | "includeInactive"
+  | "roles"
+  | "departments";
 
 const getJoinedDate = (userId: number) => {
   const month = (userId % 12) + 1;
   const day = (userId % 27) + 1;
   return `2024-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
 };
+
+const departmentOptions = [
+  "Engineering",
+  "Design",
+  "Marketing",
+  "Support",
+  "Finance",
+];
+
+const getDepartment = (userId: number) => departmentOptions[userId % departmentOptions.length];
 
 const filterDefinitions = [
   {
@@ -48,6 +63,15 @@ const filterDefinitions = [
       const selectedRoles = Array.isArray(value) ? value : [];
       if (selectedRoles.length === 0) return true;
       return selectedRoles.includes(user.role);
+    },
+  },
+  {
+    key: "departments" as Day7FilterKey,
+    initialValue: [] as string[],
+    predicate: (user: User, value: FilterValue) => {
+      const selectedDepartments = Array.isArray(value) ? value : [];
+      if (selectedDepartments.length === 0) return true;
+      return selectedDepartments.includes(getDepartment(user.id));
     },
   },
 ];
@@ -91,6 +115,18 @@ const renderFilterFields = (
         { label: "User", value: "user" },
       ]}
     />
+    <TableFilterField
+      type="multi-select"
+      label="Departments (Searchable)"
+      value={values.departments}
+      onChange={(value) => setValue("departments", value)}
+      searchable
+      searchPlaceholder="Search departments..."
+      options={departmentOptions.map((department) => ({
+        label: department,
+        value: department,
+      }))}
+    />
   </div>
 );
 
@@ -133,7 +169,7 @@ export const panelTableConfig: TableConfig<User, Day7FilterKey> = {
   filters: {
     enabled: true,
     mode: "panel",
-    title: "Configurable Filters (Radio + Date + Checkboxes)",
+    title: "Configurable Filters (Radio + Date + Checkbox + Searchable Select)",
     triggerLabel: "Open Filter Panel",
     definitions: filterDefinitions,
     template: ({ values, setValue }: FilterTemplateContext<Day7FilterKey>) =>

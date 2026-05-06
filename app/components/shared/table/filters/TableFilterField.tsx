@@ -27,6 +27,9 @@ type TableFilterFieldProps = {
   onChange: (value: FilterValue) => void;
   placeholder?: string;
   className?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsText?: string;
 };
 
 export default function TableFilterField({
@@ -37,6 +40,9 @@ export default function TableFilterField({
   onChange,
   placeholder = 'Select option',
   className,
+  searchable = false,
+  searchPlaceholder = 'Search options...',
+  noResultsText = 'No options found',
 }: TableFilterFieldProps) {
   const labelId = useId();
 
@@ -131,6 +137,9 @@ export default function TableFilterField({
         value={Array.isArray(value) ? value : String(value)}
         multiple={type === 'multi-select'}
         size="sm"
+        searchable={searchable}
+        searchPlaceholder={searchPlaceholder}
+        noResultsText={noResultsText}
         ariaLabelledBy={labelId}
         onChange={(nextValue) => onChange(nextValue)}
         placeholder={placeholder}

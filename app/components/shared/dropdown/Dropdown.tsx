@@ -14,6 +14,9 @@ interface DropdownProps {
   size?: 'sm' | 'md' | 'lg';
   ariaLabel?: string;
   ariaLabelledBy?: string;
+  searchable?: boolean;
+  searchPlaceholder?: string;
+  noResultsText?: string;
 }
 
 const Dropdown = ({
@@ -26,10 +29,14 @@ const Dropdown = ({
   size = 'md',
   ariaLabel,
   ariaLabelledBy,
+  searchable = false,
+  searchPlaceholder = 'Search options...',
+  noResultsText = 'No options found',
 }: DropdownProps) => {
   const [isOpen, setIsOpen] = useState(false);
   const [internalSelected, setInternalSelected] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const ref = useRef<HTMLDivElement>(null);
   const listRef = useRef<HTMLUListElement>(null);
@@ -62,6 +69,11 @@ const Dropdown = ({
   };
 
   const options = React.Children.toArray(children).filter(isDropdownOption);
+  const filteredOptions = options.filter((option) =>
+    String(option.props.children).toLowerCase().includes(searchQuery.trim().toLowerCase())
+  );
+  const safeActiveIndex =
+    filteredOptions.length === 0 ? 0 : Math.min(activeIndex, filteredOptions.length - 1);
 
   const handleSelect = (val: string) => {
     if (multiple) {
@@ -94,7 +106,7 @@ const Dropdown = ({
       return;
     }
 
-    if (!isOpen || options.length === 0) return;
+    if (!isOpen || filteredOptions.length === 0) return;
 
     switch (e.key) {
       case 'Tab':
@@ -102,20 +114,20 @@ const Dropdown = ({
         break;
       case 'ArrowDown':
         e.preventDefault();
-        setActiveIndex((prev) => (prev + 1) % options.length);
+        setActiveIndex((prev) => (prev + 1) % filteredOptions.length);
         break;
 
       case 'ArrowUp':
         e.preventDefault();
         setActiveIndex(
-          (prev) => (prev - 1 + options.length) % options.length
+          (prev) => (prev - 1 + filteredOptions.length) % filteredOptions.length
         );
         break;
 
       case 'Enter':
       case ' ':
         e.preventDefault();
-        handleSelect(options[activeIndex].props.value);
+        handleSelect(filteredOptions[safeActiveIndex].props.value);
         break;
 
       case 'Escape':
@@ -129,7 +141,7 @@ const Dropdown = ({
 
       case 'End':
         e.preventDefault();
-        setActiveIndex(options.length - 1);
+        setActiveIndex(filteredOptions.length - 1);
         break;
     }
   };
@@ -156,6 +168,7 @@ const Dropdown = ({
           setIsOpen((prev) => {
             const next = !prev;
             if (next) {
+              setSearchQuery('');
               setActiveIndex(0);
             }
             return next;
@@ -166,7 +179,7 @@ const Dropdown = ({
         aria-haspopup="listbox"
         aria-controls={listboxId}
         aria-expanded={isOpen}
-        aria-activedescendant={isOpen ? `${id}-option-${activeIndex}` : undefined}
+        aria-activedescendant={isOpen ? `${id}-option-${safeActiveIndex}` : undefined}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         className={cn(
@@ -185,18 +198,34 @@ const Dropdown = ({
       </button>
 
       {isOpen && (
-        <ul
-          id={listboxId}
-          ref={listRef}
-          role="listbox"
-          aria-multiselectable={multiple || undefined}
-          tabIndex={-1}
-          className="absolute left-0 mt-2 w-full border rounded-md bg-white shadow-lg z-20"
-        >
-          {options.map((option, index) => {
+        <div className="absolute left-0 z-20 mt-2 w-full rounded-md border bg-white shadow-lg">
+          {searchable && (
+            <div className="border-b p-2">
+              <input
+                type="text"
+                value={searchQuery}
+                onChange={(event) => {
+                  setSearchQuery(event.target.value);
+                  setActiveIndex(0);
+                }}
+                onKeyDown={(event) => event.stopPropagation()}
+                placeholder={searchPlaceholder}
+                className="h-8 w-full rounded border px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+          )}
+          <ul
+            id={listboxId}
+            ref={listRef}
+            role="listbox"
+            aria-multiselectable={multiple || undefined}
+            tabIndex={-1}
+            className="max-h-60 overflow-auto"
+          >
+            {filteredOptions.map((option, index) => {
             const val = option.props.value;
             const isSelected = selected.includes(val);
-            const isActive = index === activeIndex;
+            const isActive = index === safeActiveIndex;
 
             return (
               <li
@@ -224,8 +253,12 @@ const Dropdown = ({
                 {!multiple && isSelected && <span>✓</span>}
               </li>
             );
-          })}
-        </ul>
+            })}
+            {filteredOptions.length === 0 && (
+              <li className="px-4 py-2 text-sm text-gray-500">{noResultsText}</li>
+            )}
+          </ul>
+        </div>
       )}
     </div>
   );
