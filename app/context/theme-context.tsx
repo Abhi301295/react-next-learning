@@ -12,13 +12,31 @@ type ThemeContextValue = {
 };
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
+const STORAGE_KEY = "dashboard-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [theme, setTheme] = useState<Theme>("light");
+  const [theme, setTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") {
+      return "light";
+    }
+
+    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
+    if (savedTheme === "light" || savedTheme === "dark") {
+      return savedTheme;
+    }
+
+    const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    return prefersDark ? "dark" : "light";
+  });
 
   useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
     const root = document.documentElement;
     root.classList.toggle("dark", theme === "dark");
+    window.localStorage.setItem(STORAGE_KEY, theme);
   }, [theme]);
 
   const value = useMemo<ThemeContextValue>(

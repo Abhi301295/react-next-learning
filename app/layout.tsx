@@ -42,8 +42,23 @@ export const metadata: Metadata = {
 
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground">
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              (function() {
+                const key = "dashboard-theme";
+                const savedTheme = localStorage.getItem(key);
+                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+                const theme = savedTheme === "light" || savedTheme === "dark"
+                  ? savedTheme
+                  : (prefersDark ? "dark" : "light");
+                document.documentElement.classList.toggle("dark", theme === "dark");
+              })();
+            `,
+          }}
+        />
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>
