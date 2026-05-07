@@ -11,7 +11,7 @@ export default function Day7Client() {
     <div className="p-4 space-y-6">
       <header>
         <h1 className="text-2xl font-semibold">Day 7</h1>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-subtle">
           Demo: configurable filters with select, date, and checkbox inputs.
         </p>
       </header>

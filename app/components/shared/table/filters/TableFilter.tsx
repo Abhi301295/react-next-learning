@@ -48,10 +48,15 @@ export default function TableFilter({
         )}
       </div>
 
-      <Modal isOpen={isOpen} onClose={() => setIsOpen(false)} title={title} panelClass="max-w-lg">
+      <Modal
+        isOpen={isOpen}
+        onClose={() => setIsOpen(false)}
+        title={title}
+        panelClass="max-w-3xl"
+      >
         <div className="space-y-4">
           {children}
-          <div className="flex justify-end gap-2">
+          <div className="flex justify-end gap-2 border-t border-stroke pt-4">
             {onClear && (
               <Button
                 type="button"

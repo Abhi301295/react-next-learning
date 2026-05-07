@@ -38,7 +38,7 @@ const Tabs = ({
 
   return (
     <div className={className}>
-      <div className="flex border-b gap-2 overflow-x-auto">
+      <div className="flex gap-2 overflow-x-auto border-b border-stroke">
         {tabsArray.map((tab, index) => {
           const isActive = activeIndex === index;
 
@@ -49,7 +49,7 @@ const Tabs = ({
               disabled={tab.props.disabled}
               className={`px-4 py-2 whitespace-nowrap transition ${isActive
                   ? 'border-b-2 border-blue-500 font-semibold'
-                  : 'text-gray-500 hover:text-black'
+                  : 'text-subtle hover:text-foreground'
                 } ${tab.props.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
             >
               {tab.props.label}

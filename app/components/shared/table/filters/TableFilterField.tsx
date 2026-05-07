@@ -75,12 +75,12 @@ export default function TableFilterField({
 
     return (
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-gray-700">{label}</legend>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-md border p-3">
+        <legend className="text-sm font-medium text-foreground">{label}</legend>
+        <div className="grid gap-2 rounded-md border border-stroke bg-panel p-3 sm:grid-cols-2">
           {options.map((option) => {
             const checked = selectedValues.includes(option.value);
             return (
-              <div key={option.value} className="shrink-0">
+              <div key={option.value} className="min-w-0">
                 <Input
                   type="checkbox"
                   label={option.label}
@@ -108,10 +108,10 @@ export default function TableFilterField({
 
     return (
       <fieldset className="space-y-2">
-        <legend className="text-sm font-medium text-gray-700">{label}</legend>
-        <div className="flex flex-wrap gap-x-6 gap-y-2 rounded-md border p-3">
+        <legend className="text-sm font-medium text-foreground">{label}</legend>
+        <div className="grid gap-2 rounded-md border border-stroke bg-panel p-3 sm:grid-cols-2">
           {options.map((option) => (
-            <div key={option.value} className="shrink-0">
+            <div key={option.value} className="min-w-0">
               <Input
                 type="radio"
                 name={groupName}
@@ -129,8 +129,8 @@ export default function TableFilterField({
   }
 
   return (
-    <div className="space-y-1">
-      <span id={labelId} className="text-sm font-medium text-gray-700">
+    <div className="space-y-1.5">
+      <span id={labelId} className="text-sm font-medium text-foreground">
         {label}
       </span>
       <Dropdown

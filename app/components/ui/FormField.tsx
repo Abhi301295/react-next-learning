@@ -25,7 +25,7 @@ const FormField = ({
     <div className="flex flex-col gap-1 w-full">
 
       {label && (
-        <label className="text-sm font-medium text-gray-700">
+        <label className="text-sm font-medium text-foreground">
           {label}
         </label>
       )}
@@ -45,7 +45,7 @@ const FormField = ({
       ) : isSuccess ? (
         <span className="text-sm text-green-600">{success}</span>
       ) : helperText ? (
-        <span className="text-sm text-gray-500">{helperText}</span>
+        <span className="text-sm text-subtle">{helperText}</span>
       ) : null}
     </div>
   );

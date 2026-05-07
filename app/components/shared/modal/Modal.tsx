@@ -38,7 +38,7 @@ const Modal = ({
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4"
       onClick={() => {
         if (!disableClose) onClose();
       }}
@@ -46,16 +46,21 @@ const Modal = ({
       <div className="absolute inset-0 bg-black/50" />
       <div
         className={cn(
-          "relative bg-white rounded-lg shadow-lg p-6 w-full max-w-md z-10 animate-fade-scale",
+          "relative z-10 w-full max-w-md max-h-[85vh] overflow-y-auto rounded-lg border border-stroke bg-panel p-6 text-foreground shadow-lg animate-fade-scale",
           panelClass
         )}
         onClick={(e) => e.stopPropagation()}
       >
         {title && (
-          <div className="flex justify-between items-center mb-4">
+          <div className="mb-4 flex items-center justify-between border-b border-stroke pb-3">
             <h2 className="text-lg font-semibold">{title}</h2>
             {showCloseButton && (
-              <button onClick={onClose}>✕</button>
+              <button
+                onClick={onClose}
+                className="rounded px-2 py-1 text-subtle hover:bg-slate-100 hover:text-foreground dark:hover:bg-slate-800"
+              >
+                ✕
+              </button>
             )}
           </div>
         )}

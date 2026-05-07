@@ -114,7 +114,7 @@ const Day8Client = () => {
         </ul>
       </section>
 
-      <section className="space-y-3 rounded-card border border-border bg-surface p-4 shadow-soft" aria-label="useRef examples">
+      <section className="space-y-3 rounded-card border border-stroke bg-panel p-4 shadow-soft" aria-label="useRef examples">
         <h2 className="text-lg font-semibold">useRef Examples</h2>
 
         <div className="space-y-2">
@@ -125,7 +125,7 @@ const Day8Client = () => {
             value={note}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Type here and click focus"
-            className="w-full max-w-sm rounded-card border border-border px-3 py-2"
+            className="w-full max-w-sm rounded-card border border-stroke px-3 py-2"
           />
           <Button variant="primary" onClick={() => noteInputRef.current?.focus()}>
             Focus Input
@@ -158,44 +158,44 @@ const Day8Client = () => {
         </div>
       </section>
 
-      <section className="space-y-3 rounded-card border border-border p-4" aria-label="day 8 demo">
+      <section className="space-y-3 rounded-card border border-stroke p-4" aria-label="day 8 demo">
         <h2 className="text-lg font-semibold text-brand-600">Day 8 Tailwind Theme Token Demo</h2>
-        <p className="text-sm text-muted">
+        <p className="text-sm text-subtle">
           Tailwind theme token preview (colors, spacing, font size, radius, and shadow).
         </p>
 
         <div className="grid gap-3 sm:grid-cols-2">
-          <Card className="rounded-card border-border bg-surface shadow-soft">
+          <Card className="rounded-card border-stroke bg-panel shadow-soft">
             <CardHeader>
               <CardTitle className="text-display-sm text-brand-600">Variant 1: Surface Card</CardTitle>
             </CardHeader>
-            <CardContent className="text-muted">Soft background + card radius + soft shadow.</CardContent>
+            <CardContent className="text-subtle">Soft background + card radius + soft shadow.</CardContent>
           </Card>
 
-          <Card className="rounded-card border-border bg-transparent shadow-none">
+          <Card className="rounded-card border-stroke bg-transparent shadow-none">
             <CardHeader>
               <CardTitle className="text-brand-600">Variant 2: Outline Card</CardTitle>
             </CardHeader>
-            <CardContent className="text-muted">Border-focused neutral card for secondary sections.</CardContent>
+            <CardContent className="text-subtle">Border-focused neutral card for secondary sections.</CardContent>
           </Card>
 
           <Card className="rounded-card border-none bg-brand-500 shadow-soft">
             <CardHeader>
-              <CardTitle className="text-display-sm text-gray-900">Variant 3: Brand Card</CardTitle>
+              <CardTitle className="text-display-sm text-white">Variant 3: Brand Card</CardTitle>
             </CardHeader>
-            <CardContent className="text-gray-800">Primary emphasis block using brand color token.</CardContent>
+            <CardContent className="text-white/90">Primary emphasis block using brand color token.</CardContent>
           </Card>
 
-          <Card className="rounded-card border-border bg-surface shadow-none">
+          <Card className="rounded-card border-stroke bg-panel shadow-none">
             <CardHeader>
               <CardTitle className="text-brand-600">Variant 4: Compact Meta</CardTitle>
             </CardHeader>
-            <CardContent className="mt-18 text-muted">Uses custom spacing token (`mt-18`) for layout rhythm.</CardContent>
+            <CardContent className="mt-18 text-subtle">Uses custom spacing token (`mt-18`) for layout rhythm.</CardContent>
           </Card>
         </div>
       </section>
 
-      <section className="space-y-3 rounded-card border border-border p-4" aria-label="api driven table">
+      <section className="space-y-3 rounded-card border border-stroke p-4" aria-label="api driven table">
         <h2 className="text-lg font-semibold text-brand-600">API Driven Table (Posts API with 100 records)</h2>
         <ConfigurableTable<Day8PostRow, Day8ApiKey>
           data={tableRows}

@@ -173,7 +173,7 @@ export const panelTableConfig: TableConfig<User, Day7FilterKey> = {
     triggerLabel: "Open Filter Panel",
     definitions: filterDefinitions,
     template: ({ values, setValue }: FilterTemplateContext<Day7FilterKey>) =>
-      renderFilterFields(values, setValue, "grid gap-3 md:grid-cols-2"),
+      renderFilterFields(values, setValue, "grid gap-4 lg:grid-cols-2"),
   },
   sorting: {
     enabled: true,

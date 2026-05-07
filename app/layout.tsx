@@ -1,6 +1,7 @@
 import "./globals.css";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import Script from "next/script";
 import { ThemeProvider } from "@/context/theme-context";
 
 export const metadata: Metadata = {
@@ -44,21 +45,20 @@ export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="min-h-screen bg-background text-foreground">
-        <script
-          dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                const key = "dashboard-theme";
-                const savedTheme = localStorage.getItem(key);
-                const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-                const theme = savedTheme === "light" || savedTheme === "dark"
-                  ? savedTheme
-                  : (prefersDark ? "dark" : "light");
-                document.documentElement.classList.toggle("dark", theme === "dark");
-              })();
-            `,
-          }}
-        />
+        <Script id="theme-init" strategy="beforeInteractive">{`
+          (function() {
+            const key = "dashboard-theme";
+            const savedTheme = localStorage.getItem(key);
+            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+            const themeMode = savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+              ? savedTheme
+              : "system";
+            const theme = themeMode === "system"
+              ? (prefersDark ? "dark" : "light")
+              : themeMode;
+            document.documentElement.classList.toggle("dark", theme === "dark");
+          })();
+        `}</Script>
         <ThemeProvider>{children}</ThemeProvider>
       </body>
     </html>

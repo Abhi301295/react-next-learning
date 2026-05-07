@@ -14,7 +14,7 @@ const Day6Client = () => {
 
             <header>
                 <h1 className="text-2xl font-semibold">User Management</h1>
-                <p className="text-sm text-gray-500">
+                <p className="text-sm text-subtle">
                     View and manage all users in the system
                 </p>
             </header>
@@ -43,7 +43,7 @@ const Day6Client = () => {
                             Users List
                         </h2>
 
-                        <span className="text-sm text-gray-500">
+                        <span className="text-sm text-subtle">
                             Total: {users.length}
                         </span>
                     </div>

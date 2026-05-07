@@ -39,9 +39,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     const variantStyles = {
-      default: 'border bg-white',
+      default: 'border border-stroke bg-panel',
       outline: 'border-2 bg-transparent',
-      ghost: 'border-none bg-gray-100',
+      ghost: 'border-none bg-slate-100 dark:bg-slate-800',
     };
 
     const generatedId = useId();
@@ -51,7 +51,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       const isRadio = props.type === 'radio';
       return (
         <div className="flex flex-col gap-1">
-          <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-foreground">
             <input
               ref={ref}
               id={inputId}
@@ -64,7 +64,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               className={cn(
-                'h-4 w-4 border-gray-300 accent-blue-600',
+                'h-4 w-4 border-stroke accent-blue-600',
                 isRadio ? 'rounded-full' : 'rounded',
                 'focus:outline-none focus:ring-2 focus:ring-blue-500',
                 props.disabled && 'cursor-not-allowed opacity-50',
@@ -78,7 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {error}
             </span>
           ) : (
-            helperText && <span className="text-sm text-gray-500">{helperText}</span>
+            helperText && <span className="text-sm text-subtle">{helperText}</span>
           )}
         </div>
       );
@@ -88,7 +88,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div className="flex flex-col gap-1 w-full">
 
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
             {label}
           </label>
         )}
@@ -105,7 +105,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         >
 
           {leftIcon && (
-            <span className="mr-2 flex items-center text-gray-500">
+            <span className="mr-2 flex items-center text-subtle">
               {leftIcon}
             </span>
           )}
@@ -117,14 +117,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={error ? `${inputId}-error` : undefined}
             className={cn(
               'w-full bg-transparent outline-none',
-              'placeholder:text-gray-400',
+              'placeholder:text-subtle',
               className
             )}
             {...props}
           />
 
           {rightIcon && (
-            <span className="ml-2 flex items-center text-gray-500">
+            <span className="ml-2 flex items-center text-subtle">
               {rightIcon}
             </span>
           )}
@@ -136,7 +136,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </span>
         ) : (
           helperText && (
-            <span className="text-sm text-gray-500">{helperText}</span>
+            <span className="text-sm text-subtle">{helperText}</span>
           )
         )}
       </div>

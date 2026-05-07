@@ -11,9 +11,9 @@ export const metadata: Metadata = {
 
 export default function AddUserPage() {
   return (
-    <div className="min-h-screen p-6 bg-gray-50">
+    <div className="min-h-screen bg-background p-6">
 
-      <div className="max-w-xl mx-auto bg-white p-6 rounded-lg shadow">
+      <div className="mx-auto max-w-xl rounded-lg border border-stroke bg-panel p-6 shadow">
 
         <h1 className="text-2xl font-semibold mb-4">
           Add New User

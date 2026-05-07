@@ -33,13 +33,13 @@ export default function TablePagination({
   return (
     <nav
       aria-label="Pagination"
-      className="flex justify-end border-t pt-4"
+      className="flex justify-end border-t border-stroke pt-4"
     >
-      <div className="flex flex-wrap items-center justify-end gap-2 text-sm text-gray-700">
+      <div className="flex flex-wrap items-center justify-end gap-2 text-sm text-subtle">
         <span>Rows per page:</span>
         <select
           aria-label="Rows per page"
-          className="rounded border bg-white px-2 py-1"
+          className="rounded border border-stroke bg-panel px-2 py-1 text-foreground"
           value={pageSize}
           onChange={(event) => onPageSizeChange(Number(event.target.value))}
         >

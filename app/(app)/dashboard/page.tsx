@@ -28,7 +28,7 @@ export default function DashboardPage() {
         <h1 id="dashboard-title" className="text-display-sm font-semibold text-brand-600">
           Dashboard
         </h1>
-        <p className="mt-1 text-sm text-muted">
+        <p className="mt-1 text-sm text-subtle">
           Starter dashboard for upcoming final project tasks.
         </p>
       </header>
@@ -36,9 +36,9 @@ export default function DashboardPage() {
       <h2 className="text-base font-semibold text-brand-600">Key Metrics</h2>
       <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="KPI cards">
         {kpiItems.map((item) => (
-          <Card key={item.label} className="rounded-card border-border bg-surface shadow-soft">
+          <Card key={item.label} className="rounded-card border-stroke bg-panel shadow-soft">
             <CardHeader>
-              <p className="text-sm font-semibold text-muted">{item.label}</p>
+              <p className="text-sm font-semibold text-subtle">{item.label}</p>
             </CardHeader>
             <CardContent className="text-display-sm font-semibold text-brand-600">
               {item.value}
@@ -47,14 +47,14 @@ export default function DashboardPage() {
         ))}
       </section>
 
-      <Card className="rounded-card border-border bg-surface shadow-soft">
+      <Card className="rounded-card border-stroke bg-panel shadow-soft">
         <CardHeader>
           <h2 className="text-base font-semibold">Recent Activity</h2>
         </CardHeader>
         <CardContent>
           <ul className="space-y-2">
             {recentActivities.map((activity) => (
-              <li key={activity} className="text-sm text-muted">
+              <li key={activity} className="text-sm text-subtle">
                 {activity}
               </li>
             ))}

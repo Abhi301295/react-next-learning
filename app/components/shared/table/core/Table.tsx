@@ -42,10 +42,10 @@ export default function Table<
   onSortChange,
 }: TableProps<T, C>) {
   return (
-    <div className="overflow-x-auto border rounded-md">
-      <table className="w-full text-sm">
+    <div className="overflow-x-auto rounded-md border border-stroke bg-panel">
+      <table className="w-full text-sm text-foreground">
 
-        <thead className="bg-gray-100 text-left">
+        <thead className="bg-slate-100 text-left dark:bg-slate-800">
           <tr>
             {selectable && (
               <th className="p-3 w-12">
@@ -82,11 +82,14 @@ export default function Table<
           </tr>
         </thead>
 
-        <tbody>
+        <tbody className="divide-y divide-border">
           {data.map((item) => {
             const rowKey = getKey(item);
             return (
-            <tr key={rowKey} className="border-t hover:bg-gray-50 transition">
+            <tr
+              key={rowKey}
+              className="bg-transparent transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/70"
+            >
               {selectable && (
                 <td className="p-3">
                   <input

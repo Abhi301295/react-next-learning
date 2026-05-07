@@ -26,7 +26,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
     <>
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r bg-white transition-all duration-300",
+          "hidden md:flex flex-col border-r border-stroke bg-panel text-foreground transition-all duration-300",
           collapsed ? "w-16" : "w-64"
         )}
       >
@@ -58,8 +58,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                     }
                     title={collapsed ? item.label : undefined}
                     className={cn(
-                      "flex w-full items-center rounded-md px-3 py-2 text-sm hover:bg-gray-100",
-                      groupHasActiveChild && "bg-gray-100 font-medium",
+                      "flex w-full items-center rounded-md px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800",
+                      groupHasActiveChild && "bg-slate-200 dark:bg-slate-700 font-medium",
                       collapsed && "justify-center px-0"
                     )}
                   >
@@ -70,7 +70,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                   </button>
 
                   {!collapsed && isGroupOpen && (
-                    <div className="ml-3 border-l border-gray-200 pl-2">
+                    <div className="ml-3 border-l border-stroke pl-2">
                       {item.children.map((child) => {
                         const isChildActive = pathname === child.href;
                         return (
@@ -78,8 +78,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                             key={child.href}
                             href={child.href ?? "#"}
                             className={cn(
-                              "block rounded-md px-3 py-2 text-sm hover:bg-gray-100",
-                              isChildActive && "bg-gray-200 font-medium"
+                              "block rounded-md px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800",
+                              isChildActive && "bg-slate-200 dark:bg-slate-700 font-medium"
                             )}
                           >
                             {child.label}
@@ -99,8 +99,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                 title={collapsed ? item.label : undefined}
                 className={cn(
                   "flex items-center rounded-md px-3 py-2 text-sm",
-                  "hover:bg-gray-100",
-                  isActive && "bg-gray-200 font-medium",
+                  "hover:bg-slate-100 dark:hover:bg-slate-800",
+                  isActive && "bg-slate-200 dark:bg-slate-700 font-medium",
                   collapsed && "justify-center px-0"
                 )}
               >
@@ -120,7 +120,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
           />
 
           {/* Sidebar */}
-          <aside className="w-64 bg-white p-4 shadow-lg">
+          <aside className="w-64 border-l border-stroke bg-panel p-4 text-foreground shadow-lg">
             <div className="flex justify-end mb-4">
               <Button
                 size="sm"
@@ -146,8 +146,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                           setOpenGroups((prev) => ({ ...prev, [item.label]: !prev[item.label] }))
                         }
                         className={cn(
-                          "flex w-full items-center rounded px-3 py-2 text-left hover:bg-gray-100",
-                          groupHasActiveChild && "bg-gray-100 font-medium"
+                          "flex w-full items-center rounded px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800",
+                          groupHasActiveChild && "bg-slate-200 dark:bg-slate-700 font-medium"
                         )}
                       >
                         <span>{item.label}</span>
@@ -155,7 +155,7 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                       </button>
 
                       {isGroupOpen && (
-                        <div className="ml-3 border-l border-gray-200 pl-2">
+                        <div className="ml-3 border-l border-stroke pl-2">
                           {item.children.map((child) => {
                             const isChildActive = pathname === child.href;
                             return (
@@ -164,8 +164,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                                 href={child.href ?? "#"}
                                 onClick={() => setMobileOpen(false)}
                                 className={cn(
-                                  "block rounded px-3 py-2 hover:bg-gray-100",
-                                  isChildActive && "bg-gray-200 font-medium"
+                                  "block rounded px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800",
+                                  isChildActive && "bg-slate-200 dark:bg-slate-700 font-medium"
                                 )}
                               >
                                 {child.label}
@@ -185,8 +185,8 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
                     onClick={() => setMobileOpen(false)}
                     className={cn(
                       "block px-3 py-2 rounded",
-                      "hover:bg-gray-100",
-                      isActive && "bg-gray-200 font-medium"
+                      "hover:bg-slate-100 dark:hover:bg-slate-800",
+                      isActive && "bg-slate-200 dark:bg-slate-700 font-medium"
                     )}
                   >
                     {item.label}

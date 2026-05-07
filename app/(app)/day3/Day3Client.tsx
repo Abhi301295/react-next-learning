@@ -74,7 +74,7 @@ const Day3Client = () => {
                 </CardHeader>
 
                 <CardContent>
-                  <p className="text-sm text-gray-500">{user.email}</p>
+                  <p className="text-sm text-subtle">{user.email}</p>
                 </CardContent>
               </Card>
             )}
@@ -95,7 +95,7 @@ const Day3Client = () => {
               ← Prev
             </Button>
 
-            <span className="text-sm text-gray-600">
+            <span className="text-sm text-subtle">
               Page <strong>{page}</strong> of <strong>{totalPages || 1}</strong>
             </span>
 
