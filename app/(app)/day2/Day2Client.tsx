@@ -55,7 +55,7 @@ const Day2Client = () => {
           onClose={() => setModalType(null)}
           disableClose={modalType === 'noClose'}
           title={`Modal: ${modalType}`}
-          panelClass={modalType === 'custom' ? 'max-w-2xl bg-gray-100' : ''}
+          panelClass={modalType === 'custom' ? 'max-w-2xl bg-surface' : ''}
         >
           {modalType === 'default' && <p>Default modal</p>}
           {modalType === 'noClose' && <p>Cannot close by outside click or ESC</p>}

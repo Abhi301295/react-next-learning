@@ -183,12 +183,12 @@ const Dropdown = ({
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         className={cn(
-          'flex items-center justify-between w-full rounded-md border bg-white shadow-sm',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500',
+          'flex w-full items-center justify-between rounded-md border border-border bg-surface text-foreground shadow-sm',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500',
           sizeClasses[size]
         )}
       >
-        <span className={cn(selected.length === 0 && 'text-gray-400')}>
+        <span className={cn(selected.length === 0 && 'text-muted')}>
           {displayText}
         </span>
 
@@ -198,7 +198,7 @@ const Dropdown = ({
       </button>
 
       {isOpen && (
-        <div className="absolute left-0 z-20 mt-2 w-full rounded-md border bg-white shadow-lg">
+        <div className="absolute left-0 z-20 mt-2 w-full rounded-md border border-border bg-surface shadow-lg">
           {searchable && (
             <div className="border-b p-2">
               <input
@@ -210,7 +210,7 @@ const Dropdown = ({
                 }}
                 onKeyDown={(event) => event.stopPropagation()}
                 placeholder={searchPlaceholder}
-                className="h-8 w-full rounded border px-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-8 w-full rounded border border-border bg-background px-2 text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
           )}
@@ -237,10 +237,10 @@ const Dropdown = ({
                 onClick={() => handleSelect(val)}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
-                  'px-4 py-2 cursor-pointer flex items-center justify-between',
+                  'flex cursor-pointer items-center justify-between px-4 py-2 text-foreground',
                   isSelected && 'font-medium',
-                  isActive && 'bg-blue-100',
-                  'hover:bg-gray-100'
+                  isActive && 'bg-brand-500/15',
+                  'hover:bg-background'
                 )}
               >
                 <div className="flex items-center gap-2">
@@ -255,7 +255,7 @@ const Dropdown = ({
             );
             })}
             {filteredOptions.length === 0 && (
-              <li className="px-4 py-2 text-sm text-gray-500">{noResultsText}</li>
+              <li className="px-4 py-2 text-sm text-muted">{noResultsText}</li>
             )}
           </ul>
         </div>

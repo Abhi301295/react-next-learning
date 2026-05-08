@@ -44,8 +44,8 @@ export default function AddUserForm() {
     name: "addresses",
   });
 
-  const onSubmit = async (data: UserFormData) => {
-    console.log("Final User Data:", data);
+  const onSubmit = async (_data: UserFormData) => {
+    /* Persist / API call would run here */
   };
 
   useEffect(() => {
@@ -76,15 +76,15 @@ export default function AddUserForm() {
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Basic Information</h2>
 
-        <FormField label="Name" error={errors.name?.message}>
+        <FormField label="Name" htmlFor="name" error={errors.name?.message}>
           <Input id="name" {...register("name")} placeholder="Enter full name" />
         </FormField>
 
-        <FormField label="Email" error={errors.email?.message}>
+        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
           <Input id="email" {...register("email")} placeholder="Enter email" />
         </FormField>
 
-        <FormField label="Phone" error={errors.phone?.message}>
+        <FormField label="Phone" htmlFor="phone" error={errors.phone?.message}>
           <Input id="phone" {...register("phone")} placeholder="Enter phone number" />
         </FormField>
       </section>
@@ -151,7 +151,11 @@ export default function AddUserForm() {
                 </p>
               )}
 
-              <FormField error={errors.addresses?.[index]?.street?.message}>
+              <FormField
+                label="Street"
+                htmlFor={`street-${index}`}
+                error={errors.addresses?.[index]?.street?.message}
+              >
                 <Input
                   id={`street-${index}`}
                   {...register(`addresses.${index}.street`)}
@@ -161,19 +165,19 @@ export default function AddUserForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                <FormField error={errors.addresses?.[index]?.city?.message}>
+                <FormField label="City" htmlFor={`city-${index}`} error={errors.addresses?.[index]?.city?.message}>
                   <Input id={`city-${index}`} {...register(`addresses.${index}.city`)} placeholder="City" />
                 </FormField>
 
-                <FormField error={errors.addresses?.[index]?.state?.message}>
+                <FormField label="State" htmlFor={`state-${index}`} error={errors.addresses?.[index]?.state?.message}>
                   <Input id={`state-${index}`} {...register(`addresses.${index}.state`)} placeholder="State" />
                 </FormField>
 
-                <FormField error={errors.addresses?.[index]?.zip?.message}>
+                <FormField label="ZIP" htmlFor={`zip-${index}`} error={errors.addresses?.[index]?.zip?.message}>
                   <Input id={`zip-${index}`} {...register(`addresses.${index}.zip`)} placeholder="ZIP Code" />
                 </FormField>
 
-                <FormField error={errors.addresses?.[index]?.country?.message}>
+                <FormField label="Country" htmlFor={`country-${index}`} error={errors.addresses?.[index]?.country?.message}>
                   <Input id={`country-${index}`} {...register(`addresses.${index}.country`)} placeholder="Country" />
                 </FormField>
 
@@ -212,16 +216,16 @@ export default function AddUserForm() {
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Additional Information</h2>
 
-        <FormField label="Description" error={errors.description?.message}>
+        <FormField label="Description" htmlFor="description" error={errors.description?.message}>
           <textarea
             id="description"
             {...register("description")}
-            className="w-full border rounded-md px-3 py-2"
+            className="w-full rounded-md border border-border bg-surface px-3 py-2"
             placeholder="Short description..."
           />
         </FormField>
 
-        <FormField label="Avatar URL" error={errors.avatar?.message}>
+        <FormField label="Avatar URL" htmlFor="avatar" error={errors.avatar?.message}>
           <Input id="avatar" {...register("avatar")} placeholder="https://image-url.com" />
         </FormField>
       </section>

@@ -13,10 +13,9 @@ export const useLoginForm = () => {
     mode: "onBlur", // matches your previous behavior
   });
 
-  const onSubmit = async (data: LoginFormData) => {
+  const onSubmit = async (_data: LoginFormData) => {
     try {
       await new Promise((res) => setTimeout(res, 1000));
-      console.log("Form Submitted:", data);
     } catch (err) {
       console.error(err);
     }

@@ -39,9 +39,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     };
 
     const variantStyles = {
-      default: 'border bg-white',
-      outline: 'border-2 bg-transparent',
-      ghost: 'border-none bg-gray-100',
+      default: 'border border-border bg-surface',
+      outline: 'border-2 border-border bg-transparent',
+      ghost: 'border-none bg-surface',
     };
 
     const generatedId = useId();
@@ -51,7 +51,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       const isRadio = props.type === 'radio';
       return (
         <div className="flex flex-col gap-1">
-          <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-gray-700">
+          <label htmlFor={inputId} className="inline-flex items-center gap-2 text-sm text-foreground">
             <input
               ref={ref}
               id={inputId}
@@ -64,9 +64,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               className={cn(
-                'h-4 w-4 border-gray-300 accent-blue-600',
+                'h-4 w-4 border-border accent-brand-600',
                 isRadio ? 'rounded-full' : 'rounded',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'focus:outline-none focus:ring-2 focus:ring-brand-500',
                 props.disabled && 'cursor-not-allowed opacity-50',
                 className
               )}
@@ -78,7 +78,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               {error}
             </span>
           ) : (
-            helperText && <span className="text-sm text-gray-500">{helperText}</span>
+            helperText && <span className="text-sm text-muted">{helperText}</span>
           )}
         </div>
       );
@@ -88,7 +88,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
       <div className="flex flex-col gap-1 w-full">
 
         {label && (
-          <label htmlFor={inputId} className="text-sm font-medium text-gray-700">
+          <label htmlFor={inputId} className="text-sm font-medium text-foreground">
             {label}
           </label>
         )}
@@ -98,14 +98,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             'flex items-center rounded-md transition',
             variantStyles[variant],
             sizeStyles[inputSize],
-            'focus-within:ring-2 focus-within:ring-blue-500',
+            'focus-within:ring-2 focus-within:ring-brand-500',
             error && 'border-red-500 focus-within:ring-red-500',
             props.disabled && 'opacity-50 cursor-not-allowed'
           )}
         >
 
           {leftIcon && (
-            <span className="mr-2 flex items-center text-gray-500">
+            <span className="mr-2 flex items-center text-muted">
               {leftIcon}
             </span>
           )}
@@ -117,14 +117,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             aria-describedby={error ? `${inputId}-error` : undefined}
             className={cn(
               'w-full bg-transparent outline-none',
-              'placeholder:text-gray-400',
+              'placeholder:text-muted',
               className
             )}
             {...props}
           />
 
           {rightIcon && (
-            <span className="ml-2 flex items-center text-gray-500">
+            <span className="ml-2 flex items-center text-muted">
               {rightIcon}
             </span>
           )}
@@ -136,7 +136,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
           </span>
         ) : (
           helperText && (
-            <span className="text-sm text-gray-500">{helperText}</span>
+            <span className="text-sm text-muted">{helperText}</span>
           )
         )}
       </div>
