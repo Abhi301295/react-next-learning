@@ -2,6 +2,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
+import { ThemeInitScript } from "./components/theme/ThemeInitScript";
 
 export const metadata: Metadata = {
   metadataBase: new URL(
@@ -42,17 +43,11 @@ export const metadata: Metadata = {
   },
 };
 
-/** Matches ThemeProvider + theme-context STORAGE_KEY; runs before hydration. */
-const THEME_INIT_JS = `(function(){try{var k='dashboard-theme',m=localStorage.getItem(k);if(m!=='light'&&m!=='dark'&&m!=='system')m='system';var r=document.documentElement;var dark=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches);r.classList.toggle('dark',dark);r.style.colorScheme=dark?'dark':'light';}catch(e){}})();`;
-
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
       <head>
-        <script
-          // Executed before first paint to avoid light->dark flicker.
-          dangerouslySetInnerHTML={{ __html: THEME_INIT_JS }}
-        />
+        <ThemeInitScript />
       </head>
       <body
         className="min-h-screen bg-background text-foreground"

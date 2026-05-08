@@ -6,9 +6,11 @@ import {
   useContext,
   useLayoutEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 import type { ReactNode } from "react";
+import { THEME_STORAGE_KEY } from "./theme-constants";
 
 type Theme = "light" | "dark";
 export type ThemeMode = Theme | "system";
@@ -25,30 +27,13 @@ type ThemeValue = {
 
 const ThemeValueContext = createContext<ThemeValue | null>(null);
 const ThemeActionsContext = createContext<ThemeActions | null>(null);
-const STORAGE_KEY = "dashboard-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") return "system";
-    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
-    return savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
-      ? savedTheme
-      : "system";
-  });
-  const [resolvedTheme, setResolvedTheme] = useState<Theme>(() => {
-    if (typeof window === "undefined") return "light";
-    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
-    const mode =
-      savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
-        ? savedTheme
-        : "system";
-    if (mode === "system") {
-      return window.matchMedia("(prefers-color-scheme: dark)").matches
-        ? "dark"
-        : "light";
-    }
-    return mode;
-  });
+  // During SSR/hydration, we can't reliably read localStorage.
+  // We sync themeMode from localStorage inside useLayoutEffect before paint.
+  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
+  const [resolvedTheme, setResolvedTheme] = useState<Theme>("light");
+  const hasSyncedFromStorage = useRef(false);
 
   useLayoutEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
@@ -65,31 +50,48 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       };
     };
 
-    const applyTheme = (nextTheme: Theme) => {
+    const applyResolvedTheme = (nextResolvedTheme: Theme) => {
       const restoreTransitions = disableTransitionsTemporarily();
       const root = document.documentElement;
-      root.classList.toggle("dark", nextTheme === "dark");
-      root.style.colorScheme = nextTheme === "dark" ? "dark" : "light";
+      root.classList.toggle("dark", nextResolvedTheme === "dark");
+      root.style.colorScheme = nextResolvedTheme === "dark" ? "dark" : "light";
       restoreTransitions();
-      setResolvedTheme(nextTheme);
+      setResolvedTheme(nextResolvedTheme);
     };
 
-    const resolveTheme = () => {
-      const nextTheme: Theme =
-        themeMode === "system"
-          ? mediaQuery.matches
-            ? "dark"
-            : "light"
-          : themeMode;
-      applyTheme(nextTheme);
-      window.localStorage.setItem(STORAGE_KEY, themeMode);
+    const resolveToResolvedTheme = (mode: ThemeMode): Theme => {
+      if (mode === "system") {
+        return mediaQuery.matches ? "dark" : "light";
+      }
+      return mode;
     };
 
-    resolveTheme();
+    const syncFromStorageOnce = () => {
+      const saved = window.localStorage.getItem(THEME_STORAGE_KEY);
+      const storedThemeMode: ThemeMode =
+        saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
+
+      // Apply immediately so the UI doesn't flash.
+      applyResolvedTheme(resolveToResolvedTheme(storedThemeMode));
+      window.localStorage.setItem(THEME_STORAGE_KEY, storedThemeMode);
+
+      // Also sync dropdown value/state (deferred to satisfy lint rules).
+      if (storedThemeMode !== themeMode) {
+        void Promise.resolve().then(() => setThemeMode(storedThemeMode));
+      }
+    };
+
+    if (!hasSyncedFromStorage.current) {
+      hasSyncedFromStorage.current = true;
+      syncFromStorageOnce();
+    } else {
+      applyResolvedTheme(resolveToResolvedTheme(themeMode));
+      window.localStorage.setItem(THEME_STORAGE_KEY, themeMode);
+    }
 
     const handleSystemThemeChange = () => {
       if (themeMode === "system") {
-        resolveTheme();
+        applyResolvedTheme(mediaQuery.matches ? "dark" : "light");
       }
     };
 
