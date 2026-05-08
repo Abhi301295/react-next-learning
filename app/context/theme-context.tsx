@@ -4,7 +4,6 @@ import {
   createContext,
   useCallback,
   useContext,
-  useEffect,
   useLayoutEffect,
   useMemo,
   useState,
@@ -29,19 +28,27 @@ const ThemeActionsContext = createContext<ThemeActions | null>(null);
 const STORAGE_KEY = "dashboard-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
-  const [resolvedTheme, setResolvedTheme] = useState<Theme>("light");
-
-  useEffect(() => {
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
+    if (typeof window === "undefined") return "system";
     const savedTheme = window.localStorage.getItem(STORAGE_KEY);
-    if (
-      savedTheme === "light" ||
-      savedTheme === "dark" ||
-      savedTheme === "system"
-    ) {
-      setThemeMode(savedTheme);
+    return savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+      ? savedTheme
+      : "system";
+  });
+  const [resolvedTheme, setResolvedTheme] = useState<Theme>(() => {
+    if (typeof window === "undefined") return "light";
+    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
+    const mode =
+      savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
+        ? savedTheme
+        : "system";
+    if (mode === "system") {
+      return window.matchMedia("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light";
     }
-  }, []);
+    return mode;
+  });
 
   useLayoutEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");

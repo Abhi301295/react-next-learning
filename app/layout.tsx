@@ -2,10 +2,11 @@ import "./globals.css";
 import { Providers } from "./providers";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import Script from "next/script";
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://user-dashboard.local"),
+  metadataBase: new URL(
+    process.env.NEXT_PUBLIC_SITE_URL ?? "https://user-dashboard.local"
+  ),
   title: {
     default: "User Dashboard",
     template: "%s | User Dashboard",
@@ -47,13 +48,16 @@ const THEME_INIT_JS = `(function(){try{var k='dashboard-theme',m=localStorage.ge
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <script
+          // Executed before first paint to avoid light->dark flicker.
+          dangerouslySetInnerHTML={{ __html: THEME_INIT_JS }}
+        />
+      </head>
       <body
         className="min-h-screen bg-background text-foreground"
         suppressHydrationWarning
       >
-        <Script id="theme-init" strategy="beforeInteractive">
-          {THEME_INIT_JS}
-        </Script>
         <Providers>{children}</Providers>
       </body>
     </html>

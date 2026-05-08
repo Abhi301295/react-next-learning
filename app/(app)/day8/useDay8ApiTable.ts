@@ -32,6 +32,9 @@ export function useDay8ApiTable() {
   }, [tableSearchInput]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    let requestAborted = false;
+
     const fetchUsers = async () => {
       try {
         setTableLoading(true);
@@ -48,7 +51,9 @@ export function useDay8ApiTable() {
           params.set('_order', tableSortDirection);
         }
 
-        const response = await fetch(`/api/posts?${params.toString()}`);
+        const response = await fetch(`/api/posts?${params.toString()}`, {
+          signal: controller.signal,
+        });
         if (!response.ok) throw new Error('Failed to fetch records');
 
         const totalFromHeader = Number(response.headers.get('x-total-count'));
@@ -57,13 +62,19 @@ export function useDay8ApiTable() {
         const data: ApiPost[] = await response.json();
         setTableRows(data.map(mapApiPostToRow));
       } catch (err: unknown) {
+        if (err instanceof DOMException && err.name === "AbortError") {
+          requestAborted = true;
+          return;
+        }
         setTableError(err instanceof Error ? err.message : 'Something went wrong');
       } finally {
+        if (requestAborted || controller.signal.aborted) return;
         setTableLoading(false);
       }
     };
 
     void fetchUsers();
+    return () => controller.abort();
   }, [
     tablePage,
     tablePageSize,

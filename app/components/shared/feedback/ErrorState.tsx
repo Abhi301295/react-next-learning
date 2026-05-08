@@ -8,7 +8,11 @@ export function ErrorState({
   onRetry?: () => void;
 }) {
   return (
-    <div className="flex flex-col items-center justify-center py-10 text-center space-y-3">
+    <div
+      className="flex flex-col items-center justify-center py-10 text-center space-y-3"
+      role="alert"
+      aria-live="assertive"
+    >
       <p className="text-red-500 font-medium">{message}</p>
 
       {onRetry && (

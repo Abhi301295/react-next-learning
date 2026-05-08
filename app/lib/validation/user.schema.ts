@@ -1,5 +1,11 @@
 import { z } from "zod";
 
+const emptyToUndefined = (value: unknown) => {
+    if (typeof value !== "string") return value;
+    const trimmed = value.trim();
+    return trimmed === "" ? undefined : trimmed;
+};
+
 export const userSchema = z.object({
     id: z.string().optional(),
     name: z.string().trim().min(3, {
@@ -14,11 +20,13 @@ export const userSchema = z.object({
             (val) => /^\S+@\S+\.\S+$/.test(val),
             { message: 'Invalid email address' }
         ),
-    phone: z
-        .string()
-        .trim()
-        .regex(/^\d{10}$/, { message: "Phone must be 10 digits" })
-        .optional(),
+    phone: z.preprocess(
+        emptyToUndefined,
+        z
+            .string()
+            .regex(/^\d{10}$/, { message: "Phone must be 10 digits" })
+            .optional()
+    ),
     role: z.enum(["admin", "user"]),
     status: z.enum(["active", "inactive"]),
 
@@ -36,12 +44,15 @@ export const userSchema = z.object({
         .trim()
         .max(200, { message: "Max 200 characters allowed" })
         .optional(),
-    avatar: z
-        .string()
-        .url({ message: "Invalid URL" })
-        .optional(),
+    avatar: z.preprocess(
+        emptyToUndefined,
+        z
+            .string()
+            .url({ message: "Invalid URL" })
+            .optional()
+    ),
     createdAt: z.string().optional(),
     updatedAt: z.string().optional(),
 });
 
-export type UserFormData = z.infer<typeof userSchema>;
+export type UserFormData = z.input<typeof userSchema>;

@@ -16,6 +16,7 @@ import { cn } from "@/lib/utils";
 export default function AddUserForm() {
 
   const errorRef = useRef<HTMLDivElement | null>(null);
+  const formRef = useRef<HTMLFormElement | null>(null);
 
   const {
     register,
@@ -52,13 +53,14 @@ export default function AddUserForm() {
     if (Object.keys(errors).length > 0) {
       errorRef.current?.focus();
 
-      const el = document.querySelector("[aria-invalid='true']");
+      const el = formRef.current?.querySelector("[aria-invalid='true']");
       el?.scrollIntoView({ behavior: "smooth", block: "center" });
+      (el as HTMLElement | null)?.focus?.();
     }
   }, [errors]);
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+    <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
 
       <h2 className="text-2xl font-bold">Add User Details</h2>
 
@@ -76,52 +78,70 @@ export default function AddUserForm() {
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Basic Information</h2>
 
-        <FormField label="Name" htmlFor="name" error={errors.name?.message}>
-          <Input id="name" {...register("name")} placeholder="Enter full name" />
+        <FormField label="Name" htmlFor="name">
+          <Input id="name" error={errors.name?.message} {...register("name")} placeholder="Enter full name" />
         </FormField>
 
-        <FormField label="Email" htmlFor="email" error={errors.email?.message}>
-          <Input id="email" {...register("email")} placeholder="Enter email" />
+        <FormField label="Email" htmlFor="email">
+          <Input id="email" error={errors.email?.message} {...register("email")} placeholder="Enter email" />
         </FormField>
 
-        <FormField label="Phone" htmlFor="phone" error={errors.phone?.message}>
-          <Input id="phone" {...register("phone")} placeholder="Enter phone number" />
+        <FormField label="Phone" htmlFor="phone">
+          <Input id="phone" error={errors.phone?.message} {...register("phone")} placeholder="Enter phone number" />
         </FormField>
       </section>
 
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">User Settings</h2>
 
-        <FormField label="Role" error={errors.role?.message}>
+        <FormField label="Role">
           <Controller
             name="role"
             control={control}
             render={({ field }) => (
-              <Dropdown
-                value={field.value}
-                onChange={field.onChange}
-                aria-label="Select user role"
-              >
-                <DropdownOption value="user">User</DropdownOption>
-                <DropdownOption value="admin">Admin</DropdownOption>
-              </Dropdown>
+              <>
+                <Dropdown
+                  value={field.value}
+                  onChange={field.onChange}
+                  aria-label="Select user role"
+                  ariaInvalid={!!errors.role}
+                  ariaDescribedBy={errors.role ? "role-error" : undefined}
+                >
+                  <DropdownOption value="user">User</DropdownOption>
+                  <DropdownOption value="admin">Admin</DropdownOption>
+                </Dropdown>
+                {errors.role?.message && (
+                  <span id="role-error" className="text-sm text-red-700">
+                    {errors.role.message}
+                  </span>
+                )}
+              </>
             )}
           />
         </FormField>
 
-        <FormField label="Status" error={errors.status?.message}>
+        <FormField label="Status">
           <Controller
             name="status"
             control={control}
             render={({ field }) => (
-              <Dropdown
-                value={field.value}
-                onChange={field.onChange}
-                aria-label="Select user status"
-              >
-                <DropdownOption value="active">Active</DropdownOption>
-                <DropdownOption value="inactive">Inactive</DropdownOption>
-              </Dropdown>
+              <>
+                <Dropdown
+                  value={field.value}
+                  onChange={field.onChange}
+                  aria-label="Select user status"
+                  ariaInvalid={!!errors.status}
+                  ariaDescribedBy={errors.status ? "status-error" : undefined}
+                >
+                  <DropdownOption value="active">Active</DropdownOption>
+                  <DropdownOption value="inactive">Inactive</DropdownOption>
+                </Dropdown>
+                {errors.status?.message && (
+                  <span id="status-error" className="text-sm text-red-700">
+                    {errors.status.message}
+                  </span>
+                )}
+              </>
             )}
           />
         </FormField>
@@ -146,18 +166,15 @@ export default function AddUserForm() {
               </legend>
 
               {hasError && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-red-700">
                   Please fix errors in this address
                 </p>
               )}
 
-              <FormField
-                label="Street"
-                htmlFor={`street-${index}`}
-                error={errors.addresses?.[index]?.street?.message}
-              >
+              <FormField label="Street" htmlFor={`street-${index}`}>
                 <Input
                   id={`street-${index}`}
+                  error={errors.addresses?.[index]?.street?.message}
                   {...register(`addresses.${index}.street`)}
                   placeholder="Street"
                 />
@@ -165,20 +182,20 @@ export default function AddUserForm() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
 
-                <FormField label="City" htmlFor={`city-${index}`} error={errors.addresses?.[index]?.city?.message}>
-                  <Input id={`city-${index}`} {...register(`addresses.${index}.city`)} placeholder="City" />
+                <FormField label="City" htmlFor={`city-${index}`}>
+                  <Input id={`city-${index}`} error={errors.addresses?.[index]?.city?.message} {...register(`addresses.${index}.city`)} placeholder="City" />
                 </FormField>
 
-                <FormField label="State" htmlFor={`state-${index}`} error={errors.addresses?.[index]?.state?.message}>
-                  <Input id={`state-${index}`} {...register(`addresses.${index}.state`)} placeholder="State" />
+                <FormField label="State" htmlFor={`state-${index}`}>
+                  <Input id={`state-${index}`} error={errors.addresses?.[index]?.state?.message} {...register(`addresses.${index}.state`)} placeholder="State" />
                 </FormField>
 
-                <FormField label="ZIP" htmlFor={`zip-${index}`} error={errors.addresses?.[index]?.zip?.message}>
-                  <Input id={`zip-${index}`} {...register(`addresses.${index}.zip`)} placeholder="ZIP Code" />
+                <FormField label="ZIP" htmlFor={`zip-${index}`}>
+                  <Input id={`zip-${index}`} error={errors.addresses?.[index]?.zip?.message} {...register(`addresses.${index}.zip`)} placeholder="ZIP Code" />
                 </FormField>
 
-                <FormField label="Country" htmlFor={`country-${index}`} error={errors.addresses?.[index]?.country?.message}>
-                  <Input id={`country-${index}`} {...register(`addresses.${index}.country`)} placeholder="Country" />
+                <FormField label="Country" htmlFor={`country-${index}`}>
+                  <Input id={`country-${index}`} error={errors.addresses?.[index]?.country?.message} {...register(`addresses.${index}.country`)} placeholder="Country" />
                 </FormField>
 
               </div>
@@ -216,17 +233,24 @@ export default function AddUserForm() {
       <section className="space-y-4">
         <h2 className="text-lg font-semibold">Additional Information</h2>
 
-        <FormField label="Description" htmlFor="description" error={errors.description?.message}>
+        <FormField label="Description" htmlFor="description">
           <textarea
             id="description"
             {...register("description")}
+            aria-invalid={!!errors.description}
+            aria-describedby={errors.description ? "description-error" : undefined}
             className="w-full rounded-md border border-border bg-surface px-3 py-2"
             placeholder="Short description..."
           />
+          {errors.description?.message && (
+            <span id="description-error" className="text-sm text-red-700">
+              {errors.description.message}
+            </span>
+          )}
         </FormField>
 
-        <FormField label="Avatar URL" htmlFor="avatar" error={errors.avatar?.message}>
-          <Input id="avatar" {...register("avatar")} placeholder="https://image-url.com" />
+        <FormField label="Avatar URL" htmlFor="avatar">
+          <Input id="avatar" error={errors.avatar?.message} {...register("avatar")} placeholder="https://image-url.com" />
         </FormField>
       </section>
 

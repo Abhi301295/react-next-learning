@@ -1,12 +1,10 @@
 import type { NextConfig } from "next";
 
-const API_BASE_URL =
-  process.env.API_BASE_URL ?? "http://localhost:3000";
+const isProd = process.env.NODE_ENV === "production";
+const API_BASE_URL = process.env.API_BASE_URL ?? "http://localhost:3001";
 
-if (!process.env.API_BASE_URL) {
-  console.warn(
-    "⚠️ API_BASE_URL is not defined. Falling back to http://localhost:3000"
-  );
+if (isProd && !process.env.API_BASE_URL) {
+  throw new Error("API_BASE_URL must be defined in production.");
 }
 
 const nextConfig: NextConfig = {

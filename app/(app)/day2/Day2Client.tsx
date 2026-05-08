@@ -18,6 +18,7 @@ const Day2Client = () => {
 
   return (
     <section className="space-y-8">
+      <h1 className="text-display-sm font-semibold text-brand-600">Day 2 - Components Practice</h1>
       <section>
         <h2 className="mb-2 text-lg font-semibold">Counter with limit (min 0 && max 10 && step 2)</h2>
         <Counter initialValue={5} min={0} max={10} step={2} />

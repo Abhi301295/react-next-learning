@@ -14,6 +14,8 @@ interface DropdownProps {
   size?: 'sm' | 'md' | 'lg';
   ariaLabel?: string;
   ariaLabelledBy?: string;
+  ariaDescribedBy?: string;
+  ariaInvalid?: boolean;
   searchable?: boolean;
   searchPlaceholder?: string;
   noResultsText?: string;
@@ -29,6 +31,8 @@ const Dropdown = ({
   size = 'md',
   ariaLabel,
   ariaLabelledBy,
+  ariaDescribedBy,
+  ariaInvalid = false,
   searchable = false,
   searchPlaceholder = 'Search options...',
   noResultsText = 'No options found',
@@ -182,6 +186,8 @@ const Dropdown = ({
         aria-activedescendant={isOpen ? `${id}-option-${safeActiveIndex}` : undefined}
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
         className={cn(
           'flex w-full items-center justify-between rounded-md border border-stroke bg-panel text-foreground shadow-sm',
           'focus:outline-none focus:ring-2 focus:ring-brand-500',
@@ -213,6 +219,7 @@ const Dropdown = ({
                 }}
                 onKeyDown={(event) => event.stopPropagation()}
                 placeholder={searchPlaceholder}
+                aria-label={searchPlaceholder}
                 className="h-8 w-full rounded border border-stroke bg-background px-2 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
@@ -248,7 +255,7 @@ const Dropdown = ({
               >
                 <div className="flex items-center gap-2">
                   {multiple && (
-                    <input type="checkbox" checked={isSelected} readOnly />
+                    <input type="checkbox" checked={isSelected} readOnly tabIndex={-1} aria-hidden />
                   )}
                   {option.props.children}
                 </div>

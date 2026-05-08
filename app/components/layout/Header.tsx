@@ -4,17 +4,10 @@ import Dropdown from '@/components/shared/dropdown/Dropdown';
 import DropdownOption from '@/components/shared/dropdown/DropdownOption';
 import { Button } from '@/components/ui/Button';
 import { useTheme } from '@/context/theme-context';
-import { useEffect, useState } from 'react';
 
 export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const { themeMode, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
-
-  const dropdownValue = mounted ? themeMode : 'system';
+  const dropdownValue = themeMode;
 
   const handleThemeChange = (value: string | string[]) => {
     const next = Array.isArray(value) ? value[0] : value;

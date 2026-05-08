@@ -22,12 +22,14 @@ export function useUsers() {
   const [hasFetched, setHasFetched] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const fetchUsers = useCallback(async () => {
+  const fetchUsers = useCallback(async (signal?: AbortSignal) => {
+    let requestAborted = false;
+
     try {
       setLoading(true);
       setError(null);
 
-      const res = await fetch("/api/users");
+      const res = await fetch("/api/users", { signal });
 
       if (!res.ok) {
         throw new Error("Failed to fetch users");
@@ -45,22 +47,26 @@ export function useUsers() {
 
       setUsers(mappedUsers);
     } catch (err: unknown) {
+      if (err instanceof DOMException && err.name === "AbortError") {
+        requestAborted = true;
+        return;
+      }
       if (err instanceof Error) {
         setError(err.message);
       } else {
         setError("Something went wrong");
       }
     } finally {
+      if (requestAborted || signal?.aborted) return;
       setLoading(false);
       setHasFetched(true);
     }
   }, []);
 
   useEffect(() => {
-    const timerId = setTimeout(() => {
-      void fetchUsers();
-    }, 0);
-    return () => clearTimeout(timerId);
+    const controller = new AbortController();
+    void Promise.resolve().then(() => fetchUsers(controller.signal));
+    return () => controller.abort();
   }, [fetchUsers]);
 
   return {

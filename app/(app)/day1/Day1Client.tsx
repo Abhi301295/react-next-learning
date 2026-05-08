@@ -4,6 +4,9 @@ import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Ca
 const Day1Client = () => {
   return (
     <section aria-label="Day 1 UI Components">
+      <h1 className="mb-3 text-display-sm font-semibold text-brand-600">
+        Day 1 - UI Components
+      </h1>
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle>UI Components</CardTitle>

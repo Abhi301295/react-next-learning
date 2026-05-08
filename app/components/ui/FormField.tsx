@@ -48,7 +48,7 @@ const FormField = ({
       </div>
 
       {isError ? (
-        <span className="text-sm text-red-500">{error}</span>
+        <span className="text-sm text-red-700">{error}</span>
       ) : isSuccess ? (
         <span className="text-sm text-green-600">{success}</span>
       ) : helperText ? (

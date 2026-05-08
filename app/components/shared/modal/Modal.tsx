@@ -31,7 +31,7 @@ const Modal = ({
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
-    if (!isOpen || disableClose) return;
+    if (!isOpen) return;
 
     const handleEsc = (e: KeyboardEvent) => {
       if (e.key === 'Escape') onClose();
@@ -91,7 +91,7 @@ const Modal = ({
 
     document.addEventListener('keydown', handleTab);
     return () => document.removeEventListener('keydown', handleTab);
-  }, [isOpen, disableClose]);
+  }, [isOpen]);
 
   if (!isOpen) return null;
 

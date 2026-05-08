@@ -45,7 +45,7 @@ export default function Table<
     <div className="overflow-x-auto rounded-md border border-stroke bg-panel">
       <table className="w-full text-sm text-foreground">
 
-        <thead className="bg-slate-100 text-left dark:bg-slate-800">
+        <thead className="bg-background text-left">
           <tr>
             {selectable && (
               <th className="p-3 w-12">
@@ -58,13 +58,25 @@ export default function Table<
               </th>
             )}
             {columns.map((col) => (
-              <th key={String(col.key)} className="p-3 font-medium">
+              <th
+                key={String(col.key)}
+                className="p-3 font-medium"
+                aria-sort={
+                  col.sortable && sortBy === col.key
+                    ? sortDirection === "asc"
+                      ? "ascending"
+                      : "descending"
+                    : "none"
+                }
+              >
                 {col.sortable ? (
                   <button
                     type="button"
                     className="inline-flex items-center gap-1"
                     onClick={() => onSortChange?.(col.key)}
-                    aria-label={`Sort by ${col.label}`}
+                    aria-label={`Sort by ${col.label}. Current: ${
+                      sortBy === col.key ? sortDirection : "none"
+                    }`}
                   >
                     <span>{col.label}</span>
                     <span className="text-xs">
@@ -88,7 +100,7 @@ export default function Table<
             return (
             <tr
               key={rowKey}
-              className="bg-transparent transition-colors hover:bg-slate-100 dark:hover:bg-slate-800/70"
+              className="bg-transparent transition-colors hover:bg-background"
             >
               {selectable && (
                 <td className="p-3">

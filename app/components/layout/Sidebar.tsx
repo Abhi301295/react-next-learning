@@ -47,7 +47,9 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          <div
+          <button
+            type="button"
+            aria-label="Close navigation panel"
             className="flex-1 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />

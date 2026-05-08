@@ -74,7 +74,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             {label && <span>{label}</span>}
           </label>
           {error ? (
-            <span id={`${inputId}-error`} className="text-sm text-red-500">
+            <span id={`${inputId}-error`} className="text-sm text-red-700">
               {error}
             </span>
           ) : (
@@ -131,7 +131,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
         </div>
 
         {error ? (
-          <span id={`${inputId}-error`} className="text-sm text-red-500">
+          <span id={`${inputId}-error`} className="text-sm text-red-700">
             {error}
           </span>
         ) : (

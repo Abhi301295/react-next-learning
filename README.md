@@ -1,36 +1,48 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# User Dashboard
 
-## Getting Started
+Next.js App Router project used for day-wise frontend tasks, reusable UI primitives, configurable tables, forms, and theme management.
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router)
+- React 19
+- TypeScript
+- Tailwind CSS v4
+- React Hook Form + Zod
+
+## Project Structure
+
+- `app/(app)` - authenticated/main task routes (`day1` to `day8`, `dashboard`, `testing`)
+- `app/(auth)` - auth route group (`/login`)
+- `app/components` - UI primitives, shared components, layout, and feature-level components
+- `app/lib` - hooks, config, utilities, and validation schemas
+- `app/context` - app-wide React contexts (theme)
+
+## Theme System
+
+- Theme mode is managed by `app/context/theme-context.tsx` (`light`, `dark`, `system`).
+- Root initialization script runs in `app/layout.tsx` before hydration to avoid flashes/mismatches.
+- Shared tokens are defined in `app/globals.css` and consumed through utility classes (`bg-panel`, `border-stroke`, `text-subtle`).
+
+## API Routing
+
+- Browser calls use `/api/*`.
+- `next.config.ts` rewrites `/api/:path*` to `API_BASE_URL/:path*`.
+- Set `API_BASE_URL` in environment variables. In local development, fallback is `http://localhost:3001`.
+
+## SEO
+
+- Global metadata is in `app/layout.tsx`.
+- Route-level metadata lives in each route `page.tsx`.
+- Crawl metadata routes:
+  - `app/robots.ts`
+  - `app/sitemap.ts`
+
+## Scripts
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+npm run build
+npm run start
+npm run lint
 ```
-
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.

@@ -16,6 +16,8 @@ type SidebarNavProps = {
 
 const navButtonActive = 'bg-stroke/40 font-medium text-foreground';
 const navHover = 'hover:bg-background';
+const groupId = (variant: string, label: string) =>
+  `${variant}-group-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
 function hasActiveChild(item: SidebarItem, pathname: string) {
   if (!item.children) return false;
@@ -52,6 +54,8 @@ export function SidebarNav({
                   }))
                 }
                 title={isDesktop && collapsed ? item.label : undefined}
+                aria-expanded={isGroupOpen}
+                aria-controls={groupId(variant, item.label)}
                 className={cn(
                   'flex w-full items-center rounded-md px-3 py-2 text-sm',
                   navHover,
@@ -68,7 +72,10 @@ export function SidebarNav({
               </button>
 
               {(!isDesktop || !collapsed) && isGroupOpen && (
-                <div className="ml-3 border-l border-stroke pl-2">
+                <div
+                  id={groupId(variant, item.label)}
+                  className="ml-3 border-l border-stroke pl-2"
+                >
                   {item.children.map((child) => {
                     const isChildActive = pathname === child.href;
                     return (
