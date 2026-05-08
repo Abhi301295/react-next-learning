@@ -30,7 +30,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
         </Button>
 
         <p className="truncate text-lg font-semibold text-foreground">
-          Dashboard
+          Header
         </p>
       </div>
 

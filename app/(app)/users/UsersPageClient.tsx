@@ -1,12 +1,35 @@
 "use client";
 
-import Link from "next/link";
-import { EmptyState } from "@/components/shared/feedback/EmptyState";
-import { ErrorState } from "@/components/shared/feedback/ErrorState";
-import { LoadingState } from "@/components/shared/feedback/LoadingState";
+import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import Badge from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { useUsers } from "@/lib/hooks/useUsers";
+import { useUsers, type User } from "@/lib/hooks/useUsers";
+import {
+  renderUserProfileLink,
+  USER_COLUMNS,
+  usersDesktopTableConfig,
+  usersMobileListConfig,
+  usersMobileStateConfig,
+  type UsersFilterKey,
+} from "./tableConfigs";
+
+function renderUserCard(user: User) {
+  return (
+    <Card className="border-stroke bg-panel">
+      <CardHeader className="flex items-start justify-between gap-3">
+        <CardTitle>{user.name}</CardTitle>
+        <Badge variant={user.status === "active" ? "success" : "warning"}>
+          {user.status}
+        </Badge>
+      </CardHeader>
+      <CardContent className="space-y-2">
+        <p className="text-sm text-subtle">{user.email}</p>
+        <p className="text-sm text-subtle">Role: {user.role}</p>
+        {renderUserProfileLink(user.id)}
+      </CardContent>
+    </Card>
+  );
+}
 
 export default function UsersPageClient() {
   const { users, loading, error, refetch } = useUsers();
@@ -20,41 +43,18 @@ export default function UsersPageClient() {
         <p className="text-sm text-subtle">SEO-friendly route example: /users</p>
       </header>
 
-      {loading && <LoadingState />}
-
-      {!loading && error && <ErrorState message={error} onRetry={refetch} />}
-
-      {!loading && !error && users.length === 0 && (
-        <EmptyState
-          title="No users found"
-          description="Try again or check your API configuration."
-        />
-      )}
-
-      {!loading && !error && users.length > 0 && (
-        <div className="grid gap-3 md:grid-cols-2">
-          {users.map((user) => (
-            <Card key={user.id} className="border-stroke bg-panel">
-              <CardHeader className="flex items-start justify-between gap-3">
-                <CardTitle>{user.name}</CardTitle>
-                <Badge variant={user.status === "active" ? "success" : "warning"}>
-                  {user.status}
-                </Badge>
-              </CardHeader>
-              <CardContent className="space-y-2">
-                <p className="text-sm text-subtle">{user.email}</p>
-                <p className="text-sm text-subtle">Role: {user.role}</p>
-                <Link
-                  href={`/users/${user.id}`}
-                  className="inline-block text-sm font-medium text-brand-600 hover:underline"
-                >
-                  View profile
-                </Link>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+      <ResponsiveList<User, UsersFilterKey>
+        data={users}
+        loading={loading}
+        error={error}
+        onRetry={refetch}
+        getKey={(user) => user.id}
+        columns={USER_COLUMNS}
+        desktopTableConfig={usersDesktopTableConfig}
+        mobileListConfig={usersMobileListConfig}
+        mobileStateConfig={usersMobileStateConfig}
+        renderItem={renderUserCard}
+      />
     </section>
   );
 }

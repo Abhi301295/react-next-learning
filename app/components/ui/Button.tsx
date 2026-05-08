@@ -5,12 +5,12 @@ type ButtonVariant = "primary" | "secondary" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
 
 const base =
-  "inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed";
+  "inline-flex cursor-pointer items-center justify-center rounded-lg font-medium transition focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-brand-600 text-white hover:bg-brand-500",
+  primary: "bg-primary text-white hover:opacity-90",
   secondary:
-    "border border-stroke bg-panel text-foreground hover:bg-background",
+    "border border-stroke bg-secondary/15 text-foreground hover:bg-secondary/25",
   outline:
     "border border-stroke bg-transparent text-foreground hover:bg-panel",
 };
@@ -33,6 +33,8 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
+  /** Optional hover tooltip (maps to native `title`). */
+  tooltip?: string;
 };
 
 export function Button({
@@ -42,8 +44,10 @@ export function Button({
   icon,
   iconPosition = "left",
   iconOnly = false,
+  tooltip,
   children,
   "aria-label": ariaLabel,
+  title,
   ...props
 }: ButtonProps) {
   const resolvedSize = size ?? "md";
@@ -58,6 +62,7 @@ export function Button({
         className
       )}
       aria-label={ariaLabel}
+      title={tooltip ?? title}
       {...props}
     >
       {iconOnly ? (

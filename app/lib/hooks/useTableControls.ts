@@ -209,6 +209,7 @@ export function useTableControls<T, K extends string>({
     totalPages,
     setPage,
     filteredCount: filteredData.length,
+    sortedData,
     paginatedData,
     selectedRowKeys,
     selectedCount,

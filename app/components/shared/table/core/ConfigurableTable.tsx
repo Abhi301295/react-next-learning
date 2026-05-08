@@ -172,6 +172,13 @@ export default function ConfigurableTable<T, K extends string>({
     emptyStateVariant,
   } = clientControls;
 
+  useEffect(() => {
+    if (isServerMode || hasPagination) return;
+    if (pageSize !== nonPaginatedPageSize) {
+      onPageSizeChange(nonPaginatedPageSize);
+    }
+  }, [hasPagination, isServerMode, nonPaginatedPageSize, onPageSizeChange, pageSize]);
+
   const [serverSelectedRowKeys, setServerSelectedRowKeys] = useState<Set<string | number>>(new Set());
   const serverSearch = serverConfig?.state.search ?? "";
   const serverPage = serverConfig?.state.page ?? 1;
