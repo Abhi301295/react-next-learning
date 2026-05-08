@@ -8,9 +8,11 @@ const base =
   "inline-flex items-center justify-center rounded-lg font-medium transition focus:outline-none disabled:opacity-50 disabled:cursor-not-allowed";
 
 const variantClasses: Record<ButtonVariant, string> = {
-  primary: "bg-blue-600 text-white hover:bg-blue-700",
-  secondary: "bg-slate-600 text-white hover:bg-slate-700 dark:bg-slate-500 dark:hover:bg-slate-400",
-  outline: "border border-stroke text-foreground hover:bg-slate-100 dark:hover:bg-slate-800",
+  primary: "bg-brand-600 text-white hover:bg-brand-500",
+  secondary:
+    "border border-stroke bg-panel text-foreground hover:bg-background",
+  outline:
+    "border border-stroke bg-transparent text-foreground hover:bg-panel",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -45,10 +47,6 @@ export function Button({
   ...props
 }: ButtonProps) {
   const resolvedSize = size ?? "md";
-
-  if (iconOnly && !ariaLabel) {
-    console.warn('Button with iconOnly requires an "aria-label" for accessibility.');
-  }
 
   return (
     <button

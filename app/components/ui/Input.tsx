@@ -40,8 +40,8 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
 
     const variantStyles = {
       default: 'border border-stroke bg-panel',
-      outline: 'border-2 bg-transparent',
-      ghost: 'border-none bg-slate-100 dark:bg-slate-800',
+      outline: 'border-2 border-stroke bg-transparent',
+      ghost: 'border-none bg-background',
     };
 
     const generatedId = useId();
@@ -64,9 +64,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               className={cn(
-                'h-4 w-4 border-stroke accent-blue-600',
+                'h-4 w-4 border-stroke accent-brand-600',
                 isRadio ? 'rounded-full' : 'rounded',
-                'focus:outline-none focus:ring-2 focus:ring-blue-500',
+                'focus:outline-none focus:ring-2 focus:ring-brand-500',
                 props.disabled && 'cursor-not-allowed opacity-50',
                 className
               )}
@@ -85,7 +85,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }
 
     return (
-      <div className="flex flex-col gap-1 w-full">
+      <div className="flex w-full flex-col gap-1">
 
         {label && (
           <label htmlFor={inputId} className="text-sm font-medium text-foreground">
@@ -98,9 +98,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             'flex items-center rounded-md transition',
             variantStyles[variant],
             sizeStyles[inputSize],
-            'focus-within:ring-2 focus-within:ring-blue-500',
+            'focus-within:ring-2 focus-within:ring-brand-500',
             error && 'border-red-500 focus-within:ring-red-500',
-            props.disabled && 'opacity-50 cursor-not-allowed'
+            props.disabled && 'cursor-not-allowed opacity-50'
           )}
         >
 

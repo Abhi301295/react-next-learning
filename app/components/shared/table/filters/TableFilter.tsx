@@ -42,7 +42,7 @@ export default function TableFilter({
           onClick={openPanel}
         />
         {activeCount > 0 && (
-          <span className="absolute -right-2 -top-2 rounded-full bg-blue-600 px-1.5 py-0.5 text-xs text-white">
+          <span className="absolute -right-2 -top-2 rounded-full bg-brand-600 px-1.5 py-0.5 text-xs text-white">
             {activeCount}
           </span>
         )}

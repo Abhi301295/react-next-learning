@@ -1,10 +1,9 @@
-'use client';
-
 import React from 'react';
 import { cn } from '@/lib/utils';
 
 interface FormFieldProps {
   label?: string;
+  htmlFor?: string;
   error?: string;
   success?: string;
   helperText?: string;
@@ -13,6 +12,7 @@ interface FormFieldProps {
 
 const FormField = ({
   label,
+  htmlFor,
   error,
   success,
   helperText,
@@ -21,20 +21,27 @@ const FormField = ({
   const isError = !!error;
   const isSuccess = !!success && !error;
 
-  return (
-    <div className="flex flex-col gap-1 w-full">
+  const labelEl =
+    label && htmlFor ? (
+      <label
+        htmlFor={htmlFor}
+        className="text-sm font-medium text-foreground"
+      >
+        {label}
+      </label>
+    ) : label ? (
+      <span className="text-sm font-medium text-foreground">{label}</span>
+    ) : null;
 
-      {label && (
-        <label className="text-sm font-medium text-foreground">
-          {label}
-        </label>
-      )}
+  return (
+    <div className="flex w-full flex-col gap-1">
+      {labelEl}
 
       <div
         className={cn(
-          "rounded-md transition",
-          isError && "ring-2 ring-red-500",
-          isSuccess && "ring-2 ring-green-500"
+          'rounded-md transition',
+          isError && 'ring-2 ring-red-500',
+          isSuccess && 'ring-2 ring-green-500'
         )}
       >
         {children}

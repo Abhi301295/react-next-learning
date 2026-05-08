@@ -1,8 +1,8 @@
 import "./globals.css";
+import { Providers } from "./providers";
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Script from "next/script";
-import { ThemeProvider } from "@/context/theme-context";
 
 export const metadata: Metadata = {
   metadataBase: new URL("https://user-dashboard.local"),
@@ -41,25 +41,20 @@ export const metadata: Metadata = {
   },
 };
 
+/** Matches ThemeProvider + theme-context STORAGE_KEY; runs before hydration. */
+const THEME_INIT_JS = `(function(){try{var k='dashboard-theme',m=localStorage.getItem(k);if(m!=='light'&&m!=='dark'&&m!=='system')m='system';var r=document.documentElement;var dark=m==='dark'||(m==='system'&&window.matchMedia('(prefers-color-scheme:dark)').matches);r.classList.toggle('dark',dark);r.style.colorScheme=dark?'dark':'light';}catch(e){}})();`;
+
 export default function RootLayout({ children }: { children: ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body className="min-h-screen bg-background text-foreground">
-        <Script id="theme-init" strategy="beforeInteractive">{`
-          (function() {
-            const key = "dashboard-theme";
-            const savedTheme = localStorage.getItem(key);
-            const prefersDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-            const themeMode = savedTheme === "light" || savedTheme === "dark" || savedTheme === "system"
-              ? savedTheme
-              : "system";
-            const theme = themeMode === "system"
-              ? (prefersDark ? "dark" : "light")
-              : themeMode;
-            document.documentElement.classList.toggle("dark", theme === "dark");
-          })();
-        `}</Script>
-        <ThemeProvider>{children}</ThemeProvider>
+      <body
+        className="min-h-screen bg-background text-foreground"
+        suppressHydrationWarning
+      >
+        <Script id="theme-init" strategy="beforeInteractive">
+          {THEME_INIT_JS}
+        </Script>
+        <Providers>{children}</Providers>
       </body>
     </html>
   );

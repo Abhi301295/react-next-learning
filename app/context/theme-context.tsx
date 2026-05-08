@@ -1,10 +1,18 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useMemo, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useLayoutEffect,
+  useMemo,
+  useState,
+} from "react";
 import type { ReactNode } from "react";
 
 type Theme = "light" | "dark";
-type ThemeMode = Theme | "system";
+export type ThemeMode = Theme | "system";
 
 type ThemeActions = {
   setTheme: (theme: ThemeMode) => void;
@@ -21,25 +29,21 @@ const ThemeActionsContext = createContext<ThemeActions | null>(null);
 const STORAGE_KEY = "dashboard-theme";
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  const [themeMode, setThemeMode] = useState<ThemeMode>(() => {
-    if (typeof window === "undefined") {
-      return "system";
-    }
-
-    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
-    if (savedTheme === "light" || savedTheme === "dark" || savedTheme === "system") {
-      return savedTheme;
-    }
-
-    return "system";
-  });
+  const [themeMode, setThemeMode] = useState<ThemeMode>("system");
   const [resolvedTheme, setResolvedTheme] = useState<Theme>("light");
 
   useEffect(() => {
-    if (typeof window === "undefined") {
-      return;
+    const savedTheme = window.localStorage.getItem(STORAGE_KEY);
+    if (
+      savedTheme === "light" ||
+      savedTheme === "dark" ||
+      savedTheme === "system"
+    ) {
+      setThemeMode(savedTheme);
     }
+  }, []);
 
+  useLayoutEffect(() => {
     const mediaQuery = window.matchMedia("(prefers-color-scheme: dark)");
 
     const disableTransitionsTemporarily = () => {
@@ -56,14 +60,20 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
 
     const applyTheme = (nextTheme: Theme) => {
       const restoreTransitions = disableTransitionsTemporarily();
-      document.documentElement.classList.toggle("dark", nextTheme === "dark");
+      const root = document.documentElement;
+      root.classList.toggle("dark", nextTheme === "dark");
+      root.style.colorScheme = nextTheme === "dark" ? "dark" : "light";
       restoreTransitions();
       setResolvedTheme(nextTheme);
     };
 
     const resolveTheme = () => {
       const nextTheme: Theme =
-        themeMode === "system" ? (mediaQuery.matches ? "dark" : "light") : themeMode;
+        themeMode === "system"
+          ? mediaQuery.matches
+            ? "dark"
+            : "light"
+          : themeMode;
       applyTheme(nextTheme);
       window.localStorage.setItem(STORAGE_KEY, themeMode);
     };

@@ -1,11 +1,10 @@
 'use client';
 
-import Link from "next/link";
-import { usePathname } from "next/navigation";
-import { useState } from "react";
-import { sidebarItems, type SidebarItem } from "@/lib/config/sidebar";
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui/Button";
+import { SidebarNav } from '@/components/layout/SidebarNav';
+import { Button } from '@/components/ui/Button';
+import { cn } from '@/lib/utils';
+import { usePathname } from 'next/navigation';
+import { useState } from 'react';
 
 type Props = {
   mobileOpen: boolean;
@@ -17,111 +16,44 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
   const [collapsed, setCollapsed] = useState(false);
   const [openGroups, setOpenGroups] = useState<Record<string, boolean>>({});
 
-  const hasActiveChild = (item: SidebarItem) => {
-    if (!item.children) return false;
-    return item.children.some((child) => child.href === pathname);
-  };
-
   return (
     <>
       <aside
         className={cn(
-          "hidden md:flex flex-col border-r border-stroke bg-panel text-foreground transition-all duration-300",
-          collapsed ? "w-16" : "w-64"
+          'hidden flex-col border-r border-stroke bg-panel text-foreground transition-all duration-300 md:flex',
+          collapsed ? 'w-16' : 'w-64'
         )}
       >
-        {/* Collapse Toggle */}
-        <div className="p-2 flex justify-end">
+        <div className="flex justify-end p-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setCollapsed(!collapsed)}
           >
-            {collapsed ? "→" : "←"}
+            {collapsed ? '→' : '←'}
           </Button>
         </div>
 
         <nav className="flex flex-col gap-1 px-2">
-          {sidebarItems.map((item) => {
-            const isActive = pathname === item.href;
-            const groupHasActiveChild = hasActiveChild(item);
-            const isGroupOpen = openGroups[item.label] ?? groupHasActiveChild;
-            const firstLetter = item.label.charAt(0).toUpperCase();
-
-            if (item.children) {
-              return (
-                <div key={item.label} className="space-y-1">
-                  <button
-                    type="button"
-                    onClick={() =>
-                      setOpenGroups((prev) => ({ ...prev, [item.label]: !prev[item.label] }))
-                    }
-                    title={collapsed ? item.label : undefined}
-                    className={cn(
-                      "flex w-full items-center rounded-md px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800",
-                      groupHasActiveChild && "bg-slate-200 dark:bg-slate-700 font-medium",
-                      collapsed && "justify-center px-0"
-                    )}
-                  >
-                    <span className="truncate">{collapsed ? firstLetter : item.label}</span>
-                    {!collapsed && (
-                      <span className="ml-auto text-xs">{isGroupOpen ? "▾" : "▸"}</span>
-                    )}
-                  </button>
-
-                  {!collapsed && isGroupOpen && (
-                    <div className="ml-3 border-l border-stroke pl-2">
-                      {item.children.map((child) => {
-                        const isChildActive = pathname === child.href;
-                        return (
-                          <Link
-                            key={child.href}
-                            href={child.href ?? "#"}
-                            className={cn(
-                              "block rounded-md px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-800",
-                              isChildActive && "bg-slate-200 dark:bg-slate-700 font-medium"
-                            )}
-                          >
-                            {child.label}
-                          </Link>
-                        );
-                      })}
-                    </div>
-                  )}
-                </div>
-              );
-            }
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href ?? "#"}
-                title={collapsed ? item.label : undefined}
-                className={cn(
-                  "flex items-center rounded-md px-3 py-2 text-sm",
-                  "hover:bg-slate-100 dark:hover:bg-slate-800",
-                  isActive && "bg-slate-200 dark:bg-slate-700 font-medium",
-                  collapsed && "justify-center px-0"
-                )}
-              >
-                {collapsed ? firstLetter : item.label}
-              </Link>
-            );
-          })}
+          <SidebarNav
+            pathname={pathname}
+            variant="desktop"
+            collapsed={collapsed}
+            openGroups={openGroups}
+            setOpenGroups={setOpenGroups}
+          />
         </nav>
       </aside>
 
       {mobileOpen && (
         <div className="fixed inset-0 z-50 flex md:hidden">
-          {/* Overlay */}
           <div
             className="flex-1 bg-black/40"
             onClick={() => setMobileOpen(false)}
           />
 
-          {/* Sidebar */}
           <aside className="w-64 border-l border-stroke bg-panel p-4 text-foreground shadow-lg">
-            <div className="flex justify-end mb-4">
+            <div className="mb-4 flex justify-end">
               <Button
                 size="sm"
                 variant="outline"
@@ -132,67 +64,13 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
             </div>
 
             <nav className="space-y-2">
-              {sidebarItems.map((item) => {
-                const isActive = pathname === item.href;
-                const groupHasActiveChild = hasActiveChild(item);
-                const isGroupOpen = openGroups[item.label] ?? groupHasActiveChild;
-
-                if (item.children) {
-                  return (
-                    <div key={item.label} className="space-y-1">
-                      <button
-                        type="button"
-                        onClick={() =>
-                          setOpenGroups((prev) => ({ ...prev, [item.label]: !prev[item.label] }))
-                        }
-                        className={cn(
-                          "flex w-full items-center rounded px-3 py-2 text-left hover:bg-slate-100 dark:hover:bg-slate-800",
-                          groupHasActiveChild && "bg-slate-200 dark:bg-slate-700 font-medium"
-                        )}
-                      >
-                        <span>{item.label}</span>
-                        <span className="ml-auto text-xs">{isGroupOpen ? "▾" : "▸"}</span>
-                      </button>
-
-                      {isGroupOpen && (
-                        <div className="ml-3 border-l border-stroke pl-2">
-                          {item.children.map((child) => {
-                            const isChildActive = pathname === child.href;
-                            return (
-                              <Link
-                                key={child.href}
-                                href={child.href ?? "#"}
-                                onClick={() => setMobileOpen(false)}
-                                className={cn(
-                                  "block rounded px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-800",
-                                  isChildActive && "bg-slate-200 dark:bg-slate-700 font-medium"
-                                )}
-                              >
-                                {child.label}
-                              </Link>
-                            );
-                          })}
-                        </div>
-                      )}
-                    </div>
-                  );
-                }
-
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href ?? "#"}
-                    onClick={() => setMobileOpen(false)}
-                    className={cn(
-                      "block px-3 py-2 rounded",
-                      "hover:bg-slate-100 dark:hover:bg-slate-800",
-                      isActive && "bg-slate-200 dark:bg-slate-700 font-medium"
-                    )}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
+              <SidebarNav
+                pathname={pathname}
+                variant="mobile"
+                openGroups={openGroups}
+                setOpenGroups={setOpenGroups}
+                onNavigate={() => setMobileOpen(false)}
+              />
             </nav>
           </aside>
         </div>

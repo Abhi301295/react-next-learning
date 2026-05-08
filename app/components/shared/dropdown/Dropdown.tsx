@@ -183,12 +183,15 @@ const Dropdown = ({
         aria-label={ariaLabel}
         aria-labelledby={ariaLabelledBy}
         className={cn(
-          'flex items-center justify-between w-full rounded-md border border-stroke bg-panel text-foreground shadow-sm',
-          'focus:outline-none focus:ring-2 focus:ring-blue-500',
+          'flex w-full items-center justify-between rounded-md border border-stroke bg-panel text-foreground shadow-sm',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500',
           sizeClasses[size]
         )}
       >
-        <span suppressHydrationWarning className={cn(selected.length === 0 && 'text-subtle')}>
+        <span
+          suppressHydrationWarning
+          className={cn(selected.length === 0 && 'text-subtle')}
+        >
           {displayText}
         </span>
 
@@ -210,7 +213,7 @@ const Dropdown = ({
                 }}
                 onKeyDown={(event) => event.stopPropagation()}
                 placeholder={searchPlaceholder}
-                className="h-8 w-full rounded border border-stroke bg-background px-2 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="h-8 w-full rounded border border-stroke bg-background px-2 text-sm text-foreground placeholder:text-subtle focus:outline-none focus:ring-2 focus:ring-brand-500"
               />
             </div>
           )}
@@ -237,10 +240,10 @@ const Dropdown = ({
                 onClick={() => handleSelect(val)}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
-                  'px-4 py-2 cursor-pointer flex items-center justify-between',
+                  'flex cursor-pointer items-center justify-between px-4 py-2 text-foreground',
                   isSelected && 'font-medium',
-                  isActive && 'bg-blue-100 text-slate-900 dark:bg-blue-900/30 dark:text-slate-100',
-                  'hover:bg-slate-100 dark:hover:bg-slate-800'
+                  isActive && 'bg-brand-500/15',
+                  'hover:bg-background'
                 )}
               >
                 <div className="flex items-center gap-2">
