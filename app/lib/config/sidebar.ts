@@ -6,6 +6,7 @@ export type SidebarItem = {
 
 export const sidebarItems: SidebarItem[] = [
   { label: "Dashboard", href: "/dashboard" },
+  { label: "Users", href: "/users" },
   {
     label: "Daily Tasks",
     children: [
