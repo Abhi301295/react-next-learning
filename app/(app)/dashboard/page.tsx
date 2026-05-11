@@ -1,66 +1,74 @@
 import type { Metadata } from "next";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import Link from "next/link";
+import { Suspense } from "react";
+import { DashboardContent } from "./DashboardContent";
+import { DashboardContentSkeleton } from "./DashboardSkeleton";
+
+export const dynamic = "force-dynamic";
+
+const title = "Dashboard";
+const description =
+  "Overview of user totals, active vs inactive members, and recent activity across posts and new directory entries.";
 
 export const metadata: Metadata = {
-  title: "Dashboard",
-  description: "Overview of key metrics and recent user activity.",
+  title,
+  description,
   alternates: {
     canonical: "/dashboard",
   },
+  openGraph: {
+    title: `${title} | User Dashboard`,
+    description,
+    url: "/dashboard",
+    type: "website",
+    images: [
+      {
+        url: "/file.svg",
+        alt: "User Dashboard application preview",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${title} | User Dashboard`,
+    description,
+    images: ["/file.svg"],
+  },
 };
-
-const kpiItems = [
-  { label: "Total Users", value: "1,240" },
-  { label: "Active Users", value: "1,042" },
-  { label: "New This Week", value: "86" },
-];
-
-const recentActivities = [
-  "Jane Miller updated profile details",
-  "Simon Reed status changed to inactive",
-  "John Carter was added to the users list",
-];
 
 export default function DashboardPage() {
   return (
-    <section className="space-y-4" aria-labelledby="dashboard-title">
-      <header>
-        <h1 id="dashboard-title" className="text-display-sm font-semibold text-brand-600">
+    <div className="space-y-6">
+      <header className="space-y-2">
+        <h1
+          id="dashboard-title"
+          className="text-balance text-2xl font-semibold tracking-tight text-foreground sm:text-3xl"
+        >
           Dashboard
         </h1>
-        <p className="mt-1 text-sm text-subtle">
-          Starter dashboard for upcoming final project tasks.
+        <p className="max-w-2xl text-sm text-subtle sm:text-base">
+          Live metrics from your user directory and a compact activity feed
+          sourced from the latest posts and newest members. Jump to{" "}
+          <Link
+            href="/users"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Users
+          </Link>{" "}
+          or{" "}
+          <Link
+            href="/posts"
+            className="font-medium text-primary underline-offset-4 hover:underline"
+          >
+            Posts
+          </Link>{" "}
+          for full lists.
         </p>
       </header>
 
-      <h2 className="text-base font-semibold text-brand-600">Key Metrics</h2>
-      <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3" aria-label="KPI cards">
-        {kpiItems.map((item) => (
-          <Card key={item.label} className="rounded-card border-stroke bg-panel shadow-soft">
-            <CardHeader>
-              <p className="text-sm font-semibold text-subtle">{item.label}</p>
-            </CardHeader>
-            <CardContent className="text-display-sm font-semibold text-brand-600">
-              {item.value}
-            </CardContent>
-          </Card>
-        ))}
-      </section>
-
-      <Card className="rounded-card border-stroke bg-panel shadow-soft">
-        <CardHeader>
-          <h2 className="text-base font-semibold">Recent Activity</h2>
-        </CardHeader>
-        <CardContent>
-          <ul className="space-y-2">
-            {recentActivities.map((activity) => (
-              <li key={activity} className="text-sm text-subtle">
-                {activity}
-              </li>
-            ))}
-          </ul>
-        </CardContent>
-      </Card>
-    </section>
+      <Suspense fallback={<DashboardContentSkeleton />}>
+        <DashboardContent />
+      </Suspense>
+    </div>
   );
 }
