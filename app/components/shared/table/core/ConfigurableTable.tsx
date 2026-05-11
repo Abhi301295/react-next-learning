@@ -65,11 +65,14 @@ export type TableConfig<T, K extends string> = {
       totalItems: number;
       sortBy: keyof T | null;
       sortDirection: SortDirection;
+      listLoadedPages?: number;
     };
     onSearchChange: (value: string) => void;
     onPageChange: (page: number) => void;
     onPageSizeChange: (size: number) => void;
     onSortChange: (key: keyof T, direction: SortDirection) => void;
+    onFiltersChange?: (values: Record<K, FilterValue>) => void;
+    onLoadMore?: () => void;
   };
 };
 
@@ -275,7 +278,12 @@ export default function ConfigurableTable<T, K extends string>({
     (Object.keys(draftFilters) as K[]).forEach((key) => {
       onFilterChange(key, draftFilters[key]);
     });
-    setPage(1);
+    if (isServerMode) {
+      serverConfig!.onPageChange(1);
+      serverConfig!.onFiltersChange?.(draftFilters as Record<K, FilterValue>);
+    } else {
+      setPage(1);
+    }
   };
 
   useEffect(() => {
@@ -319,7 +327,14 @@ export default function ConfigurableTable<T, K extends string>({
                 onClear={() => {
                   resetFilters();
                   setDraftFilters(defaultDraftFilters);
-                  setPage(1);
+                  if (isServerMode) {
+                    serverConfig!.onPageChange(1);
+                    serverConfig!.onFiltersChange?.(
+                      defaultDraftFilters as Record<K, FilterValue>
+                    );
+                  } else {
+                    setPage(1);
+                  }
                 }}
                 onApply={applyDraftFilters}
               >

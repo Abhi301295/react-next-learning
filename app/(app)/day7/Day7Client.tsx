@@ -1,7 +1,8 @@
 'use client';
 
 import ConfigurableTable from '@/components/shared/table/core/ConfigurableTable';
-import { User, useUsers } from '@/lib/hooks/useUsers';
+import { useUsers } from "@/lib/hooks/useUsers";
+import type { User } from "@/lib/users/types";
 import { Day7FilterKey, panelTableConfig } from './tableConfigs';
 
 export default function Day7Client() {

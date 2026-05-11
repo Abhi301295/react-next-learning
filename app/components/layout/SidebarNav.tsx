@@ -14,7 +14,7 @@ type SidebarNavProps = {
   onNavigate?: () => void;
 };
 
-const navButtonActive = 'bg-stroke/40 font-medium text-foreground';
+const navButtonActive = 'bg-primary/15 font-medium text-primary';
 const navHover = 'hover:bg-background';
 const groupId = (variant: string, label: string) =>
   `${variant}-group-${label.toLowerCase().replace(/\s+/g, "-")}`;

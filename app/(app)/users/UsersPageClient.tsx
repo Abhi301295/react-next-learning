@@ -3,14 +3,11 @@
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import Badge from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { useUsers, type User } from "@/lib/hooks/useUsers";
+import { useUsers } from "@/lib/hooks/useUsers";
+import type { User } from "@/lib/users/types";
 import {
   renderUserProfileLink,
-  USER_COLUMNS,
-  usersDesktopTableConfig,
-  usersMobileListConfig,
   usersMobileStateConfig,
-  type UsersFilterKey,
 } from "./tableConfigs";
 
 function renderUserCard(user: User) {
@@ -32,26 +29,38 @@ function renderUserCard(user: User) {
 }
 
 export default function UsersPageClient() {
-  const { users, loading, error, refetch } = useUsers();
+  const {
+    users,
+    mobileUsers,
+    loading,
+    loadingMore,
+    error,
+    refetch,
+    userColumns,
+    desktopTableConfig,
+    mobileListConfig,
+  } = useUsers();
 
   return (
     <section className="space-y-4" aria-labelledby="users-title">
       <header>
-        <h1 id="users-title" className="text-display-sm font-semibold text-brand-600">
+        <h1 id="users-title" className="text-display-sm font-semibold text-primary">
           Users
         </h1>
         <p className="text-sm text-subtle">SEO-friendly route example: /users</p>
       </header>
 
-      <ResponsiveList<User, UsersFilterKey>
+      <ResponsiveList<User, "role" | "status">
         data={users}
+        mobileData={mobileUsers}
         loading={loading}
+        loadingMore={loadingMore}
         error={error}
         onRetry={refetch}
         getKey={(user) => user.id}
-        columns={USER_COLUMNS}
-        desktopTableConfig={usersDesktopTableConfig}
-        mobileListConfig={usersMobileListConfig}
+        columns={userColumns}
+        desktopTableConfig={desktopTableConfig}
+        mobileListConfig={mobileListConfig}
         mobileStateConfig={usersMobileStateConfig}
         renderItem={renderUserCard}
       />

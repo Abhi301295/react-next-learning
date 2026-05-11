@@ -62,11 +62,16 @@ export type ListConfig<T, K extends string = never> = {
       totalItems: number;
       sortBy: keyof T | null;
       sortDirection: SortDirection;
+      /** When using load-more on mobile with server data; how many page-chunks are shown in the list. */
+      listLoadedPages?: number;
     };
     onSearchChange: (value: string) => void;
     onPageChange: (page: number) => void;
     onPageSizeChange: (size: number) => void;
     onSortChange?: (key: keyof T, direction: SortDirection) => void;
+    onFiltersChange?: (values: Record<K, FilterValue>) => void;
+    /** Prefer over advancing `page` when pagination mode is load-more + server (avoids replacing the list). */
+    onLoadMore?: () => void;
   };
 };
 
@@ -77,6 +82,8 @@ type ListProps<T, K extends string = never> = {
   listClassName?: string;
   itemClassName?: string;
   loading?: boolean;
+  /** True while fetching the next server chunk without replacing the list (e.g. load more). */
+  loadingMore?: boolean;
   error?: string | null;
   onRetry?: () => void;
   loadingComponent?: React.ReactNode;
@@ -92,6 +99,7 @@ export default function List<T, K extends string = never>({
   listClassName,
   itemClassName,
   loading,
+  loadingMore = false,
   error,
   onRetry,
   loadingComponent,
@@ -100,7 +108,7 @@ export default function List<T, K extends string = never>({
   config,
 }: ListProps<T, K>) {
   if (!config) {
-    if (loading) return loadingComponent || <LoadingState />;
+    if (loading && !loadingMore) return loadingComponent || <LoadingState />;
     if (error) return errorComponent || <ErrorState message={error} onRetry={onRetry} />;
     if (!data || data.length === 0) return emptyComponent || <EmptyState />;
     return (
@@ -118,6 +126,7 @@ export default function List<T, K extends string = never>({
     <ConfiguredList
       data={data}
       loading={loading}
+      loadingMore={loadingMore}
       error={error}
       onRetry={onRetry}
       getKey={getKey}
@@ -139,6 +148,7 @@ function ConfiguredList<T, K extends string>({
   listClassName,
   itemClassName,
   loading,
+  loadingMore = false,
   error,
   onRetry,
   loadingComponent,
@@ -226,8 +236,20 @@ function ConfiguredList<T, K extends string>({
     sortedData,
   ]);
 
-  const showNoData = !loading && !error && (isServerMode ? data.length === 0 && effectiveSearch.trim().length === 0 : emptyStateVariant === "no-data");
-  const showNoResults = !loading && !error && (isServerMode ? data.length === 0 && effectiveSearch.trim().length > 0 : emptyStateVariant === "no-results");
+  const showNoData =
+    !loading &&
+    !loadingMore &&
+    !error &&
+    (isServerMode
+      ? data.length === 0 && effectiveSearch.trim().length === 0
+      : emptyStateVariant === "no-data");
+  const showNoResults =
+    !loading &&
+    !loadingMore &&
+    !error &&
+    (isServerMode
+      ? data.length === 0 && effectiveSearch.trim().length > 0
+      : emptyStateVariant === "no-results");
 
   return (
     <div className="space-y-3">
@@ -259,13 +281,32 @@ function ConfiguredList<T, K extends string>({
                 onOpen={() => setDraftFilters(filterValues as Record<K, FilterValue>)}
                 onClear={() => {
                   resetFilters();
-                  setPage(1);
+                  if (isServerMode) {
+                    config.server!.onPageChange(1);
+                    const initial = config.filters!.definitions.reduce(
+                      (acc, def) => {
+                        acc[def.key] = def.initialValue;
+                        return acc;
+                      },
+                      {} as Record<K, FilterValue>
+                    );
+                    config.server!.onFiltersChange?.(initial);
+                  } else {
+                    setPage(1);
+                  }
                 }}
                 onApply={() => {
                   (Object.keys(draftFilters) as K[]).forEach((key) =>
                     onFilterChange(key, draftFilters[key])
                   );
-                  setPage(1);
+                  if (isServerMode) {
+                    config.server!.onPageChange(1);
+                    config.server!.onFiltersChange?.(
+                      draftFilters as Record<K, FilterValue>
+                    );
+                  } else {
+                    setPage(1);
+                  }
                 }}
               >
                 {config.filters!.template({
@@ -279,8 +320,9 @@ function ConfiguredList<T, K extends string>({
         </section>
       )}
 
-      {loading && (loadingComponent || <LoadingState />)}
+      {loading && !loadingMore && (loadingComponent || <LoadingState />)}
       {!loading &&
+        !loadingMore &&
         error &&
         (errorComponent || <ErrorState message={error} onRetry={onRetry} />)}
 
@@ -313,6 +355,15 @@ function ConfiguredList<T, K extends string>({
               </li>
             ))}
           </ul>
+
+          {loadingMore && (
+            <p
+              className="py-2 text-center text-sm text-subtle"
+              aria-live="polite"
+            >
+              Loading more…
+            </p>
+          )}
 
           {hasPagination && paginationMode === "pages" && (
             <TablePagination
@@ -347,16 +398,30 @@ function ConfiguredList<T, K extends string>({
             />
           )}
 
-          {hasPagination && paginationMode === "load-more" && effectivePage < effectiveTotalPages && (
+          {hasPagination &&
+            paginationMode === "load-more" &&
+            (isServerMode
+              ? config.server!.onLoadMore
+                ? (config.server!.state.listLoadedPages ?? 1) * effectivePageSize <
+                  effectiveTotalItems
+                : effectivePage < effectiveTotalPages
+              : effectivePage < effectiveTotalPages) && (
             <div className="flex justify-center pt-2">
               <Button
                 type="button"
                 variant="outline"
-                onClick={() =>
-                  isServerMode
-                    ? config.server!.onPageChange(effectivePage + 1)
-                    : setPage(effectivePage + 1)
-                }
+                disabled={loadingMore}
+                onClick={() => {
+                  if (isServerMode) {
+                    if (config.server!.onLoadMore) {
+                      config.server!.onLoadMore();
+                    } else {
+                      config.server!.onPageChange(effectivePage + 1);
+                    }
+                  } else {
+                    setPage(effectivePage + 1);
+                  }
+                }}
               >
                 {config.pagination?.loadMoreLabel ?? "Load more"}
               </Button>

@@ -5,7 +5,7 @@ import type {
   TableConfig,
 } from "@/components/shared/table/core/ConfigurableTable";
 import { Button } from "@/components/ui/Button";
-import type { User } from "@/lib/hooks/useUsers";
+import type { User } from "@/lib/users/types";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 
 export type Day7FilterKey =

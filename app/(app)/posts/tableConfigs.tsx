@@ -7,7 +7,7 @@ import TableFilterField from "@/components/shared/table/filters/TableFilterField
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
 import { Button } from "@/components/ui/Button";
 import type { Column } from "@/components/shared/table/core/Table";
-import type { Post } from "@/lib/hooks/usePosts";
+import type { Post } from "@/lib/posts/types";
 import { useRouter } from "next/navigation";
 
 export const EMPTY_POSTS_TITLE = "No posts found";
@@ -17,6 +17,7 @@ export const EMPTY_POSTS_DESCRIPTION =
 export type PostsFilterKey = "userId";
 
 export const POST_COLUMNS: readonly Column<Post, keyof Post>[] = [
+  { key: "id", label: "Post ID" },
   { key: "title", label: "Title" },
   { key: "userId", label: "User ID" },
   { key: "excerpt", label: "Excerpt" },
@@ -79,8 +80,8 @@ export const postsDesktopTableConfig: Omit<
   search: {
     enabled: true,
     label: "Search posts",
-    placeholder: "Search by title, excerpt, or user id",
-    fields: ["title", "excerpt", "userId"],
+    placeholder: "Search by post id, title, excerpt, or user id",
+    fields: ["id", "title", "excerpt", "userId"],
   },
   filters: {
     enabled: true,
@@ -92,7 +93,7 @@ export const postsDesktopTableConfig: Omit<
   },
   sorting: {
     enabled: true,
-    initialSortKey: "title",
+    initialSortKey: "id",
     initialSortDirection: "asc",
   },
   pagination: {
@@ -116,8 +117,8 @@ export const postsMobileListConfig: ListConfig<Post, PostsFilterKey> = {
   search: {
     enabled: true,
     label: "Search posts",
-    placeholder: "Search by title, excerpt, or user id",
-    fields: ["title", "excerpt", "userId"],
+    placeholder: "Search by post id, title, excerpt, or user id",
+    fields: ["id", "title", "excerpt", "userId"],
   },
   filters: {
     enabled: true,
@@ -128,7 +129,7 @@ export const postsMobileListConfig: ListConfig<Post, PostsFilterKey> = {
   },
   sorting: {
     enabled: true,
-    initialSortKey: "title",
+    initialSortKey: "id",
     initialSortDirection: "asc",
   },
   pagination: {
@@ -147,7 +148,7 @@ export function renderPostDetailLink(postId: number) {
   return (
     <Link
       href={`/posts/${postId}`}
-      className="inline-block text-sm font-medium text-brand-600 hover:underline"
+      className="inline-block text-sm font-medium text-primary hover:underline"
     >
       Read post
     </Link>

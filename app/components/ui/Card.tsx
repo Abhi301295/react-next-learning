@@ -24,7 +24,12 @@ export function CardHeader({ className, ...props }: CardHeaderProps) {
 type CardTitleProps = HTMLAttributes<HTMLHeadingElement>;
 
 export function CardTitle({ className, ...props }: CardTitleProps) {
-  return <h3 className={cn("text-base font-semibold", className)} {...props} />;
+  return (
+    <h3
+      className={cn("text-base font-semibold text-foreground", className)}
+      {...props}
+    />
+  );
 }
 
 type CardContentProps = HTMLAttributes<HTMLDivElement>;

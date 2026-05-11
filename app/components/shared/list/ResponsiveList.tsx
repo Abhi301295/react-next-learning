@@ -7,7 +7,10 @@ import List, { type ListConfig } from "./List";
 
 type Props<T, K extends string = never> = {
   data: T[];
+  /** When set, narrow layout uses this list (e.g. accumulated load-more rows) while the table uses `data`. */
+  mobileData?: T[];
   loading?: boolean;
+  loadingMore?: boolean;
   error?: string | null;
   onRetry?: () => void;
 
@@ -30,7 +33,9 @@ type Props<T, K extends string = never> = {
 
 export default function ResponsiveList<T, K extends string = never>({
   data,
+  mobileData,
   loading,
+  loadingMore = false,
   error,
   onRetry,
   getKey,
@@ -50,8 +55,9 @@ export default function ResponsiveList<T, K extends string = never>({
     <>
       <div className="block md:hidden">
         <List
-          data={data}
+          data={mobileData ?? data}
           loading={loading}
+          loadingMore={loadingMore}
           error={error}
           onRetry={onRetry}
           getKey={(item) => String(getKey(item))}

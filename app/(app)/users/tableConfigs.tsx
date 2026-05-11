@@ -7,7 +7,7 @@ import TableFilterField from "@/components/shared/table/filters/TableFilterField
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
 import { Button } from "@/components/ui/Button";
 import type { Column } from "@/components/shared/table/core/Table";
-import type { User } from "@/lib/hooks/useUsers";
+import type { User } from "@/lib/users/types";
 import { useRouter } from "next/navigation";
 
 export const EMPTY_USERS_TITLE = "No users found";
@@ -22,7 +22,7 @@ export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
   { key: "status", label: "Status" },
 ];
 
-const usersFilterDefinitions = [
+export const usersFilterDefinitions = [
   {
     key: "role" as UsersFilterKey,
     initialValue: "all",
@@ -124,6 +124,76 @@ export const usersMobileStateConfig = {
   ),
 };
 
+export const usersPaginatedDesktopBase: Omit<
+  TableConfig<User, UsersFilterKey>,
+  "columns" | "getKey" | "server"
+> = {
+  rowActionsLabel: "Actions",
+  rowActions: (user) => <UserViewActionButton user={user} />,
+  search: {
+    enabled: true,
+    label: "Search users",
+    placeholder: "Search by name, email, or id",
+    fields: ["name", "email", "id"],
+  },
+  filters: {
+    enabled: true,
+    mode: "panel",
+    title: "Filter users",
+    triggerLabel: "Filters",
+    definitions: usersFilterDefinitions,
+    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
+  },
+  sorting: {
+    enabled: true,
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+  },
+  pagination: {
+    enabled: true,
+    initialPageSize: 5,
+    pageSizeOptions: [5, 10, 20],
+  },
+  emptyState: {
+    noDataTitle: EMPTY_USERS_TITLE,
+    noDataDescription: EMPTY_USERS_DESCRIPTION,
+  },
+};
+
+export const usersPaginatedMobileListBase: Omit<
+  ListConfig<User, UsersFilterKey>,
+  "server"
+> = {
+  search: {
+    enabled: true,
+    label: "Search users",
+    placeholder: "Search by name, email, or id",
+    fields: ["name", "email", "id"],
+  },
+  filters: {
+    enabled: true,
+    title: "Filter users",
+    triggerLabel: "Filters",
+    definitions: usersFilterDefinitions,
+    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
+  },
+  sorting: {
+    enabled: true,
+    initialSortKey: "name",
+    initialSortDirection: "asc",
+  },
+  pagination: {
+    enabled: true,
+    mode: "load-more",
+    initialPageSize: 5,
+    loadMoreLabel: "Load more users",
+  },
+  emptyState: {
+    noDataTitle: EMPTY_USERS_TITLE,
+    noDataDescription: EMPTY_USERS_DESCRIPTION,
+  },
+};
+
 export const usersMobileListConfig: ListConfig<User, UsersFilterKey> = {
   search: {
     enabled: true,
@@ -159,7 +229,7 @@ export function renderUserProfileLink(userId: number) {
   return (
     <Link
       href={`/users/${userId}`}
-      className="inline-block text-sm font-medium text-brand-600 hover:underline"
+      className="inline-block text-sm font-medium text-primary hover:underline"
     >
       View profile
     </Link>

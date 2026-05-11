@@ -2,15 +2,9 @@
 
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { usePosts, type Post } from "@/lib/hooks/usePosts";
-import {
-  POST_COLUMNS,
-  postsDesktopTableConfig,
-  postsMobileListConfig,
-  postsMobileStateConfig,
-  renderPostDetailLink,
-  type PostsFilterKey,
-} from "./tableConfigs";
+import { usePosts } from "@/lib/hooks/usePosts";
+import type { Post } from "@/lib/posts/types";
+import { postsMobileStateConfig, renderPostDetailLink } from "./tableConfigs";
 
 function renderPostCard(post: Post) {
   return (
@@ -19,6 +13,7 @@ function renderPostCard(post: Post) {
         <CardTitle className="line-clamp-2">{post.title}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-2">
+        <p className="text-sm text-subtle">Post ID: {post.id}</p>
         <p className="text-sm text-subtle">User ID: {post.userId}</p>
         <p className="line-clamp-3 text-sm text-subtle">{post.excerpt}</p>
         {renderPostDetailLink(post.id)}
@@ -28,12 +23,22 @@ function renderPostCard(post: Post) {
 }
 
 export default function PostsPageClient() {
-  const { posts, loading, error, refetch } = usePosts();
+  const {
+    posts,
+    mobilePosts,
+    loading,
+    loadingMore,
+    error,
+    refetch,
+    postColumns,
+    desktopTableConfig,
+    mobileListConfig,
+  } = usePosts();
 
   return (
     <section className="space-y-4" aria-labelledby="posts-title">
       <header>
-        <h1 id="posts-title" className="text-display-sm font-semibold text-brand-600">
+        <h1 id="posts-title" className="text-display-sm font-semibold text-primary">
           Posts
         </h1>
         <p className="text-sm text-subtle">
@@ -41,15 +46,17 @@ export default function PostsPageClient() {
         </p>
       </header>
 
-      <ResponsiveList<Post, PostsFilterKey>
+      <ResponsiveList<Post, "userId">
         data={posts}
+        mobileData={mobilePosts}
         loading={loading}
+        loadingMore={loadingMore}
         error={error}
         onRetry={refetch}
         getKey={(post) => post.id}
-        columns={POST_COLUMNS}
-        desktopTableConfig={postsDesktopTableConfig}
-        mobileListConfig={postsMobileListConfig}
+        columns={postColumns}
+        desktopTableConfig={desktopTableConfig}
+        mobileListConfig={mobileListConfig}
         mobileStateConfig={postsMobileStateConfig}
         renderItem={renderPostCard}
       />

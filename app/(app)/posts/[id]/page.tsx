@@ -1,7 +1,11 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import PostDetail from "./PostDetail";
-import { fetchPostById } from "@/lib/server-upstream";
+import { httpErrPublicMessage } from "@/lib/server-upstream";
+import {
+  fetchPostById,
+  postDetailMetadataFallback,
+} from "@/lib/posts/server";
 
 type PostDetailPageProps = {
   params: Promise<{ id: string }>;
@@ -17,16 +21,16 @@ export async function generateMetadata({
   params,
 }: PostDetailPageProps): Promise<Metadata> {
   const { id } = await params;
-  const post = await fetchPostById(id);
+  const r = await fetchPostById(id);
 
-  if (!post) {
-    return {
-      title: `Post ${id}`,
-      description: "Post could not be loaded.",
-      alternates: { canonical: `/posts/${id}` },
-    };
+  if (!r.ok) {
+    if (r.kind === "not_found" || r.kind === "invalid") {
+      return postDetailMetadataFallback(id);
+    }
+    throw new Error(httpErrPublicMessage(r.cause));
   }
 
+  const post = r.post;
   const description = metaDescription(post.body);
 
   return {
@@ -56,10 +60,12 @@ export default async function PostDetailPage({ params }: PostDetailPageProps) {
     notFound();
   }
 
-  const post = await fetchPostById(id);
-  if (!post) {
+  const r = await fetchPostById(id);
+  if (r.ok) {
+    return <PostDetail post={r.post} />;
+  }
+  if (r.kind === "not_found" || r.kind === "invalid") {
     notFound();
   }
-
-  return <PostDetail post={post} />;
+  throw new Error(httpErrPublicMessage(r.cause));
 }

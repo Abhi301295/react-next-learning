@@ -64,9 +64,9 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
               aria-invalid={!!error}
               aria-describedby={error ? `${inputId}-error` : undefined}
               className={cn(
-                'h-4 w-4 border-stroke accent-brand-600',
+                'h-4 w-4 border-stroke accent-primary',
                 isRadio ? 'rounded-full' : 'rounded',
-                'focus:outline-none focus:ring-2 focus:ring-brand-500',
+                'focus:outline-none focus:ring-2 focus:ring-primary',
                 props.disabled && 'cursor-not-allowed opacity-50',
                 className
               )}
@@ -98,7 +98,7 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
             'flex items-center rounded-md transition',
             variantStyles[variant],
             sizeStyles[inputSize],
-            'focus-within:ring-2 focus-within:ring-brand-500',
+            'focus-within:ring-2 focus-within:ring-primary',
             error && 'border-red-500 focus-within:ring-red-500',
             props.disabled && 'cursor-not-allowed opacity-50'
           )}

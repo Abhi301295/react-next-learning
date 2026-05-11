@@ -29,7 +29,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
           ☰
         </Button>
 
-        <p className="truncate text-lg font-semibold text-foreground">
+        <p className="truncate text-lg font-semibold text-primary">
           Header
         </p>
       </div>

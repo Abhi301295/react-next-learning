@@ -5,15 +5,15 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
-import type { JsonPlaceholderPost } from "@/lib/server-upstream";
+import type { UpstreamPost } from "@/lib/posts/types";
 
-export default function PostDetail({ post }: { post: JsonPlaceholderPost }) {
+export default function PostDetail({ post }: { post: UpstreamPost }) {
   return (
     <section className="space-y-4" aria-labelledby="post-heading">
       <header className="space-y-1">
         <h1
           id="post-heading"
-          className="text-display-sm font-semibold text-brand-600"
+          className="text-display-sm font-semibold text-primary"
         >
           {post.title}
         </h1>
@@ -33,7 +33,7 @@ export default function PostDetail({ post }: { post: JsonPlaceholderPost }) {
 
       <Link
         href="/posts"
-        className="inline-block text-sm font-medium text-brand-600 hover:underline"
+        className="inline-block text-sm font-medium text-primary hover:underline"
       >
         ← Back to posts
       </Link>

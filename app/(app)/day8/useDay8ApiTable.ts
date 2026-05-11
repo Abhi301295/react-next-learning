@@ -1,14 +1,15 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from "react";
+import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
+import { fetchPostListWithQuery } from "@/lib/posts/client";
 import {
-  ApiPost,
   createDay8ApiTableConfig,
   Day8ApiKey,
   Day8PostRow,
-  mapApiPostToRow,
+  mapUpstreamPostToRow,
   SORT_FIELD_MAP,
-} from './tableConfigs';
+} from "./tableConfigs";
 
 export function useDay8ApiTable() {
   const [tableRows, setTableRows] = useState<Day8PostRow[]>([]);
@@ -35,32 +36,33 @@ export function useDay8ApiTable() {
     const controller = new AbortController();
     let requestAborted = false;
 
-    const fetchUsers = async () => {
+    const loadPosts = async () => {
       try {
         setTableLoading(true);
         setTableError(null);
 
         const params = new URLSearchParams();
-        params.set('_page', String(tablePage));
-        params.set('_limit', String(tablePageSize));
-        if (tableSearch) params.set('q', tableSearch);
+        params.set("_page", String(tablePage));
+        params.set("_limit", String(tablePageSize));
+        if (tableSearch) params.set("q", tableSearch);
 
         const apiSortKey = tableSortBy ? SORT_FIELD_MAP[tableSortBy] : undefined;
         if (apiSortKey) {
-          params.set('_sort', apiSortKey);
-          params.set('_order', tableSortDirection);
+          params.set("_sort", apiSortKey);
+          params.set("_order", tableSortDirection);
         }
 
-        const response = await fetch(`/api/posts?${params.toString()}`, {
-          signal: controller.signal,
-        });
-        if (!response.ok) throw new Error('Failed to fetch records');
-
-        const totalFromHeader = Number(response.headers.get('x-total-count'));
-        setTableTotalItems(Number.isFinite(totalFromHeader) ? totalFromHeader : 0);
-
-        const data: ApiPost[] = await response.json();
-        setTableRows(data.map(mapApiPostToRow));
+        const r = await fetchPostListWithQuery(params, controller.signal);
+        if (!isHttpOk(r)) {
+          if (r.kind === "aborted") {
+            requestAborted = true;
+            return;
+          }
+          setTableError(httpErrPublicMessage(r));
+          return;
+        }
+        setTableTotalItems(r.data.total);
+        setTableRows(r.data.posts.map(mapUpstreamPostToRow));
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") {
           requestAborted = true;
@@ -73,7 +75,7 @@ export function useDay8ApiTable() {
       }
     };
 
-    void fetchUsers();
+    void loadPosts();
     return () => controller.abort();
   }, [
     tablePage,

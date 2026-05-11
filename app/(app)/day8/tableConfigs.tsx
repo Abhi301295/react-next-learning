@@ -1,14 +1,8 @@
 import type { Column } from "@/components/shared/table/core/Table";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
+import type { UpstreamPost } from "@/lib/posts/types";
 
 export type Day8ApiKey = "api";
-
-export type ApiPost = {
-  id: number;
-  userId: number;
-  title: string;
-  body: string;
-};
 
 export type Day8PostRow = {
   userId: number;
@@ -36,7 +30,7 @@ export const postTableColumns: Column<Day8PostRow>[] = [
   },
 ];
 
-export const mapApiPostToRow = (post: ApiPost): Day8PostRow => ({
+export const mapUpstreamPostToRow = (post: UpstreamPost): Day8PostRow => ({
   userId: post.userId,
   id: post.id,
   title: post.title,

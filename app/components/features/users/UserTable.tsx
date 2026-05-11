@@ -1,6 +1,6 @@
 import Table from "@/components/shared/table/core/Table";
 import Badge from "@/components/ui/Badge";
-import { User } from "@/lib/hooks/useUsers";
+import type { User } from "@/lib/users/types";
 
 import type { Column, SortDirection } from "@/components/shared/table/core/Table";
 
