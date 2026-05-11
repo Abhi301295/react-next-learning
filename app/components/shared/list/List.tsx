@@ -8,6 +8,8 @@ import { LoadingState } from "../feedback/LoadingState";
 import TableSearch from "../table/controls/TableSearch";
 import TableFilter from "../table/filters/TableFilter";
 import TablePagination from "../table/controls/TablePagination";
+import Dropdown from "@/components/shared/dropdown/Dropdown";
+import DropdownOption from "@/components/shared/dropdown/DropdownOption";
 import { Button } from "@/components/ui/Button";
 import type { SortDirection } from "../table/core/Table";
 import {
@@ -39,6 +41,8 @@ export type ListConfig<T, K extends string = never> = {
     enabled: boolean;
     initialSortKey?: keyof T;
     initialSortDirection?: SortDirection;
+    /** Server mode: sort field options for narrow layouts (dropdown). */
+    mobileFields?: readonly { key: string; label: string }[];
   };
   pagination?: {
     enabled: boolean;
@@ -217,6 +221,25 @@ function ConfiguredList<T, K extends string>({
     Math.ceil(effectiveTotalItems / Math.max(effectivePageSize, 1))
   );
 
+  const mobileSortFields = config.sorting?.mobileFields ?? [];
+  const showMobileServerSort =
+    isServerMode &&
+    hasSorting &&
+    mobileSortFields.length > 0 &&
+    Boolean(config.server?.onSortChange);
+  const serverSortBy = isServerMode
+    ? config.server!.state.sortBy
+    : null;
+  const serverSortDirection = isServerMode
+    ? config.server!.state.sortDirection
+    : "asc";
+  const mobileSortValue = String(
+    serverSortBy ??
+      config.sorting?.initialSortKey ??
+      mobileSortFields[0]?.key ??
+      ""
+  );
+
   const effectiveData = useMemo(() => {
     if (isServerMode) return data;
     if (!hasPagination) return sortedData;
@@ -318,6 +341,56 @@ function ConfiguredList<T, K extends string>({
             </div>
           )}
         </section>
+      )}
+
+      {showMobileServerSort && (
+        <div className="flex flex-wrap items-end gap-2">
+          <div className="min-w-0 flex-1 basis-[10rem]">
+            <p className="mb-1 text-sm text-subtle">Sort by</p>
+            <Dropdown
+              value={mobileSortValue}
+              onChange={(v) => {
+                const raw = Array.isArray(v) ? v[0] : v;
+                if (raw == null || raw === "") return;
+                config.server!.onSortChange?.(
+                  raw as keyof T,
+                  serverSortDirection
+                );
+              }}
+              size="sm"
+              placeholder="Sort by"
+              ariaLabel="Sort list by column"
+              className="w-full"
+            >
+              {mobileSortFields.map((f) => (
+                <DropdownOption key={f.key} value={f.key}>
+                  {f.label}
+                </DropdownOption>
+              ))}
+            </Dropdown>
+          </div>
+          <div className="w-[10.5rem] shrink-0">
+            <p className="mb-1 text-sm text-subtle">Order</p>
+            <Dropdown
+              value={serverSortDirection}
+              onChange={(v) => {
+                const raw = Array.isArray(v) ? v[0] : v;
+                if (raw !== "asc" && raw !== "desc") return;
+                const key = (serverSortBy ??
+                  config.sorting?.initialSortKey ??
+                  mobileSortValue) as keyof T;
+                config.server!.onSortChange?.(key, raw);
+              }}
+              size="sm"
+              placeholder="Order"
+              ariaLabel="Sort ascending or descending"
+              className="w-full"
+            >
+              <DropdownOption value="asc">Ascending</DropdownOption>
+              <DropdownOption value="desc">Descending</DropdownOption>
+            </Dropdown>
+          </div>
+        </div>
       )}
 
       {loading && !loadingMore && (loadingComponent || <LoadingState />)}

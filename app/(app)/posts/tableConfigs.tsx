@@ -17,10 +17,10 @@ export const EMPTY_POSTS_DESCRIPTION =
 export type PostsFilterKey = "userId";
 
 export const POST_COLUMNS: readonly Column<Post, keyof Post>[] = [
-  { key: "id", label: "Post ID" },
-  { key: "title", label: "Title" },
-  { key: "userId", label: "User ID" },
-  { key: "excerpt", label: "Excerpt" },
+  { key: "id", label: "Post ID", sortable: true },
+  { key: "title", label: "Title", sortable: true },
+  { key: "userId", label: "User ID", sortable: true },
+  { key: "excerpt", label: "Excerpt", sortable: true },
 ];
 
 const userIdOptions = [
@@ -131,6 +131,12 @@ export const postsMobileListConfig: ListConfig<Post, PostsFilterKey> = {
     enabled: true,
     initialSortKey: "id",
     initialSortDirection: "asc",
+    mobileFields: [
+      { key: "id", label: "Post ID" },
+      { key: "title", label: "Title" },
+      { key: "userId", label: "User ID" },
+      { key: "excerpt", label: "Description" },
+    ],
   },
   pagination: {
     enabled: true,
