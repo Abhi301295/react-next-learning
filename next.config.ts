@@ -28,11 +28,6 @@ const nextConfig: NextConfig = {
   },
   async rewrites() {
     return [
-      /**
-       * Proxies `/api/*` → upstream for client-side `/api/products` calls, etc.
-       * Prefer App Router **`app/api/.../route.ts`** handlers (e.g. `api/auth`) for
-       * anything that must not hit the upstream verbatim.
-       */
       {
         source: "/api/:path*",
         destination: `${API_BASE_URL}/:path*`,

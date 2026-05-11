@@ -8,7 +8,7 @@ interface BadgeProps {
   variant?: 'default' | 'success' | 'warning' | 'error';
   size?: 'sm' | 'md';
   className?: string;
-  ariaLabel?: string; // accessibility improvement
+  ariaLabel?: string;
 }
 
 const Badge = ({

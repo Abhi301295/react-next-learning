@@ -1,6 +1,5 @@
 type LoadingStateProps = {
   rows?: number;
-  /** `table` matches desktop data grids; `cards` matches mobile ResponsiveList items. */
   layout?: "table" | "cards";
 };
 

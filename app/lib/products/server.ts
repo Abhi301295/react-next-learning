@@ -1,3 +1,4 @@
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import {
   isHttpOk,
   isJsonRecordWithNumericId,
@@ -72,18 +73,13 @@ export function productDetailMetadataFallback(id: string) {
       description,
       url: `/products/${id}`,
       type: "website" as const,
-      images: [
-        {
-          url: "/file.svg",
-          alt: "User Dashboard application preview graphic",
-        },
-      ],
+      images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
     },
     twitter: {
       card: "summary" as const,
       title: `Product ${id} | User Dashboard`,
       description,
-      images: ["/file.svg"],
+      images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
     },
   };
 }

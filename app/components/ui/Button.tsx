@@ -33,7 +33,6 @@ type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
-  /** Optional hover tooltip (maps to native `title`). */
   tooltip?: string;
 };
 

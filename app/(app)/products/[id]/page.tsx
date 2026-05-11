@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import ProductDetail from "./ProductDetail";
 import { httpErrPublicMessage } from "@/lib/server-upstream";
 import {
@@ -58,8 +59,8 @@ export async function generateMetadata({
     ? [{ url: hero, alt: `${product.title} product image` }]
     : [
         {
-          url: "/file.svg",
-          alt: `${product.title} placeholder graphic`,
+          url: DEFAULT_OG_IMAGE.url,
+          alt: `${product.title} · ${DEFAULT_OG_IMAGE.alt}`,
         },
       ];
 
@@ -86,7 +87,7 @@ export async function generateMetadata({
       card: hero ? "summary_large_image" : "summary",
       title: pageTitle,
       description,
-      images: hero ? [hero] : ["/file.svg"],
+      images: openGraphImages,
     },
   };
 }

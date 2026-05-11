@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { notFound } from "next/navigation";
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import UserDetail from "./UserDetail";
 import { httpErrPublicMessage } from "@/lib/server-upstream";
 import {
@@ -20,6 +21,12 @@ function userDescription(user: {
   return `Profile for ${user.name} (${user.email})${company}.`;
 }
 
+function profilePhotoUrl(raw: string | undefined): string | null {
+  if (typeof raw !== "string") return null;
+  const trimmed = raw.trim();
+  return /^https?:\/\//i.test(trimmed) ? trimmed : null;
+}
+
 export async function generateMetadata({
   params,
 }: UserDetailPageProps): Promise<Metadata> {
@@ -35,6 +42,15 @@ export async function generateMetadata({
 
   const user = r.user;
   const description = userDescription(user);
+  const portrait = profilePhotoUrl(user.image);
+  const socialImages = portrait
+    ? [{ url: portrait, alt: `Profile photo for ${user.name}` }]
+    : [
+        {
+          url: DEFAULT_OG_IMAGE.url,
+          alt: `${user.name} · ${DEFAULT_OG_IMAGE.alt}`,
+        },
+      ];
 
   return {
     title: user.name,
@@ -42,16 +58,22 @@ export async function generateMetadata({
     alternates: {
       canonical: `/users/${user.id}`,
     },
+    robots: {
+      index: true,
+      follow: true,
+    },
     openGraph: {
       title: user.name,
       description,
       type: "profile",
       url: `/users/${user.id}`,
+      images: socialImages,
     },
     twitter: {
-      card: "summary",
+      card: portrait ? "summary_large_image" : "summary",
       title: user.name,
       description,
+      images: socialImages,
     },
   };
 }

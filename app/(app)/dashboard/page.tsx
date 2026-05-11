@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { Suspense } from "react";
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
 import { DashboardContentSkeleton } from "./DashboardSkeleton";
 
@@ -21,18 +22,13 @@ export const metadata: Metadata = {
     description,
     url: "/dashboard",
     type: "website",
-    images: [
-      {
-        url: "/file.svg",
-        alt: "User Dashboard application preview",
-      },
-    ],
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   twitter: {
     card: "summary_large_image",
     title: `${title} | User Dashboard`,
     description,
-    images: ["/file.svg"],
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   robots: {
     index: true,

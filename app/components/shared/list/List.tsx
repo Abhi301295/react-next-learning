@@ -18,7 +18,6 @@ import {
   useTableControls,
 } from "@/lib/hooks/useTableControls";
 
-/** Stable fingerprint so filter draft resets when canonical values change — avoids sync `setState` in an effect. */
 function serializedFilterSnapshot<K extends string>(
   filterValues: Record<K, FilterValue>
 ): string {
@@ -148,7 +147,6 @@ export type ListConfig<T, K extends string = never> = {
     enabled: boolean;
     initialSortKey?: keyof T;
     initialSortDirection?: SortDirection;
-    /** Server mode: sort field options for narrow layouts (dropdown). */
     mobileFields?: readonly { key: string; label: string }[];
   };
   pagination?: {
@@ -173,7 +171,6 @@ export type ListConfig<T, K extends string = never> = {
       totalItems: number;
       sortBy: keyof T | null;
       sortDirection: SortDirection;
-      /** When using load-more on mobile with server data; how many page-chunks are shown in the list. */
       listLoadedPages?: number;
     };
     onSearchChange: (value: string) => void;
@@ -181,7 +178,6 @@ export type ListConfig<T, K extends string = never> = {
     onPageSizeChange: (size: number) => void;
     onSortChange?: (key: keyof T, direction: SortDirection) => void;
     onFiltersChange?: (values: Record<K, FilterValue>) => void;
-    /** Prefer over advancing `page` when pagination mode is load-more + server (avoids replacing the list). */
     onLoadMore?: () => void;
   };
 };
@@ -193,7 +189,6 @@ type ListProps<T, K extends string = never> = {
   listClassName?: string;
   itemClassName?: string;
   loading?: boolean;
-  /** True while fetching the next server chunk without replacing the list (e.g. load more). */
   loadingMore?: boolean;
   error?: string | null;
   onRetry?: () => void;

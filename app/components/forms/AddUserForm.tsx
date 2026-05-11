@@ -45,9 +45,7 @@ export default function AddUserForm() {
     name: "addresses",
   });
 
-  const onSubmit = handleSubmit(async () => {
-    /* Persist / API call — use `getValues()` when wiring submit to API */
-  });
+  const onSubmit = handleSubmit(async () => {});
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {

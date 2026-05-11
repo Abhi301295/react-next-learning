@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import ProductsPageClient from "./ProductsPageClient";
 
 const ogTitle = "Products | User Dashboard";
@@ -22,19 +23,14 @@ export const metadata: Metadata = {
     url: "/products",
     siteName: "User Dashboard",
     locale: "en_US",
-    images: [
-      {
-        url: "/file.svg",
-        alt: "User Dashboard application preview graphic",
-      },
-    ],
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   twitter: {
     card: "summary_large_image",
     title: ogTitle,
     description:
       "Search, filter by category, sort, and open each product detail page from the dashboard.",
-    images: ["/file.svg"],
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
 };
 

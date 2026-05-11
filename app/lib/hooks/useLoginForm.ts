@@ -10,7 +10,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 const POST_LOGIN_FALLBACK = "/dashboard";
 
-/** Same-origin pathname only — blocks protocol-relative URLs and odd encodings. */
 function safeRedirectPath(from: string | null): string {
   if (!from || !from.startsWith("/") || from.startsWith("//")) {
     return POST_LOGIN_FALLBACK;

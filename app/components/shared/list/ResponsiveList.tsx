@@ -7,7 +7,6 @@ import List, { type ListConfig } from "./List";
 
 type Props<T, K extends string = never> = {
   data: T[];
-  /** When set, narrow layout uses this list (e.g. accumulated load-more rows) while the table uses `data`. */
   mobileData?: T[];
   loading?: boolean;
   loadingMore?: boolean;
@@ -18,10 +17,6 @@ type Props<T, K extends string = never> = {
   renderItem: (item: T) => React.ReactNode;
   columns: readonly Column<T, keyof T>[];
 
-  /**
-   * Optional configurable table options for desktop mode.
-   * `columns` and `getKey` are always driven by ResponsiveList props.
-   */
   desktopTableConfig?: Omit<TableConfig<T, K>, "columns" | "getKey">;
   mobileListConfig?: ListConfig<T, K>;
   mobileStateConfig?: {
@@ -75,7 +70,7 @@ export default function ResponsiveList<T, K extends string = never>({
         />
       </div>
 
-      <div className="hidden md:block overflow-x-auto">
+      <div className="hidden md:block">
         <ConfigurableTable
           data={data}
           loading={loading}

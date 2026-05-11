@@ -1,4 +1,3 @@
-/** Small in-memory dataset for Day 8 demos (useMemo / list rendering). */
 export const DAY8_ALL_USERS = [
   "john",
   "jane",

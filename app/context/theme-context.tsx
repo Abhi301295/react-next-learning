@@ -29,8 +29,6 @@ const ThemeValueContext = createContext<ThemeValue | null>(null);
 const ThemeActionsContext = createContext<ThemeActions | null>(null);
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // During SSR/hydration, we can't reliably read localStorage.
-  // We sync themeMode from localStorage inside useLayoutEffect before paint.
   const [themeMode, setThemeMode] = useState<ThemeMode>("system");
   const [resolvedTheme, setResolvedTheme] = useState<Theme>("light");
   const hasSyncedFromStorage = useRef(false);
@@ -71,11 +69,9 @@ export function ThemeProvider({ children }: { children: ReactNode }) {
       const storedThemeMode: ThemeMode =
         saved === "light" || saved === "dark" || saved === "system" ? saved : "system";
 
-      // Apply immediately so the UI doesn't flash.
       applyResolvedTheme(resolveToResolvedTheme(storedThemeMode));
       window.localStorage.setItem(THEME_STORAGE_KEY, storedThemeMode);
 
-      // Also sync dropdown value/state (deferred to satisfy lint rules).
       if (storedThemeMode !== themeMode) {
         void Promise.resolve().then(() => setThemeMode(storedThemeMode));
       }

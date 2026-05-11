@@ -143,7 +143,6 @@ export default function ConfigurableTable<T, K extends string>({
     filters: filterDefinitions,
     initialSortKey: hasSorting ? sortingConfig?.initialSortKey : undefined,
     initialSortDirection: sortingConfig?.initialSortDirection ?? "asc",
-    // When pagination UI is disabled, keep all rows visible in one page.
     initialPageSize: hasPagination ? paginationConfig?.initialPageSize ?? 5 : nonPaginatedPageSize,
     debounceMs: 300,
     getRowKey: getKey,

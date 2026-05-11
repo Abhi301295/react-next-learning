@@ -98,7 +98,7 @@ export const productsDesktopTableConfig: Omit<
   search: {
     enabled: true,
     label: "Search products",
-    placeholder: "Search by id, title, description, category, or price",
+    placeholder: "Search by title, description, category",
     fields: ["id", "title", "excerpt", "category", "price"],
   },
   filters: {

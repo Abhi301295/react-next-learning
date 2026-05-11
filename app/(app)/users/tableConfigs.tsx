@@ -151,8 +151,8 @@ export const usersPaginatedDesktopBase: Omit<
   search: {
     enabled: true,
     label: "Search users",
-    placeholder: "Search by name, email, or id",
-    fields: ["name", "email", "id"],
+    placeholder: "Search by name, email",
+    fields: ["name", "email"],
   },
   filters: {
     enabled: true,

@@ -1,3 +1,4 @@
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import {
   isHttpOk,
   isJsonRecordWithNumericId,
@@ -59,9 +60,25 @@ export async function fetchUserById(
 }
 
 export function userDetailMetadataFallback(id: string) {
+  const title = `User ${id}`;
+  const description = "This user could not be loaded.";
   return {
-    title: `User ${id}`,
-    description: "This user could not be loaded.",
+    title,
+    description,
     alternates: { canonical: `/users/${id}` } as const,
+    robots: { index: false, follow: true } as const,
+    openGraph: {
+      title,
+      description,
+      type: "website" as const,
+      url: `/users/${id}`,
+      images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
+    },
+    twitter: {
+      card: "summary" as const,
+      title,
+      description,
+      images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
+    },
   };
 }

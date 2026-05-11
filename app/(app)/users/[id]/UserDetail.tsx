@@ -1,3 +1,4 @@
+import Image from "next/image";
 import Link from "next/link";
 import {
   Card,
@@ -6,6 +7,12 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import type { UpstreamUserDetail } from "@/lib/users/types";
+
+function profilePhotoSrc(raw: string | undefined): string | null {
+  if (typeof raw !== "string") return null;
+  const t = raw.trim();
+  return /^https?:\/\//i.test(t) ? t : null;
+}
 
 function websiteHref(website: string) {
   const trimmed = website.trim();
@@ -23,6 +30,8 @@ export default function UserDetail({
   const phoneHrefDigits = user.phone
     ? user.phone.replace(/[^\d+]/g, "")
     : "";
+  const portraitUrl = profilePhotoSrc(user.image);
+  const portraitAlt = `Profile photo for ${user.name}`;
 
   return (
     <article className="space-y-4" aria-labelledby="user-heading">
@@ -37,6 +46,19 @@ export default function UserDetail({
           Profile · User ID {user.id}
         </p>
       </header>
+
+      {portraitUrl ? (
+        <div className="relative h-36 w-36 shrink-0 overflow-hidden rounded-full border border-stroke bg-panel">
+          <Image
+            src={portraitUrl}
+            alt={portraitAlt}
+            fill
+            className="object-cover"
+            sizes="9rem"
+            priority
+          />
+        </div>
+      ) : null}
 
       <Card className="border-stroke bg-panel">
         <CardHeader>
