@@ -169,7 +169,9 @@ export function useProducts() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void load(controller.signal);
+    queueMicrotask(() => {
+      void load(controller.signal);
+    });
     return () => controller.abort();
   }, [load]);
 
@@ -178,38 +180,41 @@ export function useProducts() {
   }, [load]);
 
   const serverBlock = useMemo(
-    () => ({
-      enabled: true as const,
-      state: {
-        search,
-        page: tablePage,
-        pageSize,
-        totalItems,
-        sortBy,
-        sortDirection,
-        listLoadedPages,
-      },
-      onSearchChange: (value: string) => {
-        setSearch(value);
-        resetPaging();
-      },
-      onPageChange: (p: number) => setTablePage(p),
-      onPageSizeChange: (size: number) => {
-        setPageSize(size);
-        resetPaging();
-      },
-      onSortChange: (key: keyof CatalogProduct, direction: SortDirection) => {
-        setSortBy(key);
-        setSortDirection(direction);
-        resetPaging();
-      },
-      onFiltersChange: (values: Record<ProductsFilterKey, FilterValue>) => {
-        const v = values.category;
-        setFilterCategory(typeof v === "string" ? v : "all");
-        resetPaging();
-      },
-      onLoadMore: () => setListLoadedPages((n) => n + 1),
-    }),
+    () => {
+      void filterCategory;
+      return {
+        enabled: true as const,
+        state: {
+          search,
+          page: tablePage,
+          pageSize,
+          totalItems,
+          sortBy,
+          sortDirection,
+          listLoadedPages,
+        },
+        onSearchChange: (value: string) => {
+          setSearch(value);
+          resetPaging();
+        },
+        onPageChange: (p: number) => setTablePage(p),
+        onPageSizeChange: (size: number) => {
+          setPageSize(size);
+          resetPaging();
+        },
+        onSortChange: (key: keyof CatalogProduct, direction: SortDirection) => {
+          setSortBy(key);
+          setSortDirection(direction);
+          resetPaging();
+        },
+        onFiltersChange: (values: Record<ProductsFilterKey, FilterValue>) => {
+          const v = values.category;
+          setFilterCategory(typeof v === "string" ? v : "all");
+          resetPaging();
+        },
+        onLoadMore: () => setListLoadedPages((n) => n + 1),
+      };
+    },
     [
       search,
       tablePage,

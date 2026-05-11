@@ -5,7 +5,6 @@ import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
 import { fetchProductListDummyJson } from "@/lib/products/client";
 import {
   createDay8ApiTableConfig,
-  Day8ApiKey,
   Day8ProductRow,
   mapUpstreamProductToRow,
   SORT_FIELD_MAP,

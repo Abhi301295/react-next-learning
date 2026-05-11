@@ -233,7 +233,9 @@ export function useUsers() {
 
   useEffect(() => {
     const controller = new AbortController();
-    void load(controller.signal);
+    queueMicrotask(() => {
+      void load(controller.signal);
+    });
     return () => controller.abort();
   }, [load]);
 
@@ -242,40 +244,45 @@ export function useUsers() {
   }, [load]);
 
   const serverBlock = useMemo(
-    () => ({
-      enabled: true as const,
-      state: {
-        search,
-        page: tablePage,
-        pageSize,
-        totalItems,
-        sortBy,
-        sortDirection,
-        listLoadedPages,
-      },
-      onSearchChange: (value: string) => {
-        setSearch(value);
-        resetPaging();
-      },
-      onPageChange: (p: number) => setTablePage(p),
-      onPageSizeChange: (size: number) => {
-        setPageSize(size);
-        resetPaging();
-      },
-      onSortChange: (key: keyof User, direction: SortDirection) => {
-        setSortBy(key);
-        setSortDirection(direction);
-        resetPaging();
-      },
-      onFiltersChange: (values: Record<UsersFilterKey, FilterValue>) => {
-        const role = typeof values.role === "string" ? values.role : "all";
-        const status = typeof values.status === "string" ? values.status : "all";
-        setFilterRole(role);
-        setFilterStatus(status);
-        resetPaging();
-      },
-      onLoadMore: () => setListLoadedPages((n) => n + 1),
-    }),
+    () => {
+      void filterRole;
+      void filterStatus;
+      return {
+        enabled: true as const,
+        state: {
+          search,
+          page: tablePage,
+          pageSize,
+          totalItems,
+          sortBy,
+          sortDirection,
+          listLoadedPages,
+        },
+        onSearchChange: (value: string) => {
+          setSearch(value);
+          resetPaging();
+        },
+        onPageChange: (p: number) => setTablePage(p),
+        onPageSizeChange: (size: number) => {
+          setPageSize(size);
+          resetPaging();
+        },
+        onSortChange: (key: keyof User, direction: SortDirection) => {
+          setSortBy(key);
+          setSortDirection(direction);
+          resetPaging();
+        },
+        onFiltersChange: (values: Record<UsersFilterKey, FilterValue>) => {
+          const role = typeof values.role === "string" ? values.role : "all";
+          const status =
+            typeof values.status === "string" ? values.status : "all";
+          setFilterRole(role);
+          setFilterStatus(status);
+          resetPaging();
+        },
+        onLoadMore: () => setListLoadedPages((n) => n + 1),
+      };
+    },
     [
       search,
       tablePage,

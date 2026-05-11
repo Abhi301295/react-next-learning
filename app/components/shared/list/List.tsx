@@ -18,6 +18,113 @@ import {
   useTableControls,
 } from "@/lib/hooks/useTableControls";
 
+/** Stable fingerprint so filter draft resets when canonical values change — avoids sync `setState` in an effect. */
+function serializedFilterSnapshot<K extends string>(
+  filterValues: Record<K, FilterValue>
+): string {
+  const pairs = (Object.entries(filterValues) as [K, FilterValue][]).sort(
+    ([a], [b]) => String(a).localeCompare(String(b))
+  );
+  return JSON.stringify(pairs);
+}
+
+type ListSearchFiltersRowProps<T, K extends string> = {
+  hasSearch: boolean;
+  hasFilters: boolean;
+  isServerMode: boolean;
+  effectiveSearch: string;
+  config: ListConfig<T, K>;
+  filterValues: Record<K, FilterValue>;
+  onFilterChange: (key: K, value: FilterValue) => void;
+  resetFilters: () => void;
+  activeFilterCount: number;
+  onSearchChange: (v: string) => void;
+  setPage: (p: number) => void;
+};
+
+function ListSearchFiltersRow<T, K extends string>({
+  hasSearch,
+  hasFilters,
+  isServerMode,
+  effectiveSearch,
+  config,
+  filterValues,
+  onFilterChange,
+  resetFilters,
+  activeFilterCount,
+  onSearchChange,
+  setPage,
+}: ListSearchFiltersRowProps<T, K>) {
+  const [draftFilters, setDraftFilters] = useState<Record<K, FilterValue>>(
+    filterValues as Record<K, FilterValue>
+  );
+
+  return (
+    <section
+      className={cn(
+        "flex gap-2",
+        hasSearch && hasFilters ? "flex-row items-end" : "flex-col gap-3"
+      )}
+    >
+      {hasSearch && (
+        <div className={cn(hasFilters && "min-w-0 flex-1")}>
+          <TableSearch
+            value={effectiveSearch}
+            onChange={isServerMode ? config.server!.onSearchChange : onSearchChange}
+            placeholder={config.search?.placeholder ?? "Search..."}
+            label={config.search?.label ?? "Search"}
+          />
+        </div>
+      )}
+      {hasFilters && (
+        <div className="flex shrink-0">
+          <TableFilter
+            title={config.filters?.title ?? "Filters"}
+            triggerLabel={config.filters?.triggerLabel ?? "Filters"}
+            activeCount={activeFilterCount}
+            onOpen={() => setDraftFilters(filterValues as Record<K, FilterValue>)}
+            onClear={() => {
+              resetFilters();
+              if (isServerMode) {
+                config.server!.onPageChange(1);
+                const initial = config.filters!.definitions.reduce(
+                  (acc, def) => {
+                    acc[def.key] = def.initialValue;
+                    return acc;
+                  },
+                  {} as Record<K, FilterValue>
+                );
+                config.server!.onFiltersChange?.(initial);
+              } else {
+                setPage(1);
+              }
+            }}
+            onApply={() => {
+              (Object.keys(draftFilters) as K[]).forEach((key) =>
+                onFilterChange(key, draftFilters[key])
+              );
+              if (isServerMode) {
+                config.server!.onPageChange(1);
+                config.server!.onFiltersChange?.(
+                  draftFilters as Record<K, FilterValue>
+                );
+              } else {
+                setPage(1);
+              }
+            }}
+          >
+            {config.filters!.template({
+              values: draftFilters,
+              setValue: (key, value) =>
+                setDraftFilters((prev) => ({ ...prev, [key]: value })),
+            })}
+          </TableFilter>
+        </div>
+      )}
+    </section>
+  );
+}
+
 export type ListFilterTemplateContext<K extends string> = {
   values: Record<K, FilterValue>;
   setValue: (key: K, value: FilterValue) => void;
@@ -192,7 +299,6 @@ function ConfiguredList<T, K extends string>({
     pageSize,
     onPageSizeChange,
     currentPage,
-    totalPages,
     setPage,
     filteredCount,
     sortedData,
@@ -204,13 +310,6 @@ function ConfiguredList<T, K extends string>({
     if (isServerMode || hasPagination) return;
     if (pageSize !== nonPaginatedPageSize) onPageSizeChange(nonPaginatedPageSize);
   }, [hasPagination, isServerMode, nonPaginatedPageSize, onPageSizeChange, pageSize]);
-
-  const [draftFilters, setDraftFilters] = useState<Record<K, FilterValue>>(
-    filterValues as Record<K, FilterValue>
-  );
-  useEffect(() => {
-    setDraftFilters(filterValues as Record<K, FilterValue>);
-  }, [filterValues]);
 
   const effectiveSearch = isServerMode ? config.server!.state.search : search;
   const effectivePage = isServerMode ? config.server!.state.page : currentPage;
@@ -277,70 +376,20 @@ function ConfiguredList<T, K extends string>({
   return (
     <div className="space-y-3">
       {(hasSearch || hasFilters) && (
-        <section
-          className={cn(
-            "flex gap-2",
-            hasSearch && hasFilters
-              ? "flex-row items-end"
-              : "flex-col gap-3"
-          )}
-        >
-          {hasSearch && (
-            <div className={cn(hasFilters && "min-w-0 flex-1")}>
-              <TableSearch
-                value={effectiveSearch}
-                onChange={isServerMode ? config.server!.onSearchChange : onSearchChange}
-                placeholder={config.search?.placeholder ?? "Search..."}
-                label={config.search?.label ?? "Search"}
-              />
-            </div>
-          )}
-          {hasFilters && (
-            <div className="flex shrink-0">
-              <TableFilter
-                title={config.filters?.title ?? "Filters"}
-                triggerLabel={config.filters?.triggerLabel ?? "Filters"}
-                activeCount={activeFilterCount}
-                onOpen={() => setDraftFilters(filterValues as Record<K, FilterValue>)}
-                onClear={() => {
-                  resetFilters();
-                  if (isServerMode) {
-                    config.server!.onPageChange(1);
-                    const initial = config.filters!.definitions.reduce(
-                      (acc, def) => {
-                        acc[def.key] = def.initialValue;
-                        return acc;
-                      },
-                      {} as Record<K, FilterValue>
-                    );
-                    config.server!.onFiltersChange?.(initial);
-                  } else {
-                    setPage(1);
-                  }
-                }}
-                onApply={() => {
-                  (Object.keys(draftFilters) as K[]).forEach((key) =>
-                    onFilterChange(key, draftFilters[key])
-                  );
-                  if (isServerMode) {
-                    config.server!.onPageChange(1);
-                    config.server!.onFiltersChange?.(
-                      draftFilters as Record<K, FilterValue>
-                    );
-                  } else {
-                    setPage(1);
-                  }
-                }}
-              >
-                {config.filters!.template({
-                  values: draftFilters,
-                  setValue: (key, value) =>
-                    setDraftFilters((prev) => ({ ...prev, [key]: value })),
-                })}
-              </TableFilter>
-            </div>
-          )}
-        </section>
+        <ListSearchFiltersRow<T, K>
+          key={serializedFilterSnapshot(filterValues as Record<K, FilterValue>)}
+          hasSearch={hasSearch}
+          hasFilters={hasFilters}
+          isServerMode={isServerMode}
+          effectiveSearch={effectiveSearch}
+          config={config}
+          filterValues={filterValues as Record<K, FilterValue>}
+          onFilterChange={onFilterChange}
+          resetFilters={resetFilters}
+          activeFilterCount={activeFilterCount}
+          onSearchChange={onSearchChange}
+          setPage={setPage}
+        />
       )}
 
       {showMobileServerSort && (

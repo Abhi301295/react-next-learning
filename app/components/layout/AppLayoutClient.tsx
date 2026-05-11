@@ -17,13 +17,13 @@ export function AppLayoutClient({ children }: { children: ReactNode }) {
       </a>
       <Sidebar mobileOpen={mobileOpen} setMobileOpen={setMobileOpen} />
 
-      <div className="flex min-h-screen flex-1 flex-col">
+      <div className="flex min-h-screen min-w-0 flex-1 flex-col">
         <Header onMenuClick={() => setMobileOpen(true)} />
 
         <main
           id="main-content"
           tabIndex={-1}
-          className="flex-1 p-4 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-6"
+          className="min-w-0 flex-1 p-4 outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background sm:p-6"
         >
           {children}
         </main>

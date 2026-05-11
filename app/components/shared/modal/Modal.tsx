@@ -34,7 +34,7 @@ const Modal = ({
     if (!isOpen) return;
 
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === 'Escape') onClose();
+      if (e.key === 'Escape' && !disableClose) onClose();
     };
 
     window.addEventListener('keydown', handleEsc);
@@ -91,7 +91,7 @@ const Modal = ({
 
     document.addEventListener('keydown', handleTab);
     return () => document.removeEventListener('keydown', handleTab);
-  }, [isOpen]);
+  }, [isOpen, disableClose]);
 
   if (!isOpen) return null;
 
@@ -123,7 +123,7 @@ const Modal = ({
             <h2 id={titleId} className="text-lg font-semibold">
               {title}
             </h2>
-            {showCloseButton && (
+            {showCloseButton && !disableClose && (
               <button
                 type="button"
                 aria-label="Close dialog"

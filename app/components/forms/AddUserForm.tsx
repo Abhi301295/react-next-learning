@@ -45,9 +45,9 @@ export default function AddUserForm() {
     name: "addresses",
   });
 
-  const onSubmit = async (_data: UserFormData) => {
-    /* Persist / API call would run here */
-  };
+  const onSubmit = handleSubmit(async () => {
+    /* Persist / API call — use `getValues()` when wiring submit to API */
+  });
 
   useEffect(() => {
     if (Object.keys(errors).length > 0) {
@@ -60,7 +60,7 @@ export default function AddUserForm() {
   }, [errors]);
 
   return (
-    <form ref={formRef} onSubmit={handleSubmit(onSubmit)} className="space-y-6" noValidate>
+    <form ref={formRef} onSubmit={onSubmit} className="space-y-6" noValidate>
 
       <h2 className="text-2xl font-bold">Add User Details</h2>
 
