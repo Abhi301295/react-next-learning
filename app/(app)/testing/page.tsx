@@ -1,5 +1,11 @@
 import UsersClient from "./client-page";
+import UseImperativeDemo from "./useImperativeDemo";
+import UseReducerDemo from "./useReducerDemo";
+import UseDeferredValueDemo from "./useDefferedValueDemo";
+import UseTransitionDemo from "./useTransitionDemo";
 import type { Metadata } from "next";
+import UseLayoutEffectDemo from "./useLayoutEffectDemo";
+import UseActionStateDemo from "./useActionStateDemo";
 
 export const metadata: Metadata = {
   title: "Testing",
@@ -17,6 +23,14 @@ export default function TestingPage() {
   return (
     <div className="p-6">
       <h1 className="mb-4 text-xl font-bold">Testing Redirects and Users</h1>
+        <div className="mb-8 space-y-4">
+          <UseReducerDemo />
+          <UseImperativeDemo />
+          <UseTransitionDemo />
+          <UseDeferredValueDemo />
+          <UseLayoutEffectDemo />
+          <UseActionStateDemo />
+        </div>
       <UsersClient />
     </div>
   );
