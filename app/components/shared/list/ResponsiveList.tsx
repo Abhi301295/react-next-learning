@@ -57,7 +57,9 @@ export default function ResponsiveList<T, K extends string = never>({
           getKey={(item) => String(getKey(item))}
           renderItem={renderItem}
           config={mobileListConfig}
-          loadingComponent={mobileStateConfig?.loadingComponent ?? <LoadingState />}
+          loadingComponent={
+            mobileStateConfig?.loadingComponent ?? <LoadingState layout="cards" />
+          }
           errorComponent={
             mobileStateConfig?.errorComponent ?? (
               <ErrorState message={error ?? "Something went wrong"} onRetry={onRetry} />
