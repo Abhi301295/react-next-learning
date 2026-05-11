@@ -113,13 +113,13 @@ const Modal = ({
         aria-labelledby={labelledBy}
         aria-label={title ? undefined : 'Dialog'}
         className={cn(
-          'relative z-10 max-h-[85vh] w-full max-w-md overflow-y-auto rounded-lg border border-stroke bg-panel p-6 text-foreground shadow-lg animate-fade-scale',
+          'relative z-10 flex max-h-[min(90vh,44rem)] w-full max-w-md flex-col overflow-hidden rounded-lg border border-stroke bg-panel text-foreground shadow-lg animate-fade-scale',
           panelClass
         )}
         onClick={(e) => e.stopPropagation()}
       >
-        {title && (
-          <div className="mb-4 flex items-center justify-between border-b border-stroke pb-3">
+        {title ? (
+          <div className="flex shrink-0 items-center justify-between border-b border-stroke px-6 pb-3 pt-5">
             <h2 id={titleId} className="text-lg font-semibold">
               {title}
             </h2>
@@ -134,9 +134,16 @@ const Modal = ({
               </button>
             )}
           </div>
-        )}
+        ) : null}
 
-        {children}
+        <div
+          className={cn(
+            'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]',
+            title ? 'px-6 py-4' : 'p-6'
+          )}
+        >
+          {children}
+        </div>
       </div>
     </div>
   );

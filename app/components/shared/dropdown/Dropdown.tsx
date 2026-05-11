@@ -1,8 +1,11 @@
 'use client';
 
-import React, { useState, useRef, useEffect, useId } from 'react';
+import React, { useState, useRef, useEffect, useId, useLayoutEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { cn } from '@/lib/utils';
 import DropdownOption, { DropdownOptionProps } from './DropdownOption';
+
+const PORTAL_Z = 220;
 
 interface DropdownProps {
   children: React.ReactNode;
@@ -41,20 +44,57 @@ const Dropdown = ({
   const [internalSelected, setInternalSelected] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const [panelBox, setPanelBox] = useState({
+    top: 0,
+    left: 0,
+    width: 0,
+    maxHeight: 240,
+  });
 
-  const ref = useRef<HTMLDivElement>(null);
-  const listRef = useRef<HTMLUListElement>(null);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const portalRef = useRef<HTMLDivElement>(null);
   const id = useId();
   const listboxId = `${id}-listbox`;
 
   const selected =
     value === undefined ? internalSelected : Array.isArray(value) ? value : [value];
 
+  const computePanel = React.useCallback(() => {
+    const el = triggerRef.current;
+    if (!el || typeof window === 'undefined') return;
+    const r = el.getBoundingClientRect();
+    const gutter = 8;
+    const spaceBelow = window.innerHeight - r.bottom - gutter - 24;
+    const maxList = Math.max(104, Math.min(240, spaceBelow));
+    setPanelBox({
+      top: r.bottom + gutter,
+      left: r.left,
+      width: Math.max(r.width, 160),
+      maxHeight: maxList,
+    });
+  }, []);
+
+  useLayoutEffect(() => {
+    if (!isOpen) return;
+    computePanel();
+
+    const onWin = () => computePanel();
+
+    window.addEventListener('resize', onWin);
+    window.addEventListener('scroll', onWin, true);
+    return () => {
+      window.removeEventListener('resize', onWin);
+      window.removeEventListener('scroll', onWin, true);
+    };
+  }, [isOpen, computePanel]);
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
+      const t = e.target as Node;
+      if (rootRef.current?.contains(t)) return;
+      if (portalRef.current?.contains(t)) return;
+      setIsOpen(false);
     };
 
     document.addEventListener('mousedown', handleClickOutside);
@@ -147,6 +187,9 @@ const Dropdown = ({
         e.preventDefault();
         setActiveIndex(filteredOptions.length - 1);
         break;
+
+      default:
+        break;
     }
   };
 
@@ -164,50 +207,19 @@ const Dropdown = ({
     lg: 'h-12 px-4 text-base',
   };
 
-  return (
-    <div ref={ref} className={cn('relative w-full', className)}>
-      <button
-        type="button"
-        onClick={() =>
-          setIsOpen((prev) => {
-            const next = !prev;
-            if (next) {
-              setSearchQuery('');
-              setActiveIndex(0);
-            }
-            return next;
-          })
-        }
-        onKeyDown={handleKeyDown}
-        role="combobox"
-        aria-haspopup="listbox"
-        aria-controls={listboxId}
-        aria-expanded={isOpen}
-        aria-activedescendant={isOpen ? `${id}-option-${safeActiveIndex}` : undefined}
-        aria-label={ariaLabel}
-        aria-labelledby={ariaLabelledBy}
-        aria-describedby={ariaDescribedBy}
-        aria-invalid={ariaInvalid || undefined}
-        className={cn(
-          'flex w-full items-center justify-between rounded-md border border-stroke bg-panel text-foreground shadow-sm',
-          'focus:outline-none focus:ring-2 focus:ring-brand-500',
-          sizeClasses[size]
-        )}
+  const panel =
+    isOpen && typeof document !== 'undefined' ? (
+      <div
+        ref={portalRef}
+        style={{
+          position: 'fixed',
+          top: panelBox.top,
+          left: panelBox.left,
+          width: panelBox.width,
+          zIndex: PORTAL_Z,
+        }}
+        className="rounded-md border border-stroke bg-panel text-foreground shadow-lg outline-none ring-1 ring-black/5 dark:ring-white/10"
       >
-        <span
-          suppressHydrationWarning
-          className={cn(selected.length === 0 && 'text-subtle')}
-        >
-          {displayText}
-        </span>
-
-        <span className={cn('transition', isOpen && 'rotate-180')}>
-          ▼
-        </span>
-      </button>
-
-      {isOpen && (
-        <div className="absolute left-0 z-20 mt-2 w-full rounded-md border border-stroke bg-panel text-foreground shadow-lg">
           {searchable && (
             <div className="border-b border-stroke p-2">
               <input
@@ -226,50 +238,98 @@ const Dropdown = ({
           )}
           <ul
             id={listboxId}
-            ref={listRef}
             role="listbox"
             aria-multiselectable={multiple || undefined}
             tabIndex={-1}
-            className="max-h-60 overflow-auto"
+            className={cn(
+              'overflow-y-auto overscroll-contain py-1',
+              '[scrollbar-width:thin] [scrollbar-color:var(--color-stroke)_transparent]'
+            )}
+            style={{ maxHeight: panelBox.maxHeight }}
           >
             {filteredOptions.map((option, index) => {
             const val = option.props.value;
-            const isSelected = selected.includes(val);
-            const isActive = index === safeActiveIndex;
+            const isSel = selected.includes(val);
+            const isActiveOpt = index === safeActiveIndex;
 
             return (
               <li
                 id={`${id}-option-${index}`}
                 key={val}
                 role="option"
-                aria-selected={isSelected}
+                aria-selected={isSel}
                 tabIndex={-1}
                 onClick={() => handleSelect(val)}
                 onMouseEnter={() => setActiveIndex(index)}
                 className={cn(
-                  'flex cursor-pointer items-center justify-between px-4 py-2 text-foreground',
-                  isSelected && 'font-medium',
-                  isActive && 'bg-brand-500/15',
+                  'flex cursor-pointer items-center justify-between px-3 py-2 text-sm text-foreground',
+                  isSel && 'font-medium',
+                  isActiveOpt && 'bg-brand-500/15',
                   'hover:bg-background'
                 )}
               >
                 <div className="flex items-center gap-2">
                   {multiple && (
-                    <input type="checkbox" checked={isSelected} readOnly tabIndex={-1} aria-hidden />
+                    <input type="checkbox" checked={isSel} readOnly tabIndex={-1} aria-hidden />
                   )}
                   {option.props.children}
                 </div>
 
-                {!multiple && isSelected && <span>✓</span>}
+                {!multiple && isSel && <span aria-hidden>✓</span>}
               </li>
             );
             })}
             {filteredOptions.length === 0 && (
-              <li className="px-4 py-2 text-sm text-subtle">{noResultsText}</li>
+              <li className="px-3 py-2 text-sm text-subtle">{noResultsText}</li>
             )}
           </ul>
         </div>
-      )}
+    ) : null;
+
+  return (
+    <div ref={rootRef} className={cn('relative w-full', className)}>
+      <button
+        ref={triggerRef}
+        type="button"
+        onClick={() =>
+          setIsOpen((prev) => {
+            const next = !prev;
+            if (next) {
+              setSearchQuery('');
+              setActiveIndex(0);
+              requestAnimationFrame(() => computePanel());
+            }
+            return next;
+          })
+        }
+        onKeyDown={handleKeyDown}
+        role="combobox"
+        aria-haspopup="listbox"
+        aria-controls={listboxId}
+        aria-expanded={isOpen}
+        aria-activedescendant={isOpen ? `${id}-option-${safeActiveIndex}` : undefined}
+        aria-label={ariaLabel}
+        aria-labelledby={ariaLabelledBy}
+        aria-describedby={ariaDescribedBy}
+        aria-invalid={ariaInvalid || undefined}
+        className={cn(
+          'flex w-full items-center justify-between rounded-md border border-stroke bg-panel text-foreground shadow-sm',
+          'focus:outline-none focus:ring-2 focus:ring-brand-500'
+        , sizeClasses[size])}
+      >
+        <span
+          suppressHydrationWarning
+          className={cn('min-w-0 truncate text-left', selected.length === 0 && 'text-subtle')}
+        >
+          {displayText}
+        </span>
+
+        <span className={cn('shrink-0 pl-2 transition', isOpen && 'rotate-180')} aria-hidden>
+          ▼
+        </span>
+      </button>
+
+      {panel && createPortal(panel, document.body)}
     </div>
   );
 };

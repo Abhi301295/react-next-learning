@@ -1,16 +1,30 @@
 import { appApiFetch, isHttpOk, responseToJsonResult } from "@/lib/app-api";
+import { djUsersEnvelope } from "@/lib/dummy-json/payload";
 import type { HttpResult } from "@/lib/http-result";
 import type { UpstreamUserListItem } from "./types";
 
-export async function fetchUserListWithQuery(
-  params: URLSearchParams,
+export async function fetchUserListDummyJson(
+  opts: {
+    limit: number;
+    skip?: number;
+    search?: string;
+    sortBy: string;
+    order: "asc" | "desc";
+  },
   signal?: AbortSignal
 ): Promise<HttpResult<{ users: UpstreamUserListItem[]; total: number }>> {
-  const qs = params.toString();
-  const path = qs ? `users?${qs}` : "users";
+  const skip = Math.max(0, opts.skip ?? 0);
+  const qs = new URLSearchParams();
+  qs.set("limit", opts.limit <= 0 ? "0" : String(opts.limit));
+  qs.set("skip", String(skip));
+  qs.set("sortBy", opts.sortBy);
+  qs.set("order", opts.order);
+  const pathBase = opts.search?.trim()
+    ? `users/search?q=${encodeURIComponent(opts.search.trim())}&${qs.toString()}`
+    : `users?${qs.toString()}`;
   let res: Response;
   try {
-    res = await appApiFetch(path, { signal });
+    res = await appApiFetch(pathBase, { signal });
   } catch (e: unknown) {
     if (e instanceof DOMException && e.name === "AbortError") {
       return { ok: false, kind: "aborted" };
@@ -21,17 +35,19 @@ export async function fetchUserListWithQuery(
       message: e instanceof Error ? e.message : "Network error",
     };
   }
-  const json = await responseToJsonResult<UpstreamUserListItem[]>(res);
-  if (!isHttpOk(json)) {
-    return json;
+  const json = await responseToJsonResult<unknown>(res);
+  if (!isHttpOk(json)) return json;
+  const env = djUsersEnvelope(json.data);
+  if (!env) {
+    return {
+      ok: false,
+      kind: "decode",
+      message: "Unexpected users response shape.",
+    };
   }
-  const totalFromHeader = Number(res.headers.get("x-total-count"));
   return {
     ok: true,
-    status: res.status,
-    data: {
-      users: json.data,
-      total: Number.isFinite(totalFromHeader) ? totalFromHeader : 0,
-    },
+    status: json.status,
+    data: env,
   };
 }

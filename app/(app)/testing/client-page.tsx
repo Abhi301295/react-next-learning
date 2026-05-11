@@ -2,7 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchUserListWithQuery } from "@/lib/users/client";
+import { fetchUserListDummyJson } from "@/lib/users/client";
+import { userListDisplayName } from "@/lib/users/map-row";
 
 type User = {
   id: number;
@@ -20,16 +21,26 @@ export default function UsersClient() {
     const loadUsers = async () => {
       try {
         setError(null);
-        const params = new URLSearchParams();
-        params.set("_page", "1");
-        params.set("_limit", "50");
-        const r = await fetchUserListWithQuery(params, controller.signal);
+        const r = await fetchUserListDummyJson(
+          {
+            limit: 50,
+            skip: 0,
+            sortBy: "id",
+            order: "asc",
+          },
+          controller.signal
+        );
         if (!isHttpOk(r)) {
           if (r.kind === "aborted") return;
           setError(httpErrPublicMessage(r));
           return;
         }
-        setUsers(r.data.users);
+        setUsers(
+          r.data.users.map((row) => ({
+            id: row.id,
+            name: userListDisplayName(row),
+          }))
+        );
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") return;
         setError(err instanceof Error ? err.message : "Something went wrong");

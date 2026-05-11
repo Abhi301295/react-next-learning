@@ -1,7 +1,7 @@
 "use client";
 
 import ConfigurableTable from "@/components/shared/table/core/ConfigurableTable";
-import { Day8ApiKey, Day8PostRow } from "./tableConfigs";
+import { Day8ApiKey, Day8ProductRow } from "./tableConfigs";
 import { useDay8ApiTable } from "./useDay8ApiTable";
 
 export function ApiTableDemo() {
@@ -14,9 +14,9 @@ export function ApiTableDemo() {
       aria-label="api driven table"
     >
       <h2 className="text-lg font-semibold text-brand-600">
-        API Driven Table (Posts API with 100 records)
+        API Driven Table (DummyJSON products)
       </h2>
-      <ConfigurableTable<Day8PostRow, Day8ApiKey>
+      <ConfigurableTable<Day8ProductRow, Day8ApiKey>
         data={tableRows}
         loading={tableLoading}
         error={tableError}

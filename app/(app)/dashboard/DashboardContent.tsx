@@ -84,7 +84,7 @@ export async function DashboardContent() {
             Recent activity
           </h2>
           <p className="text-xs text-subtle">
-            Pulled from the latest posts and newest directory members.
+            Pulled from the latest products and newest directory members.
           </p>
         </CardHeader>
         <CardContent>

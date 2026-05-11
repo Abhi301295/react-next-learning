@@ -2,17 +2,17 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchPostListWithQuery } from "@/lib/posts/client";
+import { fetchProductListDummyJson } from "@/lib/products/client";
 import {
   createDay8ApiTableConfig,
   Day8ApiKey,
-  Day8PostRow,
-  mapUpstreamPostToRow,
+  Day8ProductRow,
+  mapUpstreamProductToRow,
   SORT_FIELD_MAP,
 } from "./tableConfigs";
 
 export function useDay8ApiTable() {
-  const [tableRows, setTableRows] = useState<Day8PostRow[]>([]);
+  const [tableRows, setTableRows] = useState<Day8ProductRow[]>([]);
   const [tableLoading, setTableLoading] = useState(true);
   const [tableError, setTableError] = useState<string | null>(null);
   const [tableSearchInput, setTableSearchInput] = useState('');
@@ -20,7 +20,7 @@ export function useDay8ApiTable() {
   const [tablePage, setTablePage] = useState(1);
   const [tablePageSize, setTablePageSize] = useState(5);
   const [tableTotalItems, setTableTotalItems] = useState(0);
-  const [tableSortBy, setTableSortBy] = useState<keyof Day8PostRow | null>('title');
+  const [tableSortBy, setTableSortBy] = useState<keyof Day8ProductRow | null>('title');
   const [tableSortDirection, setTableSortDirection] = useState<'asc' | 'desc'>('asc');
   const [tableRefreshKey, setTableRefreshKey] = useState(0);
 
@@ -36,23 +36,26 @@ export function useDay8ApiTable() {
     const controller = new AbortController();
     let requestAborted = false;
 
-    const loadPosts = async () => {
+    const loadProducts = async () => {
       try {
         setTableLoading(true);
         setTableError(null);
 
-        const params = new URLSearchParams();
-        params.set("_page", String(tablePage));
-        params.set("_limit", String(tablePageSize));
-        if (tableSearch) params.set("q", tableSearch);
+        const skip = (tablePage - 1) * tablePageSize;
+        const apiSortKey = tableSortBy
+          ? SORT_FIELD_MAP[tableSortBy]
+          : "title";
 
-        const apiSortKey = tableSortBy ? SORT_FIELD_MAP[tableSortBy] : undefined;
-        if (apiSortKey) {
-          params.set("_sort", apiSortKey);
-          params.set("_order", tableSortDirection);
-        }
-
-        const r = await fetchPostListWithQuery(params, controller.signal);
+        const r = await fetchProductListDummyJson(
+          {
+            limit: tablePageSize,
+            skip,
+            search: tableSearch || undefined,
+            sortBy: apiSortKey ?? "title",
+            order: tableSortDirection,
+          },
+          controller.signal
+        );
         if (!isHttpOk(r)) {
           if (r.kind === "aborted") {
             requestAborted = true;
@@ -62,7 +65,7 @@ export function useDay8ApiTable() {
           return;
         }
         setTableTotalItems(r.data.total);
-        setTableRows(r.data.posts.map(mapUpstreamPostToRow));
+        setTableRows(r.data.products.map(mapUpstreamProductToRow));
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") {
           requestAborted = true;
@@ -75,7 +78,7 @@ export function useDay8ApiTable() {
       }
     };
 
-    void loadPosts();
+    void loadProducts();
     return () => controller.abort();
   }, [
     tablePage,
@@ -119,5 +122,3 @@ export function useDay8ApiTable() {
     retry: () => setTableRefreshKey((prev) => prev + 1),
   } as const;
 }
-
-export type { Day8ApiKey };

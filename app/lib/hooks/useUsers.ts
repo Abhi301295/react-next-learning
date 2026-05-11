@@ -6,8 +6,9 @@ import type { TableConfig } from "@/components/shared/table/core/ConfigurableTab
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchUserListWithQuery } from "@/lib/users/client";
-import type { UpstreamUserListItem, User } from "@/lib/users/types";
+import { fetchUserListDummyJson } from "@/lib/users/client";
+import { mapUpstreamListRow } from "@/lib/users/map-row";
+import type { User } from "@/lib/users/types";
 import {
   USER_COLUMNS,
   usersFilterDefinitions,
@@ -16,31 +17,20 @@ import {
   type UsersFilterKey,
 } from "@/(app)/users/tableConfigs";
 
-/** JSONPlaceholder `/users` supports `_sort` for upstream fields only (not derived role/status). */
 const USER_SORT_API: Partial<Record<keyof User, string>> = {
   id: "id",
-  name: "name",
+  name: "firstName",
   email: "email",
 };
 
-function mapUpstreamUser(u: UpstreamUserListItem): User {
-  return {
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.id % 2 === 0 ? "admin" : "user",
-    status: u.id % 3 === 0 ? "inactive" : "active",
-  };
-}
-
 function resolveTotal(
-  headerVal: number,
+  totalFromApi: number,
   page: number,
   pageSize: number,
   rowCount: number
 ): number {
-  if (Number.isFinite(headerVal) && headerVal > 0) {
-    return headerVal;
+  if (Number.isFinite(totalFromApi) && totalFromApi > 0) {
+    return totalFromApi;
   }
   if (rowCount === 0) {
     return Math.max(0, (page - 1) * pageSize);
@@ -48,7 +38,7 @@ function resolveTotal(
   return (page - 1) * pageSize + rowCount;
 }
 
-const UPSTREAM_USER_FETCH_CAP = 500;
+const UPSTREAM_USER_FETCH_CAP = 0;
 
 function sortUsers(
   users: User[],
@@ -133,17 +123,17 @@ export function useUsers() {
             tablePage * pageSize,
             listLoadedPages * pageSize
           );
-          const params = new URLSearchParams();
-          params.set("_page", "1");
-          params.set("_limit", String(itemsNeeded));
-          if (debouncedSearch) {
-            params.set("q", debouncedSearch);
-          }
           const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
-          params.set("_sort", apiSort);
-          params.set("_order", sortDirection);
-
-          const r = await fetchUserListWithQuery(params, signal);
+          const r = await fetchUserListDummyJson(
+            {
+              limit: itemsNeeded,
+              skip: 0,
+              search: debouncedSearch || undefined,
+              sortBy: apiSort,
+              order: sortDirection,
+            },
+            signal
+          );
           if (!isHttpOk(r)) {
             if (r.kind === "aborted") {
               requestAborted = true;
@@ -151,8 +141,8 @@ export function useUsers() {
             }
             throw new Error(httpErrPublicMessage(r));
           }
-          const { users: rows, total: headerTotal } = r.data;
-          const mapped = rows.map(mapUpstreamUser);
+          const { users: rows, total: catalogTotal } = r.data;
+          const mapped = rows.map(mapUpstreamListRow);
           const tableSlice = mapped.slice(
             (tablePage - 1) * pageSize,
             tablePage * pageSize
@@ -163,7 +153,7 @@ export function useUsers() {
           mobileUsersRef.current = mobileSlice;
           lastListLoadedAfterFetchRef.current = listLoadedPages;
           setTotalItems(
-            resolveTotal(headerTotal, tablePage, pageSize, rows.length)
+            resolveTotal(catalogTotal, tablePage, pageSize, rows.length)
           );
         } else {
           const bulkKey = `${filterRole}\0${filterStatus}\0${debouncedSearch}\0${String(sortBy)}\0${sortDirection}`;
@@ -172,16 +162,16 @@ export function useUsers() {
           if (snap?.key === bulkKey) {
             sorted = snap.users;
           } else {
-            const params = new URLSearchParams();
-            params.set("_page", "1");
-            params.set("_limit", String(UPSTREAM_USER_FETCH_CAP));
-            if (debouncedSearch) {
-              params.set("q", debouncedSearch);
-            }
-            params.set("_sort", "id");
-            params.set("_order", "asc");
-
-            const r = await fetchUserListWithQuery(params, signal);
+            const r = await fetchUserListDummyJson(
+              {
+                limit: UPSTREAM_USER_FETCH_CAP,
+                skip: 0,
+                search: debouncedSearch || undefined,
+                sortBy: "id",
+                order: "asc",
+              },
+              signal
+            );
             if (!isHttpOk(r)) {
               if (r.kind === "aborted") {
                 requestAborted = true;
@@ -189,8 +179,7 @@ export function useUsers() {
               }
               throw new Error(httpErrPublicMessage(r));
             }
-            const { users: rows } = r.data;
-            const mapped = rows.map(mapUpstreamUser);
+            const mapped = r.data.users.map(mapUpstreamListRow);
             const fv: Record<UsersFilterKey, FilterValue> = {
               role: filterRole,
               status: filterStatus,

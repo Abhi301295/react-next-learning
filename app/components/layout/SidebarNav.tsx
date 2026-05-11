@@ -19,9 +19,16 @@ const navHover = 'hover:bg-background';
 const groupId = (variant: string, label: string) =>
   `${variant}-group-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
+function matchesNavHref(pathname: string, href: string | undefined): boolean {
+  if (!href || href === '#') return false;
+  if (pathname === href) return true;
+  if (href === '/') return false;
+  return pathname.startsWith(`${href}/`);
+}
+
 function hasActiveChild(item: SidebarItem, pathname: string) {
   if (!item.children) return false;
-  return item.children.some((child) => child.href === pathname);
+  return item.children.some((child) => matchesNavHref(pathname, child.href));
 }
 
 export function SidebarNav({
@@ -37,7 +44,7 @@ export function SidebarNav({
   return (
     <>
       {sidebarItems.map((item) => {
-        const isActive = pathname === item.href;
+        const isActive = matchesNavHref(pathname, item.href);
         const groupHasActiveChild = hasActiveChild(item, pathname);
         const isGroupOpen = openGroups[item.label] ?? groupHasActiveChild;
         const firstLetter = item.label.charAt(0).toUpperCase();
@@ -77,7 +84,7 @@ export function SidebarNav({
                   className="ml-3 border-l border-stroke pl-2"
                 >
                   {item.children.map((child) => {
-                    const isChildActive = pathname === child.href;
+                    const isChildActive = matchesNavHref(pathname, child.href);
                     return (
                       <Link
                         key={child.href}

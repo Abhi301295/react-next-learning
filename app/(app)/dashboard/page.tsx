@@ -8,7 +8,7 @@ export const dynamic = "force-dynamic";
 
 const title = "Dashboard";
 const description =
-  "Overview of user totals, active vs inactive members, and recent activity across posts and new directory entries.";
+  "Overview of user totals, active vs inactive members, and recent activity across products and new directory entries.";
 
 export const metadata: Metadata = {
   title,
@@ -34,6 +34,10 @@ export const metadata: Metadata = {
     description,
     images: ["/file.svg"],
   },
+  robots: {
+    index: true,
+    follow: true,
+  },
 };
 
 export default function DashboardPage() {
@@ -48,7 +52,7 @@ export default function DashboardPage() {
         </h1>
         <p className="max-w-2xl text-sm text-subtle sm:text-base">
           Live metrics from your user directory and a compact activity feed
-          sourced from the latest posts and newest members. Jump to{" "}
+          sourced from the latest products and newest members. Jump to{" "}
           <Link
             href="/users"
             className="font-medium text-primary underline-offset-4 hover:underline"
@@ -57,10 +61,10 @@ export default function DashboardPage() {
           </Link>{" "}
           or{" "}
           <Link
-            href="/posts"
+            href="/products"
             className="font-medium text-primary underline-offset-4 hover:underline"
           >
-            Posts
+            Products
           </Link>{" "}
           for full lists.
         </p>

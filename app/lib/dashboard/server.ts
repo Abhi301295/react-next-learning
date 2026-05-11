@@ -4,30 +4,18 @@ import {
   responseToJsonResult,
   type HttpResult,
 } from "@/lib/http-result";
-import type { UpstreamPost } from "@/lib/posts/types";
+import type { UpstreamProduct } from "@/lib/products/types";
+import { djProductsEnvelope, djUsersEnvelope } from "@/lib/dummy-json/payload";
+import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { UpstreamUserListItem } from "@/lib/users/types";
 import { upstreamFetch } from "@/lib/server-upstream";
 
-function mapUpstreamUser(u: UpstreamUserListItem) {
-  return {
-    id: u.id,
-    name: u.name,
-    email: u.email,
-    role: u.id % 2 === 0 ? ("admin" as const) : ("user" as const),
-    status: u.id % 3 === 0 ? ("inactive" as const) : ("active" as const),
-  };
-}
-
-async function fetchUserPage500(): Promise<
+async function fetchUsersAggregated(): Promise<
   HttpResult<{ users: UpstreamUserListItem[]; total: number }>
 > {
-  const params = new URLSearchParams({
-    _page: "1",
-    _limit: "500",
-  });
   let res: Response;
   try {
-    res = await upstreamFetch(`users?${params.toString()}`, {
+    res = await upstreamFetch(`users?limit=0&skip=0`, {
       next: { revalidate: 60 },
     });
   } catch (e: unknown) {
@@ -37,28 +25,27 @@ async function fetchUserPage500(): Promise<
       message: e instanceof Error ? e.message : "Network error.",
     };
   }
-  const json = await responseToJsonResult<UpstreamUserListItem[]>(res);
+  const json = await responseToJsonResult<unknown>(res);
   if (!isHttpOk(json)) {
     return json;
   }
-  const headerTotal = Number(res.headers.get("x-total-count"));
-  const rows = json.data;
-  const total =
-    Number.isFinite(headerTotal) && headerTotal > 0
-      ? headerTotal
-      : rows.length;
-  return { ok: true, status: res.status, data: { users: rows, total } };
+  const env = djUsersEnvelope(json.data);
+  if (!env) {
+    return {
+      ok: false,
+      kind: "decode",
+      message: "Unexpected users payload.",
+    };
+  }
+  return { ok: true, status: json.status, data: env };
 }
 
-async function fetchRecentPosts(): Promise<HttpResult<UpstreamPost[]>> {
-  const params = new URLSearchParams({
-    _sort: "id",
-    _order: "desc",
-    _limit: "8",
-  });
+async function fetchRecentProducts(): Promise<
+  HttpResult<{ products: UpstreamProduct[]; total: number }>
+> {
   let res: Response;
   try {
-    res = await upstreamFetch(`posts?${params.toString()}`, {
+    res = await upstreamFetch(`products?limit=8&skip=0&sortBy=id&order=desc`, {
       next: { revalidate: 60 },
     });
   } catch (e: unknown) {
@@ -68,7 +55,19 @@ async function fetchRecentPosts(): Promise<HttpResult<UpstreamPost[]>> {
       message: e instanceof Error ? e.message : "Network error.",
     };
   }
-  return responseToJsonResult<UpstreamPost[]>(res);
+  const json = await responseToJsonResult<unknown>(res);
+  if (!isHttpOk(json)) {
+    return json;
+  }
+  const env = djProductsEnvelope(json.data);
+  if (!env) {
+    return {
+      ok: false,
+      kind: "decode",
+      message: "Unexpected products payload.",
+    };
+  }
+  return { ok: true, status: json.status, data: env };
 }
 
 export type DashboardActivityItem = {
@@ -95,21 +94,18 @@ function scaledMetric(
 }
 
 function buildActivities(
-  users: ReturnType<typeof mapUpstreamUser>[],
-  posts: UpstreamPost[]
+  users: ReturnType<typeof mapUpstreamListRow>[],
+  products: UpstreamProduct[]
 ): DashboardActivityItem[] {
-  const byId = new Map(users.map((u) => [u.id, u] as const));
   const items: DashboardActivityItem[] = [];
 
-  for (const p of posts.slice(0, 4)) {
-    const author = byId.get(p.userId);
-    const who = author?.name ?? `User #${p.userId}`;
+  for (const p of products.slice(0, 4)) {
     const short =
       p.title.length > 52 ? `${p.title.slice(0, 50)}…` : p.title;
     items.push({
-      id: `post-${p.id}`,
-      label: `${who} published “${short}”.`,
-      href: `/posts/${p.id}`,
+      id: `product-${p.id}`,
+      label: `Product listing: “${short}” (${p.category}).`,
+      href: `/products/${p.id}`,
     });
   }
 
@@ -129,20 +125,20 @@ export async function fetchDashboardSnapshot(): Promise<
   | { ok: true; data: DashboardSnapshot }
   | { ok: false; message: string }
 > {
-  const [usersR, postsR] = await Promise.all([
-    fetchUserPage500(),
-    fetchRecentPosts(),
+  const [usersR, productsR] = await Promise.all([
+    fetchUsersAggregated(),
+    fetchRecentProducts(),
   ]);
 
   if (!isHttpOk(usersR)) {
     return { ok: false, message: httpErrPublicMessage(usersR) };
   }
-  if (!isHttpOk(postsR)) {
-    return { ok: false, message: httpErrPublicMessage(postsR) };
+  if (!isHttpOk(productsR)) {
+    return { ok: false, message: httpErrPublicMessage(productsR) };
   }
 
   const { users: raw, total: catalogTotal } = usersR.data;
-  const mapped = raw.map(mapUpstreamUser);
+  const mapped = raw.map(mapUpstreamListRow);
   const activeInSample = mapped.filter((u) => u.status === "active").length;
   const inactiveInSample = mapped.length - activeInSample;
   const activeUsers = scaledMetric(
@@ -162,7 +158,7 @@ export async function fetchDashboardSnapshot(): Promise<
       totalUsers: catalogTotal,
       activeUsers,
       inactiveUsers,
-      activities: buildActivities(mapped, postsR.data),
+      activities: buildActivities(mapped, productsR.data.products),
     },
   };
 }

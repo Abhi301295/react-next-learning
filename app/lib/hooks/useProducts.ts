@@ -6,45 +6,47 @@ import type { TableConfig } from "@/components/shared/table/core/ConfigurableTab
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchPostListWithQuery } from "@/lib/posts/client";
-import type { Post, UpstreamPost } from "@/lib/posts/types";
+import { fetchProductListDummyJson } from "@/lib/products/client";
+import type { CatalogProduct, UpstreamProduct } from "@/lib/products/types";
 import {
-  POST_COLUMNS,
-  postsDesktopTableConfig,
-  postsMobileListConfig,
-  type PostsFilterKey,
-} from "@/(app)/posts/tableConfigs";
+  PRODUCT_COLUMNS,
+  productsDesktopTableConfig,
+  productsMobileListConfig,
+  type ProductsFilterKey,
+} from "@/(app)/products/tableConfigs";
 
-const POST_SORT_API: Partial<Record<keyof Post, string>> = {
+const PRODUCT_SORT_API: Partial<Record<keyof CatalogProduct, string>> = {
   id: "id",
   title: "title",
-  userId: "userId",
-  excerpt: "title",
+  category: "category",
+  price: "price",
+  excerpt: "description",
 };
 
-function toExcerpt(body: string, max = 120): string {
-  const t = body.trim();
+function excerptFromDescription(text: string, max = 120): string {
+  const t = text.trim();
   if (t.length <= max) return t;
   return `${t.slice(0, max).trim()}…`;
 }
 
-function mapUpstreamPost(p: UpstreamPost): Post {
+function mapUpstreamProduct(p: UpstreamProduct): CatalogProduct {
   return {
     id: p.id,
     title: p.title,
-    userId: p.userId,
-    excerpt: toExcerpt(p.body),
+    category: p.category,
+    price: p.price,
+    excerpt: excerptFromDescription(p.description),
   };
 }
 
 function resolveTotal(
-  headerVal: number,
+  totalFromApi: number,
   page: number,
   pageSize: number,
   rowCount: number
 ): number {
-  if (Number.isFinite(headerVal) && headerVal > 0) {
-    return headerVal;
+  if (Number.isFinite(totalFromApi) && totalFromApi > 0) {
+    return totalFromApi;
   }
   if (rowCount === 0) {
     return Math.max(0, (page - 1) * pageSize);
@@ -52,9 +54,9 @@ function resolveTotal(
   return (page - 1) * pageSize + rowCount;
 }
 
-export function usePosts() {
-  const [posts, setPosts] = useState<Post[]>([]);
-  const [mobilePosts, setMobilePosts] = useState<Post[]>([]);
+export function useProducts() {
+  const [products, setProducts] = useState<CatalogProduct[]>([]);
+  const [mobileProducts, setMobileProducts] = useState<CatalogProduct[]>([]);
   const [totalItems, setTotalItems] = useState(0);
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
@@ -65,11 +67,11 @@ export function usePosts() {
   const [pageSize, setPageSize] = useState(5);
   const [search, setSearch] = useState("");
   const [debouncedSearch, setDebouncedSearch] = useState("");
-  const [sortBy, setSortBy] = useState<keyof Post | null>("id");
+  const [sortBy, setSortBy] = useState<keyof CatalogProduct | null>("id");
   const [sortDirection, setSortDirection] = useState<SortDirection>("asc");
-  const [filterUserId, setFilterUserId] = useState<string>("all");
+  const [filterCategory, setFilterCategory] = useState<string>("all");
 
-  const mobilePostsRef = useRef<Post[]>([]);
+  const mobileProductsRef = useRef<CatalogProduct[]>([]);
   const lastListLoadedAfterFetchRef = useRef(0);
 
   const resetPaging = useCallback(() => {
@@ -89,7 +91,7 @@ export function usePosts() {
       const extendMobileListOnly =
         lastListLoadedAfterFetchRef.current > 0 &&
         listLoadedPages > lastListLoadedAfterFetchRef.current &&
-        mobilePostsRef.current.length >= pageSize;
+        mobileProductsRef.current.length >= pageSize;
 
       try {
         if (extendMobileListOnly) {
@@ -102,20 +104,20 @@ export function usePosts() {
           tablePage * pageSize,
           listLoadedPages * pageSize
         );
-        const params = new URLSearchParams();
-        params.set("_page", "1");
-        params.set("_limit", String(itemsNeeded));
-        if (debouncedSearch) {
-          params.set("q", debouncedSearch);
-        }
-        if (filterUserId !== "all") {
-          params.set("userId", filterUserId);
-        }
-        const apiSort = POST_SORT_API[sortBy ?? "id"] ?? "id";
-        params.set("_sort", apiSort);
-        params.set("_order", sortDirection);
-
-        const r = await fetchPostListWithQuery(params, signal);
+        const apiSort = PRODUCT_SORT_API[sortBy ?? "id"] ?? "id";
+        const hasSearch = Boolean(debouncedSearch);
+        const r = await fetchProductListDummyJson(
+          {
+            limit: itemsNeeded,
+            skip: 0,
+            search: debouncedSearch || undefined,
+            categorySlug:
+              hasSearch ? undefined : filterCategory !== "all" ? filterCategory : undefined,
+            sortBy: apiSort,
+            order: sortDirection,
+          },
+          signal
+        );
         if (!isHttpOk(r)) {
           if (r.kind === "aborted") {
             requestAborted = true;
@@ -123,19 +125,19 @@ export function usePosts() {
           }
           throw new Error(httpErrPublicMessage(r));
         }
-        const { posts: rows, total: headerTotal } = r.data;
-        const mapped = rows.map(mapUpstreamPost);
+        const { products: rows, total: catalogTotal } = r.data;
+        const mapped = rows.map(mapUpstreamProduct);
         const tableSlice = mapped.slice(
           (tablePage - 1) * pageSize,
           tablePage * pageSize
         );
         const mobileSlice = mapped.slice(0, listLoadedPages * pageSize);
-        setPosts(tableSlice);
-        setMobilePosts(mobileSlice);
-        mobilePostsRef.current = mobileSlice;
+        setProducts(tableSlice);
+        setMobileProducts(mobileSlice);
+        mobileProductsRef.current = mobileSlice;
         lastListLoadedAfterFetchRef.current = listLoadedPages;
         setTotalItems(
-          resolveTotal(headerTotal, tablePage, pageSize, rows.length)
+          resolveTotal(catalogTotal, tablePage, pageSize, rows.length)
         );
       } catch (err: unknown) {
         if (err instanceof DOMException && err.name === "AbortError") {
@@ -161,7 +163,7 @@ export function usePosts() {
       debouncedSearch,
       sortBy,
       sortDirection,
-      filterUserId,
+      filterCategory,
     ]
   );
 
@@ -196,14 +198,14 @@ export function usePosts() {
         setPageSize(size);
         resetPaging();
       },
-      onSortChange: (key: keyof Post, direction: SortDirection) => {
+      onSortChange: (key: keyof CatalogProduct, direction: SortDirection) => {
         setSortBy(key);
         setSortDirection(direction);
         resetPaging();
       },
-      onFiltersChange: (values: Record<PostsFilterKey, FilterValue>) => {
-        const v = values.userId;
-        setFilterUserId(typeof v === "string" ? v : "all");
+      onFiltersChange: (values: Record<ProductsFilterKey, FilterValue>) => {
+        const v = values.category;
+        setFilterCategory(typeof v === "string" ? v : "all");
         resetPaging();
       },
       onLoadMore: () => setListLoadedPages((n) => n + 1),
@@ -215,40 +217,42 @@ export function usePosts() {
       totalItems,
       sortBy,
       sortDirection,
-      filterUserId,
+      filterCategory,
       listLoadedPages,
       resetPaging,
     ]
   );
 
   const desktopTableConfig = useMemo<
-    Omit<TableConfig<Post, PostsFilterKey>, "columns" | "getKey">
+    Omit<TableConfig<CatalogProduct, ProductsFilterKey>, "columns" | "getKey">
   >(
     () => ({
-      ...postsDesktopTableConfig,
+      ...productsDesktopTableConfig,
       server: serverBlock,
     }),
     [serverBlock]
   );
 
-  const mobileListConfig = useMemo<ListConfig<Post, PostsFilterKey>>(
+  const mobileListConfig = useMemo<
+    ListConfig<CatalogProduct, ProductsFilterKey>
+  >(
     () => ({
-      ...postsMobileListConfig,
+      ...productsMobileListConfig,
       server: serverBlock,
     }),
     [serverBlock]
   );
 
   return {
-    posts,
-    mobilePosts,
+    products,
+    mobileProducts,
     totalItems,
     loading,
     loadingMore,
     hasFetched,
     error,
     refetch,
-    postColumns: POST_COLUMNS,
+    productColumns: PRODUCT_COLUMNS,
     desktopTableConfig,
     mobileListConfig,
   };

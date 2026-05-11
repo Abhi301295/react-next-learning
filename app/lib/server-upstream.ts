@@ -8,7 +8,7 @@ export type { HttpResult, HttpErr, HttpOk } from "@/lib/http-result";
 export { isHttpOk, httpErrPublicMessage, responseToJsonResult } from "@/lib/http-result";
 
 export function getUpstreamApiOrigin(): string {
-  return process.env.API_BASE_URL ?? "http://localhost:3001";
+  return process.env.API_BASE_URL ?? "https://dummyjson.com";
 }
 
 export function upstreamUrl(path: string): string {

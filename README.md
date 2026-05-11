@@ -28,7 +28,7 @@ Next.js App Router project used for day-wise frontend tasks, reusable UI primiti
 
 - Browser calls use `/api/*`.
 - `next.config.ts` rewrites `/api/:path*` to `API_BASE_URL/:path*`.
-- Set `API_BASE_URL` in environment variables. In local development, fallback is `http://localhost:3001`.
+- Set `API_BASE_URL` in environment variables (default / example: `https://dummyjson.com`).
 
 ## SEO
 

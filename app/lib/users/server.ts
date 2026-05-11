@@ -14,6 +14,28 @@ export type FetchUserDetailResult =
   | { ok: false; kind: "invalid" }
   | { ok: false; kind: "error"; cause: HttpErr };
 
+function detailFromUpstream(data: Record<string, unknown>): UpstreamUserDetail | null {
+  if (typeof data.id !== "number") return null;
+  const fn = typeof data.firstName === "string" ? data.firstName : "";
+  const ln = typeof data.lastName === "string" ? data.lastName : "";
+  const username = typeof data.username === "string" ? data.username.trim() : "";
+  const name = `${fn} ${ln}`.trim() || username || `User ${data.id}`;
+  if (typeof data.email !== "string") return null;
+  const user: UpstreamUserDetail = { id: data.id, name, email: data.email };
+  if (typeof data.phone === "string") user.phone = data.phone;
+  if (typeof data.image === "string") user.image = data.image;
+  const company = data.company;
+  if (
+    typeof company === "object" &&
+    company !== null &&
+    "name" in company &&
+    typeof (company as { name: unknown }).name === "string"
+  ) {
+    user.company = { name: (company as { name: string }).name };
+  }
+  return user;
+}
+
 export async function fetchUserById(
   id: string
 ): Promise<FetchUserDetailResult> {
@@ -29,7 +51,11 @@ export async function fetchUserById(
   if (!isJsonRecordWithNumericId(data)) {
     return { ok: false, kind: "invalid" };
   }
-  return { ok: true, user: data as UpstreamUserDetail };
+  const normalized = detailFromUpstream(data as Record<string, unknown>);
+  if (!normalized) {
+    return { ok: false, kind: "invalid" };
+  }
+  return { ok: true, user: normalized };
 }
 
 export function userDetailMetadataFallback(id: string) {
