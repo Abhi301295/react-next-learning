@@ -48,7 +48,7 @@ export default function Table<
         <thead className="bg-background text-left">
           <tr>
             {selectable && (
-              <th className="p-3 w-12">
+              <th scope="col" className="p-3 w-12">
                 <input
                   type="checkbox"
                   checked={allVisibleSelected}
@@ -60,6 +60,7 @@ export default function Table<
             {columns.map((col) => (
               <th
                 key={String(col.key)}
+                scope="col"
                 className="p-3 font-medium"
                 aria-sort={
                   col.sortable && sortBy === col.key
@@ -89,7 +90,12 @@ export default function Table<
               </th>
             ))}
             {rowActions && (
-              <th className="p-3 font-medium text-left sm:text-right">{rowActionsLabel}</th>
+              <th
+                scope="col"
+                className="p-3 font-medium text-left sm:text-right"
+              >
+                {rowActionsLabel}
+              </th>
             )}
           </tr>
         </thead>

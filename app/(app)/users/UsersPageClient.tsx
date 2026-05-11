@@ -47,7 +47,6 @@ export default function UsersPageClient() {
         <h1 id="users-title" className="text-display-sm font-semibold text-primary">
           Users
         </h1>
-        <p className="text-sm text-subtle">SEO-friendly route example: /users</p>
       </header>
 
       <ResponsiveList<User, "role" | "status">

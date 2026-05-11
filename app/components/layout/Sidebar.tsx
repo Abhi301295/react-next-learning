@@ -23,18 +23,22 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
           'hidden flex-col border-r border-stroke bg-panel text-foreground transition-all duration-300 md:flex',
           collapsed ? 'w-16' : 'w-64'
         )}
+        aria-label="Primary navigation"
       >
         <div className="flex justify-end p-2">
           <Button
             size="sm"
             variant="outline"
             onClick={() => setCollapsed(!collapsed)}
+            aria-expanded={!collapsed}
+            aria-controls="sidebar-nav"
+            aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
           >
             {collapsed ? '→' : '←'}
           </Button>
         </div>
 
-        <nav className="flex flex-col gap-1 px-2">
+        <nav id="sidebar-nav" className="flex flex-col gap-1 px-2" aria-label="Main sections">
           <SidebarNav
             pathname={pathname}
             variant="desktop"
@@ -46,7 +50,10 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
       </aside>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-50 flex md:hidden">
+        <div
+          className="fixed inset-0 z-50 flex md:hidden"
+          role="presentation"
+        >
           <button
             type="button"
             aria-label="Close navigation panel"
@@ -54,18 +61,24 @@ export function Sidebar({ mobileOpen, setMobileOpen }: Props) {
             onClick={() => setMobileOpen(false)}
           />
 
-          <aside className="w-64 border-l border-stroke bg-panel p-4 text-foreground shadow-lg">
+          <aside
+            role="dialog"
+            aria-modal="true"
+            aria-label="Primary navigation"
+            className="w-64 border-l border-stroke bg-panel p-4 text-foreground shadow-lg"
+          >
             <div className="mb-4 flex justify-end">
               <Button
                 size="sm"
                 variant="outline"
                 onClick={() => setMobileOpen(false)}
+                aria-label="Close navigation panel"
               >
                 ✕
               </Button>
             </div>
 
-            <nav className="space-y-2">
+            <nav className="space-y-2" aria-label="Main sections">
               <SidebarNav
                 pathname={pathname}
                 variant="mobile"

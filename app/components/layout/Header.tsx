@@ -17,7 +17,10 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   };
 
   return (
-    <header className="flex items-center justify-between gap-4 border-b border-stroke bg-panel px-4 py-4">
+    <header
+      className="flex items-center justify-between gap-4 border-b border-stroke bg-panel px-4 py-4"
+      aria-label="Application"
+    >
       <div className="flex min-w-0 flex-1 items-center gap-2">
         <Button
           variant="outline"
@@ -30,7 +33,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
         </Button>
 
         <p className="truncate text-lg font-semibold text-primary">
-          Header
+          User Dashboard
         </p>
       </div>
 

@@ -9,7 +9,7 @@ import type { UpstreamPost } from "@/lib/posts/types";
 
 export default function PostDetail({ post }: { post: UpstreamPost }) {
   return (
-    <section className="space-y-4" aria-labelledby="post-heading">
+    <article className="space-y-4" aria-labelledby="post-heading">
       <header className="space-y-1">
         <h1
           id="post-heading"
@@ -37,6 +37,6 @@ export default function PostDetail({ post }: { post: UpstreamPost }) {
       >
         ← Back to posts
       </Link>
-    </section>
+    </article>
   );
 }

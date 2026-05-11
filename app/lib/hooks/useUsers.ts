@@ -16,12 +16,11 @@ import {
   type UsersFilterKey,
 } from "@/(app)/users/tableConfigs";
 
+/** JSONPlaceholder `/users` supports `_sort` for upstream fields only (not derived role/status). */
 const USER_SORT_API: Partial<Record<keyof User, string>> = {
   id: "id",
   name: "name",
   email: "email",
-  role: "id",
-  status: "id",
 };
 
 function mapUpstreamUser(u: UpstreamUserListItem): User {
@@ -110,6 +109,10 @@ export function useUsers() {
     async (signal?: AbortSignal) => {
       let requestAborted = false;
       const filtersActive = filterRole !== "all" || filterStatus !== "all";
+      const useClientSort =
+        filtersActive ||
+        sortBy === "role" ||
+        sortBy === "status";
 
       const extendMobileListOnly =
         lastListLoadedAfterFetchRef.current > 0 &&
@@ -124,7 +127,7 @@ export function useUsers() {
         }
         setError(null);
 
-        if (!filtersActive) {
+        if (!useClientSort) {
           bulkFilteredSnapshotRef.current = null;
           const itemsNeeded = Math.max(
             tablePage * pageSize,
@@ -136,7 +139,7 @@ export function useUsers() {
           if (debouncedSearch) {
             params.set("q", debouncedSearch);
           }
-          const apiSort = USER_SORT_API[sortBy ?? "name"] ?? "name";
+          const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
           params.set("_sort", apiSort);
           params.set("_order", sortDirection);
 
@@ -175,9 +178,8 @@ export function useUsers() {
             if (debouncedSearch) {
               params.set("q", debouncedSearch);
             }
-            const apiSort = USER_SORT_API[sortBy ?? "name"] ?? "name";
-            params.set("_sort", apiSort);
-            params.set("_order", sortDirection);
+            params.set("_sort", "id");
+            params.set("_order", "asc");
 
             const r = await fetchUserListWithQuery(params, signal);
             if (!isHttpOk(r)) {

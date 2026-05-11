@@ -6,8 +6,8 @@ export default function robots(): MetadataRoute.Robots {
   return {
     rules: {
       userAgent: "*",
-      allow: ["/", "/dashboard", "/day1", "/day2", "/day3", "/day5", "/day6", "/day7", "/day8", "/login"],
-      disallow: ["/testing"],
+      allow: "/",
+      disallow: "/testing",
     },
     sitemap: `${siteUrl}/sitemap.xml`,
   };

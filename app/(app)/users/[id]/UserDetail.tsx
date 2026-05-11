@@ -7,13 +7,25 @@ import {
 } from "@/components/ui/Card";
 import type { UpstreamUserDetail } from "@/lib/users/types";
 
+function websiteHref(website: string) {
+  const trimmed = website.trim();
+  if (/^https?:\/\//i.test(trimmed)) {
+    return trimmed;
+  }
+  return `https://${trimmed.replace(/^\/+/, "")}`;
+}
+
 export default function UserDetail({
   user,
 }: {
   user: UpstreamUserDetail;
 }) {
+  const phoneHrefDigits = user.phone
+    ? user.phone.replace(/[^\d+]/g, "")
+    : "";
+
   return (
-    <section className="space-y-4" aria-labelledby="user-heading">
+    <article className="space-y-4" aria-labelledby="user-heading">
       <header className="space-y-1">
         <h1
           id="user-heading"
@@ -30,17 +42,57 @@ export default function UserDetail({
         <CardHeader>
           <CardTitle>Contact</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-2">
-          <p className="text-sm text-subtle">Email: {user.email}</p>
-          {user.phone && (
-            <p className="text-sm text-subtle">Phone: {user.phone}</p>
-          )}
-          {user.website && (
-            <p className="text-sm text-subtle">Website: {user.website}</p>
-          )}
-          {user.company?.name && (
-            <p className="text-sm text-subtle">Company: {user.company.name}</p>
-          )}
+        <CardContent>
+          <dl className="space-y-3 text-sm">
+            <div>
+              <dt className="text-subtle">Email</dt>
+              <dd className="text-foreground">
+                <a
+                  href={`mailto:${user.email}`}
+                  className="text-primary underline-offset-2 hover:underline"
+                >
+                  {user.email}
+                </a>
+              </dd>
+            </div>
+            {user.phone && (
+              <div>
+                <dt className="text-subtle">Phone</dt>
+                <dd className="text-foreground">
+                  {phoneHrefDigits ? (
+                    <a
+                      href={`tel:${phoneHrefDigits}`}
+                      className="text-primary underline-offset-2 hover:underline"
+                    >
+                      {user.phone}
+                    </a>
+                  ) : (
+                    <span>{user.phone}</span>
+                  )}
+                </dd>
+              </div>
+            )}
+            {user.website && (
+              <div>
+                <dt className="text-subtle">Website</dt>
+                <dd className="text-foreground">
+                  <a
+                    href={websiteHref(user.website)}
+                    rel="noreferrer noopener"
+                    className="break-all text-primary underline-offset-2 hover:underline"
+                  >
+                    {user.website}
+                  </a>
+                </dd>
+              </div>
+            )}
+            {user.company?.name && (
+              <div>
+                <dt className="text-subtle">Company</dt>
+                <dd className="text-foreground">{user.company.name}</dd>
+              </div>
+            )}
+          </dl>
         </CardContent>
       </Card>
 
@@ -50,6 +102,6 @@ export default function UserDetail({
       >
         ← Back to users
       </Link>
-    </section>
+    </article>
   );
 }

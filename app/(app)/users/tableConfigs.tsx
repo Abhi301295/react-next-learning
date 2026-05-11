@@ -6,6 +6,7 @@ import type { ListConfig } from "@/components/shared/list/List";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
 import { Button } from "@/components/ui/Button";
+import Badge from "@/components/ui/Badge";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { User } from "@/lib/users/types";
 import { useRouter } from "next/navigation";
@@ -16,10 +17,27 @@ export const EMPTY_USERS_DESCRIPTION = "Try again or check your API configuratio
 export type UsersFilterKey = "role" | "status";
 
 export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
-  { key: "name", label: "Name" },
-  { key: "email", label: "Email" },
-  { key: "role", label: "Role" },
-  { key: "status", label: "Status" },
+  { key: "id", label: "User ID", sortable: true },
+  { key: "name", label: "Name", sortable: true },
+  { key: "email", label: "Email", sortable: true },
+  {
+    key: "role",
+    label: "Role",
+    sortable: true,
+    render: (value) => (
+      <span className="capitalize">{String(value)}</span>
+    ),
+  },
+  {
+    key: "status",
+    label: "Status",
+    sortable: true,
+    render: (value) => (
+      <Badge variant={value === "active" ? "success" : "warning"}>
+        {String(value)}
+      </Badge>
+    ),
+  },
 ];
 
 export const usersFilterDefinitions = [
@@ -181,6 +199,13 @@ export const usersPaginatedMobileListBase: Omit<
     enabled: true,
     initialSortKey: "name",
     initialSortDirection: "asc",
+    mobileFields: [
+      { key: "id", label: "User ID" },
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "role", label: "Role" },
+      { key: "status", label: "Status" },
+    ],
   },
   pagination: {
     enabled: true,
@@ -212,6 +237,13 @@ export const usersMobileListConfig: ListConfig<User, UsersFilterKey> = {
     enabled: true,
     initialSortKey: "name",
     initialSortDirection: "asc",
+    mobileFields: [
+      { key: "id", label: "User ID" },
+      { key: "name", label: "Name" },
+      { key: "email", label: "Email" },
+      { key: "role", label: "Role" },
+      { key: "status", label: "Status" },
+    ],
   },
   pagination: {
     enabled: true,
