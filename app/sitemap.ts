@@ -7,6 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
     "/",
     "/login",
     "/dashboard",
+    "/users",
+    "/posts",
     "/day1",
     "/day2",
     "/day3",

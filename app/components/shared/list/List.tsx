@@ -232,17 +232,26 @@ function ConfiguredList<T, K extends string>({
   return (
     <div className="space-y-3">
       {(hasSearch || hasFilters) && (
-        <section className="grid gap-3 md:grid-cols-2">
+        <section
+          className={cn(
+            "flex gap-2",
+            hasSearch && hasFilters
+              ? "flex-row items-end"
+              : "flex-col gap-3"
+          )}
+        >
           {hasSearch && (
-            <TableSearch
-              value={effectiveSearch}
-              onChange={isServerMode ? config.server!.onSearchChange : onSearchChange}
-              placeholder={config.search?.placeholder ?? "Search..."}
-              label={config.search?.label ?? "Search"}
-            />
+            <div className={cn(hasFilters && "min-w-0 flex-1")}>
+              <TableSearch
+                value={effectiveSearch}
+                onChange={isServerMode ? config.server!.onSearchChange : onSearchChange}
+                placeholder={config.search?.placeholder ?? "Search..."}
+                label={config.search?.label ?? "Search"}
+              />
+            </div>
           )}
           {hasFilters && (
-            <div className="flex items-end">
+            <div className="flex shrink-0">
               <TableFilter
                 title={config.filters?.title ?? "Filters"}
                 triggerLabel={config.filters?.triggerLabel ?? "Filters"}
