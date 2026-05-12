@@ -2,9 +2,9 @@ import Link from "next/link";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Page not found",
+  title: "Not found",
   description:
-    "The page you requested is not part of this dashboard. Use the links below to continue.",
+    "That page or record is not available in the dashboard. Use the links below to continue.",
   robots: {
     index: false,
     follow: true,
@@ -14,25 +14,25 @@ export const metadata: Metadata = {
 const linkClass =
   "inline-flex min-h-11 min-w-[10rem] items-center justify-center rounded-lg border border-stroke bg-panel px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-secondary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
-export default function NotFound() {
+export default function AppNotFound() {
   return (
     <section
-      className="mx-auto flex min-h-[60vh] max-w-2xl flex-col items-center justify-center gap-6 px-4 py-12 text-center"
-      aria-labelledby="global-not-found-title"
+      className="mx-auto flex min-h-[50vh] max-w-2xl flex-col items-center justify-center gap-6 px-4 py-12 text-center"
+      aria-labelledby="app-not-found-title"
     >
       <div className="space-y-3">
         <p className="text-sm font-medium uppercase tracking-wide text-subtle">
-          Error 404
+          404
         </p>
         <h1
-          id="global-not-found-title"
+          id="app-not-found-title"
           className="text-display-sm font-semibold text-brand-600"
         >
-          This page does not exist
+          We could not find that
         </h1>
         <p className="text-subtle">
-          The URL may be mistyped, or the page may have been moved. Pick a destination
-          below to get back to your work.
+          The address may be wrong, or the item may have been removed. Choose a
+          section below to keep working.
         </p>
       </div>
       <nav
@@ -49,16 +49,6 @@ export default function NotFound() {
           Products
         </Link>
       </nav>
-      <p className="text-xs text-subtle">
-        Need to sign in?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-brand-600 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
-        >
-          Go to login
-        </Link>
-        .
-      </p>
     </section>
   );
 }

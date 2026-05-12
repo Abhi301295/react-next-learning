@@ -2,7 +2,7 @@
 
 import { RouteErrorFallback } from "@/components/shared/feedback/RouteErrorFallback";
 
-export default function AppError({
+export default function AppSegmentError({
   error,
   reset,
 }: {
@@ -13,8 +13,8 @@ export default function AppError({
     <RouteErrorFallback
       error={error}
       reset={reset}
-      homeHref="/"
-      homeLabel="Go home"
+      homeHref="/dashboard"
+      homeLabel="Dashboard"
     />
   );
 }
