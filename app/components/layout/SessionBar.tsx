@@ -2,6 +2,7 @@
 
 import { IconLogOut } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
+import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 type SessionUser = {
@@ -11,6 +12,7 @@ type SessionUser = {
 };
 
 export function SessionBar() {
+  const router = useRouter();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
 
   useEffect(() => {
@@ -35,9 +37,16 @@ export function SessionBar() {
   }, []);
 
   const logout = useCallback(async () => {
-    await fetch("/api/auth/logout", { method: "POST" });
-    window.location.assign("/login");
-  }, []);
+    try {
+      const res = await fetch("/api/auth/logout", { method: "POST" });
+      if (!res.ok) return;
+      setUser(null);
+      router.replace("/login");
+      router.refresh();
+    } catch {
+      // Network error: session unchanged; user can retry.
+    }
+  }, [router]);
 
   if (user === undefined) {
     return (
