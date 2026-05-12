@@ -13,7 +13,7 @@ export function ErrorState({
       role="alert"
       aria-live="assertive"
     >
-      <p className="text-red-500 font-medium">{message}</p>
+      <p className="font-medium text-red-600 dark:text-red-400">{message}</p>
 
       {onRetry && (
         <Button onClick={onRetry}>
