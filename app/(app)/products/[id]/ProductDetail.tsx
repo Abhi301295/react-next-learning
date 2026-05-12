@@ -71,6 +71,7 @@ export default function ProductDetail({
               className="object-contain"
               sizes="(max-width: 640px) 100vw, min(36rem, 85vw)"
               priority
+              unoptimized
             />
           ) : (
             <div

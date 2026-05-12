@@ -2,7 +2,6 @@
 
 import { loginSchema } from "@/lib/validation/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
@@ -31,7 +30,6 @@ export function useLoginForm() {
   const searchParams = useSearchParams();
   const fromParam = searchParams.get("from");
   const [isNavigationPending, startNavigation] = useTransition();
-  const { beginNavigation } = useNavigationProgress();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -69,7 +67,6 @@ export function useLoginForm() {
       }
 
       const target = safeRedirectPath(fromParam);
-      beginNavigation();
       startNavigation(() => {
         router.replace(target);
         router.refresh();

@@ -6,9 +6,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 
-/**
- * Mirrors `UserDetail` so header + portrait region reserve space early for LCP.
- */
+/** Mirrors `UserDetail`; portrait is a static shell (no pulse) since avatars load quickly. */
 export default function UserDetailLoading() {
   return (
     <article
@@ -22,7 +20,10 @@ export default function UserDetailLoading() {
         <SkeletonPulse className="h-4 w-44" />
       </header>
 
-      <SkeletonPulse className="h-36 w-36 shrink-0 rounded-full border border-stroke bg-panel" />
+      <div
+        className="h-36 w-36 shrink-0 rounded-full border border-stroke bg-panel"
+        aria-hidden
+      />
 
       <Card className="border-stroke bg-panel">
         <CardHeader>

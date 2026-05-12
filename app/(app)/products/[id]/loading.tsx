@@ -1,9 +1,6 @@
 import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
 
-/**
- * Mirrors `ProductDetail` layout so the largest paint happens on the skeleton
- * immediately (LCP) instead of after the remote image arrives.
- */
+/** Mirrors `ProductDetail` layout; hero uses a static shell (no pulse) since catalog images load quickly. */
 export default function ProductDetailLoading() {
   return (
     <article
@@ -24,7 +21,10 @@ export default function ProductDetailLoading() {
       </header>
 
       <figure className="max-w-xl">
-        <SkeletonPulse className="aspect-video w-full rounded-card border border-stroke bg-panel" />
+        <div
+          className="aspect-video w-full rounded-card border border-stroke bg-panel"
+          aria-hidden
+        />
         <SkeletonPulse className="mt-2 h-3 w-56 max-w-full" />
       </figure>
 
