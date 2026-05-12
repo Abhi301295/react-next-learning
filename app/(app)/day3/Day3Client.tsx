@@ -70,7 +70,9 @@ const Day3Client = () => {
             renderItem={(user) => (
               <Card>
                 <CardHeader>
-                  <CardTitle>{user.name}</CardTitle>
+                  <CardTitle as="p" className="font-semibold">
+                    {user.name}
+                  </CardTitle>
                 </CardHeader>
 
                 <CardContent>

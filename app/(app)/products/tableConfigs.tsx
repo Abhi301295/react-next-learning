@@ -5,11 +5,10 @@ import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
-import { Button } from "@/components/ui/Button";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { CatalogProduct } from "@/lib/products/types";
+import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
 
 export const EMPTY_PRODUCTS_TITLE = "No products found";
 export const EMPTY_PRODUCTS_DESCRIPTION =
@@ -72,20 +71,17 @@ const renderProductsFilterFields = (
   </div>
 );
 
-function ProductViewActionButton({ product }: { product: CatalogProduct }) {
-  const router = useRouter();
-
+function ProductDetailNavLink({ product }: { product: CatalogProduct }) {
   return (
     <Button
-      type="button"
-      size="sm"
+      href={`/products/${product.id}`}
       variant="outline"
       iconOnly
-      icon="👁"
       aria-label={`View product: ${product.title}`}
       tooltip={`Open product ${product.id}`}
-      onClick={() => router.push(`/products/${product.id}`)}
-    />
+    >
+      👁
+    </Button>
   );
 }
 
@@ -94,12 +90,12 @@ export const productsDesktopTableConfig: Omit<
   "columns" | "getKey"
 > = {
   rowActionsLabel: "Actions",
-  rowActions: (product) => <ProductViewActionButton product={product} />,
+  rowActions: (product) => <ProductDetailNavLink product={product} />,
   search: {
     enabled: true,
     label: "Search products",
     placeholder: "Search by title, description, category",
-    fields: ["id", "title", "excerpt", "category", "price"],
+    fields: ["title", "excerpt", "category"],
   },
   filters: {
     enabled: true,

@@ -5,6 +5,7 @@ import {
   runUpstreamJson,
   type HttpErr,
 } from "@/lib/server-upstream";
+import { cache } from "react";
 import type { UpstreamUserDetail } from "./types";
 
 export type { UpstreamUserDetail } from "./types";
@@ -37,7 +38,7 @@ function detailFromUpstream(data: Record<string, unknown>): UpstreamUserDetail |
   return user;
 }
 
-export async function fetchUserById(
+async function fetchUserByIdImpl(
   id: string
 ): Promise<FetchUserDetailResult> {
   const path = `users/${encodeURIComponent(id)}`;
@@ -58,6 +59,8 @@ export async function fetchUserById(
   }
   return { ok: true, user: normalized };
 }
+
+export const fetchUserById = cache(fetchUserByIdImpl);
 
 export function userDetailMetadataFallback(id: string) {
   const title = `User ${id}`;

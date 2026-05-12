@@ -1,6 +1,10 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { useNavigationProgress } from "@/context/navigation-progress-context";
+import { safeInternalPath } from "@/lib/navigation/safe-internal-path";
+import { useRouter } from "next/navigation";
+import { useCallback } from "react";
 
 type RouteErrorFallbackProps = {
   error: Error & { digest?: string };
@@ -15,7 +19,15 @@ export function RouteErrorFallback({
   homeHref,
   homeLabel,
 }: RouteErrorFallbackProps) {
+  const router = useRouter();
+  const { beginNavigation } = useNavigationProgress();
   const digest = error.digest;
+
+  const goHome = useCallback(() => {
+    const path = safeInternalPath(homeHref) ?? "/";
+    beginNavigation();
+    router.replace(path);
+  }, [router, homeHref, beginNavigation]);
 
   return (
     <section
@@ -49,11 +61,7 @@ export function RouteErrorFallback({
         <Button type="button" onClick={() => reset()}>
           Try again
         </Button>
-        <Button
-          type="button"
-          variant="outline"
-          onClick={() => window.location.assign(homeHref)}
-        >
+        <Button type="button" variant="outline" onClick={goHome}>
           {homeLabel}
         </Button>
       </div>

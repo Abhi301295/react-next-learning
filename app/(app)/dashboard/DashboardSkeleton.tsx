@@ -7,7 +7,7 @@ function KpiSkeleton() {
         <div className="h-4 w-24 animate-pulse rounded bg-stroke" />
       </CardHeader>
       <CardContent>
-        <div className="h-8 w-20 animate-pulse rounded bg-stroke" />
+        <div className="min-h-[2.75rem] w-28 max-w-full animate-pulse rounded-md bg-stroke" />
       </CardContent>
     </Card>
   );

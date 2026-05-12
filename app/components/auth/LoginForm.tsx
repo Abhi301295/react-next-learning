@@ -4,6 +4,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import Input from "@/components/ui/Input";
+import { WorkspaceHandoffLoader } from "@/components/auth/WorkspaceHandoffLoader";
 import { useLoginForm } from "@/lib/hooks/useLoginForm";
 import { useState } from "react";
 
@@ -13,14 +14,15 @@ const LoginForm = () => {
     register,
     onSubmit,
     formState: { errors, isSubmitting },
+    isNavigationPending,
   } = useLoginForm();
 
   return (
-    <section className="flex min-h-screen items-center justify-center bg-background px-4">
+    <section className="relative flex min-h-screen items-center justify-center bg-background px-4">
       <div className="w-full max-w-md">
         <Card>
           <CardHeader>
-            <CardTitle className="text-center text-xl">
+            <CardTitle as="h1" className="text-center text-xl">
               Sign in
             </CardTitle>
             <p className="mt-2 text-center text-xs text-subtle">
@@ -89,13 +91,23 @@ const LoginForm = () => {
                 </p>
               ) : null}
 
-              <Button type="submit" className="w-full" disabled={isSubmitting}>
-                {isSubmitting ? "Signing in…" : "Sign in"}
+              <Button
+                type="submit"
+                className="w-full"
+                disabled={isSubmitting || isNavigationPending}
+              >
+                {isSubmitting
+                  ? "Signing in…"
+                  : isNavigationPending
+                    ? "Opening workspace…"
+                    : "Sign in"}
               </Button>
             </form>
           </CardContent>
         </Card>
       </div>
+
+      {isNavigationPending ? <WorkspaceHandoffLoader /> : null}
     </section>
   );
 };

@@ -14,7 +14,7 @@ function renderUserCard(user: User) {
   return (
     <Card className="border-stroke bg-panel">
       <CardHeader className="flex items-start justify-between gap-3">
-        <CardTitle>{user.name}</CardTitle>
+        <CardTitle as="p">{user.name}</CardTitle>
         <Badge variant={user.status === "active" ? "success" : "warning"}>
           {user.status}
         </Badge>

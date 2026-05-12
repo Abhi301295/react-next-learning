@@ -5,11 +5,10 @@ import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
-import { Button } from "@/components/ui/Button";
 import Badge from "@/components/ui/Badge";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { User } from "@/lib/users/types";
-import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/Button";
 
 export const EMPTY_USERS_TITLE = "No users found";
 export const EMPTY_USERS_DESCRIPTION = "Try again or check your API configuration.";
@@ -83,20 +82,17 @@ const renderUsersFilterFields = (
   </div>
 );
 
-function UserViewActionButton({ user }: { user: User }) {
-  const router = useRouter();
-
+function UserDetailNavLink({ user }: { user: User }) {
   return (
     <Button
-      type="button"
-      size="sm"
+      href={`/users/${user.id}`}
       variant="outline"
       iconOnly
-      icon="👁"
       aria-label={`View profile for ${user.name}`}
       tooltip={`View ${user.name}`}
-      onClick={() => router.push(`/users/${user.id}`)}
-    />
+    >
+      👁
+    </Button>
   );
 }
 
@@ -105,7 +101,7 @@ export const usersDesktopTableConfig: Omit<
   "columns" | "getKey"
 > = {
   rowActionsLabel: "Actions",
-  rowActions: (user) => <UserViewActionButton user={user} />,
+  rowActions: (user) => <UserDetailNavLink user={user} />,
   search: {
     enabled: true,
     label: "Search users",
@@ -147,7 +143,7 @@ export const usersPaginatedDesktopBase: Omit<
   "columns" | "getKey" | "server"
 > = {
   rowActionsLabel: "Actions",
-  rowActions: (user) => <UserViewActionButton user={user} />,
+  rowActions: (user) => <UserDetailNavLink user={user} />,
   search: {
     enabled: true,
     label: "Search users",

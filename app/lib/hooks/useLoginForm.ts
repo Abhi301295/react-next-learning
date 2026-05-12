@@ -2,8 +2,10 @@
 
 import { loginSchema } from "@/lib/validation/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useTransition } from "react";
 import { z } from "zod";
 
 type LoginFormData = z.infer<typeof loginSchema>;
@@ -28,6 +30,8 @@ export function useLoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const fromParam = searchParams.get("from");
+  const [isNavigationPending, startNavigation] = useTransition();
+  const { beginNavigation } = useNavigationProgress();
 
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -64,8 +68,12 @@ export function useLoginForm() {
         return;
       }
 
-      router.replace(safeRedirectPath(fromParam));
-      router.refresh();
+      const target = safeRedirectPath(fromParam);
+      beginNavigation();
+      startNavigation(() => {
+        router.replace(target);
+        router.refresh();
+      });
     } catch {
       form.setError("root", {
         type: "server",
@@ -77,5 +85,6 @@ export function useLoginForm() {
   return {
     ...form,
     onSubmit,
+    isNavigationPending,
   };
 }

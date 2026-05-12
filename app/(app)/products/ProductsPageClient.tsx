@@ -27,7 +27,7 @@ function renderProductCard(product: CatalogProduct) {
       className={cn("rounded-card border-stroke bg-panel", cardFocusInside)}
     >
       <CardHeader>
-        <CardTitle id={headingId} className="line-clamp-2">
+        <CardTitle as="p" id={headingId} className="line-clamp-2">
           {product.title}
         </CardTitle>
       </CardHeader>

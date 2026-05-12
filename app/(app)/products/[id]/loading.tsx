@@ -1,42 +1,44 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
-import { cn } from "@/lib/utils";
+import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
 
-function Bar({ className }: { className: string }) {
-  return (
-    <div
-      className={cn("animate-pulse rounded-md bg-stroke", className)}
-      aria-hidden
-    />
-  );
-}
-
+/**
+ * Mirrors `ProductDetail` layout so the largest paint happens on the skeleton
+ * immediately (LCP) instead of after the remote image arrives.
+ */
 export default function ProductDetailLoading() {
   return (
-    <section
+    <article
       className="space-y-6"
       aria-busy="true"
       aria-label="Loading product"
     >
-      <Bar className="h-8 w-64 max-w-full" />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,20rem)_minmax(0,1fr)]">
-        <Card className="rounded-card border-stroke bg-panel shadow-soft">
-          <CardContent className="flex flex-col items-center gap-4 p-6">
-            <Bar className="aspect-square w-full max-w-[16rem] rounded-card" />
-            <Bar className="h-4 w-24" />
-          </CardContent>
-        </Card>
-        <Card className="rounded-card border-stroke bg-panel shadow-soft">
-          <CardHeader>
-            <Bar className="h-7 w-3/4 max-w-md" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Bar className="h-4 w-full" />
-            <Bar className="h-4 w-full" />
-            <Bar className="h-4 w-[70%]" />
-            <Bar className="h-12 w-40" />
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+      <header className="space-y-4">
+        <SkeletonPulse className="h-9 w-full max-w-2xl sm:h-10" />
+        <dl className="grid gap-4 text-sm sm:grid-cols-2 lg:grid-cols-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="space-y-2">
+              <SkeletonPulse className="h-3 w-20" />
+              <SkeletonPulse className="h-4 w-24" />
+            </div>
+          ))}
+        </dl>
+      </header>
+
+      <figure className="max-w-xl">
+        <SkeletonPulse className="aspect-video w-full rounded-card border border-stroke bg-panel" />
+        <SkeletonPulse className="mt-2 h-3 w-56 max-w-full" />
+      </figure>
+
+      <section
+        className="rounded-card border border-stroke bg-panel p-4"
+        aria-hidden
+      >
+        <SkeletonPulse className="h-5 w-32" />
+        <div className="mt-3 space-y-2">
+          <SkeletonPulse className="h-3 w-full" />
+          <SkeletonPulse className="h-3 w-full" />
+          <SkeletonPulse className="h-3 w-[80%]" />
+        </div>
+      </section>
+    </article>
   );
 }

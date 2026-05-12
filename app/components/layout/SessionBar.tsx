@@ -2,6 +2,7 @@
 
 import { IconLogOut } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
+import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
@@ -13,6 +14,7 @@ type SessionUser = {
 
 export function SessionBar() {
   const router = useRouter();
+  const { beginNavigation } = useNavigationProgress();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
 
   useEffect(() => {
@@ -25,7 +27,10 @@ export function SessionBar() {
         if (!cancelled) {
           setUser(res.ok ? data.user ?? null : null);
         }
-      } catch {
+      } catch (err) {
+        if (process.env.NODE_ENV === "development") {
+          console.error("[SessionBar] session fetch failed", err);
+        }
         if (!cancelled) setUser(null);
       }
     }
@@ -41,12 +46,15 @@ export function SessionBar() {
       const res = await fetch("/api/auth/logout", { method: "POST" });
       if (!res.ok) return;
       setUser(null);
+      beginNavigation();
       router.replace("/login");
       router.refresh();
-    } catch {
-      // Network error: session unchanged; user can retry.
+    } catch (err) {
+      if (process.env.NODE_ENV === "development") {
+        console.error("[SessionBar] logout failed", err);
+      }
     }
-  }, [router]);
+  }, [router, beginNavigation]);
 
   if (user === undefined) {
     return (

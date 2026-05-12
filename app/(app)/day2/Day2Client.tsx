@@ -72,6 +72,7 @@ const Day2Client = () => {
             value={framework}
             onChange={(val) => setFramework(val as string)}
             placeholder="Select framework"
+            ariaLabel="Select a framework"
           >
             <DropdownOption value="react">React</DropdownOption>
             <DropdownOption value="angular">Angular</DropdownOption>
@@ -83,6 +84,7 @@ const Day2Client = () => {
             value={frameworks}
             onChange={(val) => setFrameworks(val as string[])}
             placeholder="Select frameworks"
+            ariaLabel="Select one or more frameworks"
           >
             <DropdownOption value="react">React</DropdownOption>
             <DropdownOption value="angular">Angular</DropdownOption>

@@ -1,3 +1,5 @@
+import { SkeletonPulse } from "./SkeletonPulse";
+
 type LoadingStateProps = {
   rows?: number;
   layout?: "table" | "cards";
@@ -10,11 +12,11 @@ export function LoadingState({ rows = 5, layout = "table" }: LoadingStateProps) 
         {Array.from({ length: rows }).map((_, i) => (
           <li key={i}>
             <div className="rounded-xl border border-stroke bg-panel p-4 shadow-sm">
-              <div className="mb-3 h-5 max-w-[min(100%,20rem)] animate-pulse rounded-md bg-stroke" />
+              <SkeletonPulse className="mb-3 h-5 max-w-[min(100%,20rem)]" />
               <div className="space-y-2">
-                <div className="h-3 w-full animate-pulse rounded-md bg-stroke" />
-                <div className="h-3 w-[80%] max-w-lg animate-pulse rounded-md bg-stroke" />
-                <div className="h-3 w-[60%] max-w-sm animate-pulse rounded-md bg-stroke" />
+                <SkeletonPulse className="h-3 w-full" />
+                <SkeletonPulse className="h-3 w-[80%] max-w-lg" />
+                <SkeletonPulse className="h-3 w-[60%] max-w-sm" />
               </div>
             </div>
           </li>
@@ -34,7 +36,7 @@ export function LoadingState({ rows = 5, layout = "table" }: LoadingStateProps) 
           <tr>
             {[1, 2, 3, 4].map((i) => (
               <th key={i} className="p-3">
-                <div className="h-4 w-20 animate-pulse rounded-md bg-stroke" />
+                <SkeletonPulse className="h-4 w-20" />
               </th>
             ))}
           </tr>
@@ -45,7 +47,7 @@ export function LoadingState({ rows = 5, layout = "table" }: LoadingStateProps) 
             <tr key={i}>
               {[1, 2, 3, 4].map((j) => (
                 <td key={j} className="p-3">
-                  <div className="h-4 w-full animate-pulse rounded-md bg-stroke" />
+                  <SkeletonPulse className="h-4 w-full" />
                 </td>
               ))}
             </tr>

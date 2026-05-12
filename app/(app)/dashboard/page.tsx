@@ -5,7 +5,8 @@ import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
 import { DashboardContentSkeleton } from "./DashboardSkeleton";
 
-export const dynamic = "force-dynamic";
+/** Matches `fetch` cache in dashboard snapshot + avoids fully-dynamic TTFB on every visit. */
+export const revalidate = 60;
 
 const title = "Dashboard";
 const description =

@@ -30,7 +30,9 @@
   --radius-card: 0.875rem;
   --shadow-soft: 0 10px 24px -12px rgb(15 23 42 / 0.32);
   --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* System stack avoids a second network font (FCP / critical path). */
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Monaco, Consolas,
+    "Liberation Mono", "Courier New", monospace;
 }
 
 .dark {
@@ -81,4 +83,27 @@ body {
 
 .animate-fade-scale {
   animation: fadeScale 0.2s ease-out;
+}
+
+@keyframes nav-progress-slide {
+  0% {
+    transform: translateX(-120%);
+  }
+
+  100% {
+    transform: translateX(280%);
+  }
+}
+
+.animate-nav-progress-bar {
+  animation: nav-progress-slide 1.1s ease-in-out infinite;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-nav-progress-bar {
+    animation: none;
+    transform: translateX(0);
+    width: 40%;
+    opacity: 0.9;
+  }
 }

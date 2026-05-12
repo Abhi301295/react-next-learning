@@ -1,5 +1,7 @@
 'use client';
 
+import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
+
 type TableSkeletonProps = {
   rows?: number;
   columnCount?: number;
@@ -20,7 +22,7 @@ export default function TableSkeleton({
           <tr>
             {Array.from({ length: columnCount }).map((_, i) => (
               <th key={i} className="p-3">
-                <div className="h-4 w-24 animate-pulse rounded-md bg-stroke" />
+                <SkeletonPulse className="h-4 w-24" />
               </th>
             ))}
           </tr>
@@ -31,7 +33,7 @@ export default function TableSkeleton({
             <tr key={i}>
               {Array.from({ length: columnCount }).map((_, j) => (
                 <td key={j} className="p-3">
-                  <div className="h-4 w-full animate-pulse rounded-md bg-stroke" />
+                  <SkeletonPulse className="h-4 w-full" />
                 </td>
               ))}
             </tr>

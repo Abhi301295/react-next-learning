@@ -8,8 +8,8 @@ export const metadata: Metadata = {
     canonical: "/testing",
   },
   robots: {
-    index: false,
-    follow: false,
+    index: true,
+    follow: true,
   },
 };
 

@@ -1,7 +1,7 @@
 import "./globals.css";
 import { Providers } from "./providers";
 import type { Metadata } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { ThemeInitScript } from "./components/theme/ThemeInitScript";
 import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
@@ -9,13 +9,10 @@ import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-geist-sans",
-  display: "swap",
-});
-
-const fontMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-geist-mono",
-  display: "swap",
+  /** Prefer first paint with fallback on slow links; avoids render-blocking font wait. */
+  display: "optional",
+  preload: false,
+  adjustFontFallback: true,
 });
 
 export const metadata: Metadata = {
@@ -57,7 +54,7 @@ export default function RootLayout({ children }: { children: ReactNode }) {
     <html
       lang="en"
       suppressHydrationWarning
-      className={`${fontSans.variable} ${fontMono.variable}`}
+      className={fontSans.variable}
     >
       <head>
         <ThemeInitScript />

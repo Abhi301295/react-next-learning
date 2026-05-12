@@ -5,6 +5,7 @@ import {
   runUpstreamJson,
   type HttpErr,
 } from "@/lib/server-upstream";
+import { cache } from "react";
 import type { UpstreamProduct } from "./types";
 
 export type { UpstreamProduct } from "./types";
@@ -24,7 +25,7 @@ function isProductDetail(data: Record<string, unknown>): data is UpstreamProduct
   );
 }
 
-export async function fetchProductById(
+async function fetchProductByIdImpl(
   id: string
 ): Promise<FetchProductDetailResult> {
   const path = `products/${encodeURIComponent(id)}`;
@@ -60,6 +61,8 @@ export async function fetchProductById(
     },
   };
 }
+
+export const fetchProductById = cache(fetchProductByIdImpl);
 
 export function productDetailMetadataFallback(id: string) {
   const description = `The product with id ${id} could not be loaded. Browse other items from the dashboard catalog instead.`;

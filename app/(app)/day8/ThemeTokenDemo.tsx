@@ -42,13 +42,13 @@ export function ThemeTokenDemo() {
           </CardContent>
         </Card>
 
-        <Card className="rounded-card border-none bg-brand-500 shadow-soft">
+        <Card className="rounded-card border-none bg-brand-600 shadow-soft">
           <CardHeader>
             <CardTitle className="text-display-sm text-white">
               Variant 3: Brand Card
             </CardTitle>
           </CardHeader>
-          <CardContent className="text-white/90">
+          <CardContent className="text-white">
             Primary emphasis block using brand color token.
           </CardContent>
         </Card>

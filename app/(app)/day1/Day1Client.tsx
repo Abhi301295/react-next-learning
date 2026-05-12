@@ -9,7 +9,7 @@ const Day1Client = () => {
       </h1>
       <Card className="max-w-xl">
         <CardHeader>
-          <CardTitle>UI Components</CardTitle>
+          <CardTitle as="h2">UI Components</CardTitle>
         </CardHeader>
 
         <CardContent className="space-y-3">

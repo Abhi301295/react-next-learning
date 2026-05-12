@@ -21,11 +21,17 @@ export function CardHeader({ className, ...props }: CardHeaderProps) {
   return <div className={cn("mb-3 space-y-1", className)} {...props} />;
 }
 
-type CardTitleProps = HTMLAttributes<HTMLHeadingElement>;
+type CardTitleProps = {
+  as?: "h1" | "h2" | "h3" | "p" | "div";
+} & HTMLAttributes<HTMLElement>;
 
-export function CardTitle({ className, ...props }: CardTitleProps) {
+export function CardTitle({
+  className,
+  as: Comp = "h3",
+  ...props
+}: CardTitleProps) {
   return (
-    <h3
+    <Comp
       className={cn("text-base font-semibold text-foreground", className)}
       {...props}
     />

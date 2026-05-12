@@ -1,45 +1,41 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 
-function Bar({ className }: { className: string }) {
-  return (
-    <div
-      className={`animate-pulse rounded-md bg-stroke ${className}`}
-      aria-hidden
-    />
-  );
-}
-
+/**
+ * Mirrors `UserDetail` so header + portrait region reserve space early for LCP.
+ */
 export default function UserDetailLoading() {
   return (
-    <section
-      className="space-y-6"
+    <article
+      className="space-y-4"
       aria-busy="true"
       aria-label="Loading user profile"
     >
-      <Bar className="h-8 w-56 max-w-full" />
-      <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,18rem)]">
-        <Card className="rounded-card border-stroke bg-panel shadow-soft">
-          <CardHeader>
-            <Bar className="h-6 w-32" />
-          </CardHeader>
-          <CardContent className="space-y-4">
-            <Bar className="h-4 w-full" />
-            <Bar className="h-4 w-[80%]" />
-            <Bar className="h-4 w-2/3" />
-            <Bar className="h-24 w-full" />
-          </CardContent>
-        </Card>
-        <Card className="rounded-card border-stroke bg-panel shadow-soft">
-          <CardHeader>
-            <Bar className="h-5 w-24" />
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <Bar className="h-4 w-full" />
-            <Bar className="h-4 w-full" />
-            <Bar className="h-4 w-[75%]" />
-          </CardContent>
-        </Card>
-      </div>
-    </section>
+      <h1 className="sr-only">Loading user profile</h1>
+      <header className="space-y-1">
+        <SkeletonPulse className="h-9 w-64 max-w-full sm:h-10" />
+        <SkeletonPulse className="h-4 w-44" />
+      </header>
+
+      <SkeletonPulse className="h-36 w-36 shrink-0 rounded-full border border-stroke bg-panel" />
+
+      <Card className="border-stroke bg-panel">
+        <CardHeader>
+          <CardTitle as="h2">Contact</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <SkeletonPulse className="h-4 w-full" />
+          <SkeletonPulse className="h-4 w-[80%]" />
+          <SkeletonPulse className="h-4 w-2/3" />
+        </CardContent>
+      </Card>
+
+      <SkeletonPulse className="h-4 w-36" />
+    </article>
   );
 }

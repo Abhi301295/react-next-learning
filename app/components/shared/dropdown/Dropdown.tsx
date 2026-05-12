@@ -15,6 +15,7 @@ interface DropdownProps {
   multiple?: boolean;
   value?: string | string[];
   size?: 'sm' | 'md' | 'lg';
+  /** Preferred; combobox accessible name when not using aria-labelledby. */
   ariaLabel?: string;
   ariaLabelledBy?: string;
   ariaDescribedBy?: string;
@@ -39,7 +40,13 @@ const Dropdown = ({
   searchable = false,
   searchPlaceholder = 'Search options...',
   noResultsText = 'No options found',
-}: DropdownProps) => {
+  'aria-label': ariaLabelFromAttr,
+}: DropdownProps &
+  Pick<React.ComponentProps<'button'>, 'aria-label'>) => {
+  const comboboxName =
+    ariaLabel ??
+    ariaLabelFromAttr ??
+    (ariaLabelledBy ? undefined : placeholder);
   const [isOpen, setIsOpen] = useState(false);
   const [internalSelected, setInternalSelected] = useState<string[]>([]);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -308,7 +315,7 @@ const Dropdown = ({
         aria-controls={listboxId}
         aria-expanded={isOpen}
         aria-activedescendant={isOpen ? `${id}-option-${safeActiveIndex}` : undefined}
-        aria-label={ariaLabel}
+        aria-label={ariaLabelledBy ? undefined : comboboxName}
         aria-labelledby={ariaLabelledBy}
         aria-describedby={ariaDescribedBy}
         aria-invalid={ariaInvalid || undefined}

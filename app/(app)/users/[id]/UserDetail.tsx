@@ -62,7 +62,7 @@ export default function UserDetail({
 
       <Card className="border-stroke bg-panel">
         <CardHeader>
-          <CardTitle>Contact</CardTitle>
+          <CardTitle as="h2">Contact</CardTitle>
         </CardHeader>
         <CardContent>
           <dl className="space-y-3 text-sm">

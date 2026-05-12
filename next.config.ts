@@ -9,6 +9,9 @@ if (isProd && !process.env.API_BASE_URL) {
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
+  experimental: {
+    optimizePackageImports: ["react-hook-form", "@hookform/resolvers"],
+  },
   images: {
     remotePatterns: [
       {

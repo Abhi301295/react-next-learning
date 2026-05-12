@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { cn } from "@/lib/utils";
-import type { ButtonHTMLAttributes } from "react";
+import type { ButtonHTMLAttributes, ComponentProps } from "react";
 
 type ButtonVariant = "primary" | "secondary" | "outline";
 type ButtonSize = "sm" | "md" | "lg";
@@ -27,62 +28,105 @@ const iconOnlySizeClasses: Record<ButtonSize, string> = {
   lg: "h-12 w-12 p-0",
 };
 
-type ButtonProps = ButtonHTMLAttributes<HTMLButtonElement> & {
+type SharedVisualProps = {
   variant?: ButtonVariant;
   size?: ButtonSize;
   icon?: React.ReactNode;
   iconPosition?: "left" | "right";
   iconOnly?: boolean;
   tooltip?: string;
+  children?: React.ReactNode;
+  className?: string;
 };
 
-export function Button({
-  className,
-  variant,
-  size,
-  icon,
-  iconPosition = "left",
-  iconOnly = false,
-  tooltip,
-  children,
-  "aria-label": ariaLabel,
-  title,
-  ...props
-}: ButtonProps) {
+type ButtonAsButtonProps = SharedVisualProps &
+  Omit<ButtonHTMLAttributes<HTMLButtonElement>, keyof SharedVisualProps> & {
+    href?: undefined;
+  };
+
+type ButtonAsLinkProps = SharedVisualProps &
+  Omit<ComponentProps<typeof Link>, keyof SharedVisualProps>;
+
+export type ButtonProps = ButtonAsButtonProps | ButtonAsLinkProps;
+
+export function Button(props: ButtonProps) {
+  const {
+    className,
+    variant,
+    size,
+    icon,
+    iconPosition = "left",
+    iconOnly = false,
+    tooltip,
+    children,
+    "aria-label": ariaLabel,
+    title,
+    ...rest
+  } = props;
+
   const resolvedSize = size ?? "md";
 
-  return (
-    <button
-      className={cn(
-        base,
-        variantClasses[variant ?? "primary"],
-        iconOnly ? iconOnlySizeClasses[resolvedSize] : sizeClasses[resolvedSize],
-        !iconOnly && icon && "gap-2",
-        className
-      )}
-      aria-label={ariaLabel}
-      title={tooltip ?? title}
-      {...props}
-    >
-      {iconOnly ? (
+  const classes = cn(
+    base,
+    variantClasses[variant ?? "primary"],
+    iconOnly ? iconOnlySizeClasses[resolvedSize] : sizeClasses[resolvedSize],
+    !iconOnly && icon && "gap-2",
+    className
+  );
+
+  const resolvedTitle = tooltip ?? title;
+
+  const iconOnlyContent = icon ?? children;
+
+  const inner = iconOnly ? (
+    <span aria-hidden="true" className="inline-flex items-center justify-center">
+      {iconOnlyContent}
+    </span>
+  ) : (
+    <>
+      {icon && iconPosition === "left" && (
         <span aria-hidden="true" className="inline-flex items-center justify-center">
           {icon}
         </span>
-      ) : (
-        <>
-          {icon && iconPosition === "left" && (
-            <span aria-hidden="true" className="inline-flex items-center justify-center">
-              {icon}
-            </span>
-          )}
-          {children}
-          {icon && iconPosition === "right" && (
-            <span aria-hidden="true" className="inline-flex items-center justify-center">
-              {icon}
-            </span>
-          )}
-        </>
       )}
+      {children}
+      {icon && iconPosition === "right" && (
+        <span aria-hidden="true" className="inline-flex items-center justify-center">
+          {icon}
+        </span>
+      )}
+    </>
+  );
+
+  if ("href" in rest && rest.href !== undefined && rest.href !== "") {
+    const { href, ...linkRest } = rest;
+    return (
+      <Link
+        href={href}
+        className={classes}
+        aria-label={ariaLabel}
+        title={resolvedTitle}
+        {...linkRest}
+      >
+        {inner}
+      </Link>
+    );
+  }
+
+  const buttonProps = rest as Omit<
+    ButtonAsButtonProps,
+    keyof SharedVisualProps
+  >;
+
+  return (
+    <button
+      type={buttonProps.type ?? "button"}
+      className={classes}
+      aria-label={ariaLabel}
+      title={resolvedTitle}
+      {...buttonProps}
+    >
+      {inner}
     </button>
   );
 }

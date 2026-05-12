@@ -2,10 +2,18 @@
   "name": "user-dashboard",
   "version": "0.1.0",
   "private": true,
+  "browserslist": [
+    "chrome >= 111",
+    "edge >= 111",
+    "firefox >= 111",
+    "safari >= 16.4"
+  ],
   "scripts": {
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lighthouse:audit": "node ./scripts/lighthouse-audit.mjs",
+    "lighthouse:ci": "npm run build && START_SERVER=1 LH_PORT=3010 node ./scripts/lighthouse-audit.mjs",
     "lint": "eslint",
     "typecheck": "tsc --noEmit"
   },
@@ -27,6 +35,7 @@
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "lighthouse": "^13.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }
