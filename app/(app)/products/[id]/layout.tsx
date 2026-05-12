@@ -61,9 +61,13 @@ export async function generateMetadata({
         },
       ];
 
+  /**
+   * Per-product text lives on `openGraph` / `twitter` so we do not overwrite the
+   * parent `products/layout` `<meta name="description">` (async replace can race
+   * Lighthouse’s MetaElements snapshot).
+   */
   return {
     title: product.title,
-    description,
     alternates: {
       canonical: `/products/${product.id}`,
     },
