@@ -47,8 +47,8 @@ export default function UserDetail({
         </p>
       </header>
 
-      {portraitUrl ? (
-        <div className="relative h-36 w-36 shrink-0 overflow-hidden rounded-full border border-stroke bg-panel">
+      <div className="relative h-36 w-36 shrink-0 overflow-hidden rounded-full border border-stroke bg-panel">
+        {portraitUrl ? (
           <Image
             src={portraitUrl}
             alt={portraitAlt}
@@ -57,8 +57,10 @@ export default function UserDetail({
             sizes="9rem"
             priority
           />
-        </div>
-      ) : null}
+        ) : (
+          <span className="sr-only">No profile photo</span>
+        )}
+      </div>
 
       <Card className="border-stroke bg-panel">
         <CardHeader>

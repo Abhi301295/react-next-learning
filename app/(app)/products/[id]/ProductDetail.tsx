@@ -58,12 +58,12 @@ export default function ProductDetail({
         </dl>
       </header>
 
-      {hero ? (
-        <figure className="max-w-xl">
-          <div
-            className="relative aspect-video overflow-hidden rounded-card border border-stroke bg-panel"
-            role="presentation"
-          >
+      <figure className="max-w-xl">
+        <div
+          className="relative aspect-video overflow-hidden rounded-card border border-stroke bg-panel"
+          role="presentation"
+        >
+          {hero ? (
             <Image
               src={hero}
               alt={imageAlt}
@@ -72,12 +72,21 @@ export default function ProductDetail({
               sizes="(max-width: 640px) 100vw, min(36rem, 85vw)"
               priority
             />
-          </div>
-          <figcaption className="mt-2 text-xs text-subtle">
-            Illustrated image supplied by the product catalog API.
-          </figcaption>
-        </figure>
-      ) : null}
+          ) : (
+            <div
+              className="flex h-full min-h-0 items-center justify-center px-4 text-center text-xs text-subtle"
+              aria-hidden
+            >
+              No catalog image
+            </div>
+          )}
+        </div>
+        <figcaption className="mt-2 text-xs text-subtle">
+          {hero
+            ? "Illustrated image supplied by the product catalog API."
+            : "This product has no preview image in the catalog."}
+        </figcaption>
+      </figure>
 
       <section
         className="rounded-card border border-stroke bg-panel p-4"
