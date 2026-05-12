@@ -168,7 +168,6 @@ export const panelTableConfig: TableConfig<User, Day7FilterKey> = {
   },
   filters: {
     enabled: true,
-    mode: "panel",
     title: "Configurable Filters (Radio + Date + Checkbox + Searchable Select)",
     triggerLabel: "Open Filter Panel",
     definitions: filterDefinitions,

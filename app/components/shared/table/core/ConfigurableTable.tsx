@@ -29,7 +29,6 @@ export type TableConfig<T, K extends string> = {
   };
   filters?: {
     enabled: boolean;
-    mode: "panel";
     title?: string;
     triggerLabel?: string;
     definitions: Array<FilterConfig<T, K>>;

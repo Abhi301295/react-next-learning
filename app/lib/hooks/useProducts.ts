@@ -10,8 +10,8 @@ import { fetchProductListDummyJson } from "@/lib/products/client";
 import type { CatalogProduct, UpstreamProduct } from "@/lib/products/types";
 import {
   PRODUCT_COLUMNS,
-  productsDesktopTableConfig,
-  productsMobileListConfig,
+  productsPaginatedDesktopBase,
+  productsPaginatedMobileListBase,
   type ProductsFilterKey,
 } from "@/(app)/products/tableConfigs";
 
@@ -232,7 +232,7 @@ export function useProducts() {
     Omit<TableConfig<CatalogProduct, ProductsFilterKey>, "columns" | "getKey">
   >(
     () => ({
-      ...productsDesktopTableConfig,
+      ...productsPaginatedDesktopBase,
       server: serverBlock,
     }),
     [serverBlock]
@@ -242,7 +242,7 @@ export function useProducts() {
     ListConfig<CatalogProduct, ProductsFilterKey>
   >(
     () => ({
-      ...productsMobileListConfig,
+      ...productsPaginatedMobileListBase,
       server: serverBlock,
     }),
     [serverBlock]

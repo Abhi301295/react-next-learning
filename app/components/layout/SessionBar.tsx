@@ -4,7 +4,7 @@ import { IconLogOut } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { useRouter } from "next/navigation";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
 type SessionUser = {
   username?: string;
@@ -16,6 +16,9 @@ export function SessionBar() {
   const router = useRouter();
   const { beginNavigation } = useNavigationProgress();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
+  /** Avoid clearing session UI before `/login` RSC arrives on slow networks. */
+  const [logoutPending, setLogoutPending] = useState(false);
+  const logoutInFlight = useRef(false);
 
   useEffect(() => {
     let cancelled = false;
@@ -42,10 +45,16 @@ export function SessionBar() {
   }, []);
 
   const logout = useCallback(async () => {
+    if (logoutInFlight.current) return;
+    logoutInFlight.current = true;
+    setLogoutPending(true);
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
-      if (!res.ok) return;
-      setUser(null);
+      if (!res.ok) {
+        logoutInFlight.current = false;
+        setLogoutPending(false);
+        return;
+      }
       beginNavigation();
       router.replace("/login");
       router.refresh();
@@ -53,6 +62,8 @@ export function SessionBar() {
       if (process.env.NODE_ENV === "development") {
         console.error("[SessionBar] logout failed", err);
       }
+      logoutInFlight.current = false;
+      setLogoutPending(false);
     }
   }, [router, beginNavigation]);
 
@@ -75,14 +86,18 @@ export function SessionBar() {
     "Signed in";
 
   const signOutLabel = `Sign out ${label}`;
+  const signOutAria = logoutPending ? "Signing out" : signOutLabel;
 
   return (
-    <div className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3">
+    <div
+      className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3"
+      aria-busy={logoutPending}
+    >
       <span
         className="hidden max-w-[10rem] truncate text-sm text-subtle md:inline"
         title={label}
       >
-        {label}
+        {logoutPending ? "Signing out…" : label}
       </span>
       <Button
         type="button"
@@ -92,7 +107,8 @@ export function SessionBar() {
         className="sm:hidden"
         icon={<IconLogOut className="h-4 w-4" />}
         onClick={() => void logout()}
-        aria-label={signOutLabel}
+        aria-label={signOutAria}
+        disabled={logoutPending}
       />
       <Button
         type="button"
@@ -100,9 +116,10 @@ export function SessionBar() {
         size="sm"
         className="hidden sm:inline-flex"
         onClick={() => void logout()}
-        aria-label={signOutLabel}
+        aria-label={signOutAria}
+        disabled={logoutPending}
       >
-        Log out
+        {logoutPending ? "Signing out…" : "Log out"}
       </Button>
     </div>
   );

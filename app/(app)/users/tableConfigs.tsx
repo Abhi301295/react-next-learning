@@ -1,19 +1,75 @@
 "use client";
 
+/**
+ * ============================================================================
+ * USERS LISTING — TABLE + MOBILE CONFIG (“tableConfigs” pattern)
+ * ============================================================================
+ *
+ * WHO USES THIS
+ * - `UsersPageClient` → `ResponsiveList` → passes pieces from `useUsers()`.
+ * - `useUsers` (`app/lib/hooks/useUsers.ts`) merges **`server`** (live URL state,
+ *   fetch, pagination handlers) into the objects exported here.
+ *
+ * HOW THE UI SPLITS
+ * - **Desktop (md+):** `ConfigurableTable` + **`TableConfig`** — grid, row actions,
+ *   page-size pagination; filters use the same `filters` object as the list.
+ * - **Mobile:** `List` + **`ListConfig`** — cards, “load more”, **`mobileFields`** on sort.
+ *
+ * WHAT MUST STAY IN SYNC
+ * - **Search / filters / sort defaults / empty copy** are shared between both
+ *   breakpoints (`*_RESPONSIVE_CONTROLS`, **`USERS_FILTERS`**, sort core).
+ * - Only **pagination shape** differs between **`TableConfig`** and **`ListConfig`**.
+ *   Search, filters, sort defaults, and empty copy are shared (`USERS_FILTERS`, etc.).
+ *
+ * DUMMYJSON NOTE
+ * - List fetch uses **`GET /users/search?q=`** — one string, not per-column.
+ * - **Role / status** are narrowed with **Filters** in this app, not implied by `q`.
+ *
+ * ADDING A NEW LISTING (copy this file as a template)
+ * 1. Replace row type (`User`), filter keys, columns, empty strings.
+ * 2. Fill **filter definitions** + one **template** (`FilterTemplateContext<K>`).
+ * 3. Set **search** (label, placeholder honest about API, `fields` for docs/UI).
+ * 4. Set **sort** + **mobileFields** (mobile only).
+ * 5. Set **pagination** (table vs list shapes).
+ * 6. Compose **`(entity)PaginatedDesktopBase`** and **`(entity)PaginatedMobileListBase`**.
+ * 7. In a **`use<Entity>`** hook, `useMemo` spread the desktop base + `{ server }`,
+ *    and the mobile base + `{ server }` the same way as `useUsers`.
+ *
+ * SECTION MAP (read top → bottom)
+ * 1. Empty copy        2. Filter key type     3. Columns
+ * 4. Filter definitions 5. Shared **`USERS_FILTERS`** (same object on table + list)
+ * 6. Row actions        7. Search              8. Sort + mobile sort labels
+ * 9. Empty object       10. Responsive merge (search + empty)
+ * 11. Pagination        12. Composed desktop + mobile exports
+ * 13. Aliases           14. Mobile empty override
+ * 15. Card-only helpers
+ * ============================================================================
+ */
+
 import Link from "next/link";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
-import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
+import type {
+  FilterTemplateContext,
+  TableConfig,
+} from "@/components/shared/table/core/ConfigurableTable";
 import Badge from "@/components/ui/Badge";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { User } from "@/lib/users/types";
 import { Button } from "@/components/ui/Button";
 
+// ─── 1. Empty-state copy (also referenced by `usersMobileStateConfig`) ───────
+
 export const EMPTY_USERS_TITLE = "No users found";
-export const EMPTY_USERS_DESCRIPTION = "Try again or check your API configuration.";
+export const EMPTY_USERS_DESCRIPTION =
+  "Try again or check your API configuration.";
+
+// ─── 2. Filter keys (used as generic `K` in TableConfig / ListConfig) ─────────
 
 export type UsersFilterKey = "role" | "status";
+
+// ─── 3. Desktop table columns (`ResponsiveList` passes this as `columns`) ───
 
 export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
   { key: "id", label: "User ID", sortable: true },
@@ -39,6 +95,8 @@ export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
   },
 ];
 
+// ─── 4. Filter definitions (predicates; used client-side + filter panel) ─────
+
 export const usersFilterDefinitions = [
   {
     key: "role" as UsersFilterKey,
@@ -54,33 +112,47 @@ export const usersFilterDefinitions = [
   },
 ];
 
-const renderUsersFilterFields = (
-  values: Record<UsersFilterKey, string | boolean | string[]>,
-  setValue: (key: UsersFilterKey, value: string | boolean | string[]) => void
-) => (
-  <div className="space-y-3">
-    <TableFilterField
-      label="Role"
-      value={values.role}
-      onChange={(value) => setValue("role", value)}
-      options={[
-        { label: "All roles", value: "all" },
-        { label: "Admin", value: "admin" },
-        { label: "User", value: "user" },
-      ]}
-    />
-    <TableFilterField
-      label="Status"
-      value={values.status}
-      onChange={(value) => setValue("status", value)}
-      options={[
-        { label: "All statuses", value: "all" },
-        { label: "Active", value: "active" },
-        { label: "Inactive", value: "inactive" },
-      ]}
-    />
-  </div>
-);
+// ─── 5. `USERS_FILTERS` (template + metadata; used by table and list) ─────────
+
+function UsersFilterFields(ctx: FilterTemplateContext<UsersFilterKey>) {
+  return (
+    <div className="space-y-3">
+      <TableFilterField
+        label="Role"
+        value={ctx.values.role}
+        onChange={(value) => ctx.setValue("role", value)}
+        options={[
+          { label: "All roles", value: "all" },
+          { label: "Admin", value: "admin" },
+          { label: "User", value: "user" },
+        ]}
+      />
+      <TableFilterField
+        label="Status"
+        value={ctx.values.status}
+        onChange={(value) => ctx.setValue("status", value)}
+        options={[
+          { label: "All statuses", value: "all" },
+          { label: "Active", value: "active" },
+          { label: "Inactive", value: "inactive" },
+        ]}
+      />
+    </div>
+  );
+}
+
+/**
+ * Shared by **table and list** (`TableConfig` and `ListConfig` use the same shape).
+ */
+const USERS_FILTERS = {
+  enabled: true,
+  title: "Filter users",
+  triggerLabel: "Filters",
+  definitions: usersFilterDefinitions,
+  template: UsersFilterFields,
+} as const;
+
+// ─── 6. Row action column (desktop table only; not used by mobile cards) ─────
 
 function UserDetailNavLink({ user }: { user: User }) {
   return (
@@ -96,41 +168,112 @@ function UserDetailNavLink({ user }: { user: User }) {
   );
 }
 
+const USERS_TABLE_ACTIONS = {
+  rowActionsLabel: "Actions" as const,
+  rowActions: (user: User) => <UserDetailNavLink user={user} />,
+};
+
+// ─── 7. Search (one `q` on DummyJSON; `fields` = hint / non-server client use) ─
+
+/**
+ * DummyJSON: `GET /users/search?q=` — single text query (name, email, username…).
+ * Role/status: use Filters. Docs: https://dummyjson.com/docs/users
+ */
+const USERS_SEARCH: NonNullable<TableConfig<User, UsersFilterKey>["search"]> = {
+  enabled: true,
+  label: "Search users",
+  placeholder:
+    "Name, email, or username (DummyJSON). Role & status: use Filters.",
+  fields: ["name", "email"],
+};
+
+// ─── 8. Sorting (shared defaults; list adds `mobileFields` for sort dropdown) ─
+
+const USERS_SORT_CORE: NonNullable<TableConfig<User, UsersFilterKey>["sorting"]> = {
+  enabled: true,
+  initialSortKey: "name",
+  initialSortDirection: "asc",
+};
+
+const USERS_MOBILE_SORT_FIELDS = [
+  { key: "id", label: "User ID" },
+  { key: "name", label: "Name" },
+  { key: "email", label: "Email" },
+  { key: "role", label: "Role" },
+  { key: "status", label: "Status" },
+] as const;
+
+// ─── 9. Empty state strings (table + list empty / no-results variants) ──────
+
+const USERS_EMPTY: NonNullable<TableConfig<User, UsersFilterKey>["emptyState"]> = {
+  noDataTitle: EMPTY_USERS_TITLE,
+  noDataDescription: EMPTY_USERS_DESCRIPTION,
+};
+
+/** Search + empty copy reused on both breakpoints. */
+const USERS_RESPONSIVE_CONTROLS = {
+  search: USERS_SEARCH,
+  emptyState: USERS_EMPTY,
+};
+
+// ─── 10. Pagination (table = pages; list = infinite “load more”) ──────────────
+
+const USERS_PAGINATION_TABLE: NonNullable<
+  TableConfig<User, UsersFilterKey>["pagination"]
+> = {
+  enabled: true,
+  initialPageSize: 5,
+  pageSizeOptions: [5, 10, 20],
+};
+
+const USERS_PAGINATION_LIST: NonNullable<
+  ListConfig<User, UsersFilterKey>["pagination"]
+> = {
+  enabled: true,
+  mode: "load-more",
+  initialPageSize: 5,
+  loadMoreLabel: "Load more users",
+};
+
+// ─── 11. Composed configs (hook adds `server` + `columns` / `getKey`) ─────────
+
+/** Desktop: `useUsers` spreads this then `{ server: … }`. */
+export const usersPaginatedDesktopBase: Omit<
+  TableConfig<User, UsersFilterKey>,
+  "columns" | "getKey" | "server"
+> = {
+  ...USERS_TABLE_ACTIONS,
+  ...USERS_RESPONSIVE_CONTROLS,
+  filters: USERS_FILTERS,
+  sorting: USERS_SORT_CORE,
+  pagination: USERS_PAGINATION_TABLE,
+};
+
+/** Mobile: `useUsers` spreads this then `{ server: … }`. */
+export const usersPaginatedMobileListBase: Omit<
+  ListConfig<User, UsersFilterKey>,
+  "server"
+> = {
+  ...USERS_RESPONSIVE_CONTROLS,
+  filters: USERS_FILTERS,
+  sorting: {
+    ...USERS_SORT_CORE,
+    mobileFields: USERS_MOBILE_SORT_FIELDS,
+  },
+  pagination: USERS_PAGINATION_LIST,
+};
+
+// ─── 12. Aliases (same shapes; useful if a page uses table without `server`) ─
+
 export const usersDesktopTableConfig: Omit<
   TableConfig<User, UsersFilterKey>,
   "columns" | "getKey"
-> = {
-  rowActionsLabel: "Actions",
-  rowActions: (user) => <UserDetailNavLink user={user} />,
-  search: {
-    enabled: true,
-    label: "Search users",
-    placeholder: "Search by name, email, role, or status",
-    fields: ["name", "email", "role", "status"],
-  },
-  filters: {
-    enabled: true,
-    mode: "panel",
-    title: "Filter users",
-    triggerLabel: "Filters",
-    definitions: usersFilterDefinitions,
-    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
-  },
-  sorting: {
-    enabled: true,
-    initialSortKey: "name",
-    initialSortDirection: "asc",
-  },
-  pagination: {
-    enabled: true,
-    initialPageSize: 5,
-    pageSizeOptions: [5, 10, 20],
-  },
-  emptyState: {
-    noDataTitle: EMPTY_USERS_TITLE,
-    noDataDescription: EMPTY_USERS_DESCRIPTION,
-  },
-};
+> = usersPaginatedDesktopBase;
+
+export const usersMobileListConfig: ListConfig<User, UsersFilterKey> =
+  usersPaginatedMobileListBase;
+
+// ─── 13. ResponsiveList optional override (custom empty on mobile cards) ─────
 
 export const usersMobileStateConfig = {
   emptyComponent: (
@@ -138,120 +281,7 @@ export const usersMobileStateConfig = {
   ),
 };
 
-export const usersPaginatedDesktopBase: Omit<
-  TableConfig<User, UsersFilterKey>,
-  "columns" | "getKey" | "server"
-> = {
-  rowActionsLabel: "Actions",
-  rowActions: (user) => <UserDetailNavLink user={user} />,
-  search: {
-    enabled: true,
-    label: "Search users",
-    placeholder: "Search by name, email",
-    fields: ["name", "email"],
-  },
-  filters: {
-    enabled: true,
-    mode: "panel",
-    title: "Filter users",
-    triggerLabel: "Filters",
-    definitions: usersFilterDefinitions,
-    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
-  },
-  sorting: {
-    enabled: true,
-    initialSortKey: "name",
-    initialSortDirection: "asc",
-  },
-  pagination: {
-    enabled: true,
-    initialPageSize: 5,
-    pageSizeOptions: [5, 10, 20],
-  },
-  emptyState: {
-    noDataTitle: EMPTY_USERS_TITLE,
-    noDataDescription: EMPTY_USERS_DESCRIPTION,
-  },
-};
-
-export const usersPaginatedMobileListBase: Omit<
-  ListConfig<User, UsersFilterKey>,
-  "server"
-> = {
-  search: {
-    enabled: true,
-    label: "Search users",
-    placeholder: "Search by name, email, or id",
-    fields: ["name", "email", "id"],
-  },
-  filters: {
-    enabled: true,
-    title: "Filter users",
-    triggerLabel: "Filters",
-    definitions: usersFilterDefinitions,
-    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
-  },
-  sorting: {
-    enabled: true,
-    initialSortKey: "name",
-    initialSortDirection: "asc",
-    mobileFields: [
-      { key: "id", label: "User ID" },
-      { key: "name", label: "Name" },
-      { key: "email", label: "Email" },
-      { key: "role", label: "Role" },
-      { key: "status", label: "Status" },
-    ],
-  },
-  pagination: {
-    enabled: true,
-    mode: "load-more",
-    initialPageSize: 5,
-    loadMoreLabel: "Load more users",
-  },
-  emptyState: {
-    noDataTitle: EMPTY_USERS_TITLE,
-    noDataDescription: EMPTY_USERS_DESCRIPTION,
-  },
-};
-
-export const usersMobileListConfig: ListConfig<User, UsersFilterKey> = {
-  search: {
-    enabled: true,
-    label: "Search users",
-    placeholder: "Search by name, email, role, or status",
-    fields: ["name", "email", "role", "status"],
-  },
-  filters: {
-    enabled: true,
-    title: "Filter users",
-    triggerLabel: "Filters",
-    definitions: usersFilterDefinitions,
-    template: ({ values, setValue }) => renderUsersFilterFields(values, setValue),
-  },
-  sorting: {
-    enabled: true,
-    initialSortKey: "name",
-    initialSortDirection: "asc",
-    mobileFields: [
-      { key: "id", label: "User ID" },
-      { key: "name", label: "Name" },
-      { key: "email", label: "Email" },
-      { key: "role", label: "Role" },
-      { key: "status", label: "Status" },
-    ],
-  },
-  pagination: {
-    enabled: true,
-    mode: "load-more",
-    initialPageSize: 5,
-    loadMoreLabel: "Load more users",
-  },
-  emptyState: {
-    noDataTitle: EMPTY_USERS_TITLE,
-    noDataDescription: EMPTY_USERS_DESCRIPTION,
-  },
-};
+// ─── 14. Card body helper (not part of TableConfig / ListConfig) ─────────────
 
 export function renderUserProfileLink(userId: number) {
   return (
