@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { TextLink } from "@/components/ui/TextLink";
 import { Suspense } from "react";
-import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
 import { DashboardContentSkeleton } from "./DashboardSkeleton";
 
@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 const title = "Dashboard";
 const description =
-  "Overview of user totals, active vs inactive members, and recent activity across products and new directory entries.";
+  "Overview of user totals, active vs inactive members, and recent directory activity.";
 
 export const metadata: Metadata = {
   title,
@@ -19,7 +19,7 @@ export const metadata: Metadata = {
     canonical: "/dashboard",
   },
   openGraph: {
-    title: `${title} | User Dashboard`,
+    title: `${title} | ${SITE_NAME}`,
     description,
     url: "/dashboard",
     type: "website",
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${title} | User Dashboard`,
+    title: `${title} | ${SITE_NAME}`,
     description,
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
@@ -48,12 +48,10 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="max-w-2xl text-sm text-subtle sm:text-base">
-          Live metrics from your user directory and a compact activity feed
-          sourced from the latest products and newest members. Jump to{" "}
-          <TextLink href="/users">Users</TextLink>{" "}
-          or{" "}
-          <TextLink href="/products">Products</TextLink>{" "}
-          for full lists.
+          Live metrics from your user directory and a compact activity feed for
+          the newest members. Open the{" "}
+          <TextLink href="/users">user list</TextLink> to search, filter, and
+          edit profiles.
         </p>
       </header>
 

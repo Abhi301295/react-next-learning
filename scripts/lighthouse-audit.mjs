@@ -41,22 +41,7 @@ async function waitForServer(maxAttempts = 90) {
  * `meta-description` on cold requests.
  */
 async function warmupAuthenticatedRoutes(cookie) {
-  const paths = [
-    "/",
-    "/dashboard",
-    "/users",
-    "/users/1",
-    "/products",
-    "/products/1",
-    "/testing",
-    "/day1",
-    "/day2",
-    "/day3",
-    "/day5",
-    "/day6",
-    "/day7",
-    "/day8",
-  ];
+  const paths = ["/", "/dashboard", "/users", "/users/1"];
   await Promise.all(
     paths.map((pathname) =>
       fetch(`${BASE}${pathname}`, {
@@ -315,16 +300,6 @@ async function main() {
     { name: "dashboard", path: "/dashboard", headers: cookie },
     { name: "users", path: "/users", headers: cookie },
     { name: "users_1", path: "/users/1", headers: cookie },
-    { name: "products", path: "/products", headers: cookie },
-    { name: "products_1", path: "/products/1", headers: cookie },
-    { name: "testing", path: "/testing", headers: cookie },
-    { name: "day1", path: "/day1", headers: cookie },
-    { name: "day2", path: "/day2", headers: cookie },
-    { name: "day3", path: "/day3", headers: cookie },
-    { name: "day5", path: "/day5", headers: cookie },
-    { name: "day6", path: "/day6", headers: cookie },
-    { name: "day7", path: "/day7", headers: cookie },
-    { name: "day8", path: "/day8", headers: cookie },
   ];
 
   const summary = [];

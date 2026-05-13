@@ -1,93 +1,112 @@
-# User Dashboard
+# User Management Dashboard
 
-A Next.js dashboard for exploring **users**, **products**, and a **metrics overview**, with **DummyJSON** as the upstream API and a **cookie-based auth** layer. Built for coursework (day-wise tasks), reusable tables/lists, forms, accessibility, SEO, and a responsive app shell.
+Final mini project: a **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** theming (light/dark), **DummyJSON** as the upstream API, **cookie-based auth**, and routes focused on **login**, **dashboard**, and **users** (list, search with debounce, status filter, pagination, add/edit flows, and dynamic user detail).
 
-## Features
+## Features (rubric)
 
-### Application
-
-- **Authentication** — Sign in with a DummyJSON **username/password** (`POST /api/auth/login`). Session JWT is stored in an **httpOnly** cookie; **`/api/auth/session`** proxies **`/auth/me`**; **`/api/auth/logout`** clears the cookie.
-- **Route protection** — Root **`middleware.ts`** redirects anonymous users to **`/login`** and keeps authenticated users out of login when appropriate. Expired JWTs are detected via payload **`exp`** (hint only); invalid sessions are cleared via the session route.
-- **Dashboard** — Server-rendered overview (totals, activity) with suspense fallback.
-- **Users** — Search, role/status filters, sort, pagination (desktop **table**, mobile **list**), profile detail with optional **`next/image`** avatar when the API supplies a URL.
-- **Products** — Search, category filter, sort, pagination, product detail with optimized hero **`next:image`** (`sizes`, **`priority`** where appropriate).
-- **Layout** — Responsive **sidebar** (collapsible desktop, drawer on small screens), **header** with session bar and theme picker, skip link, **`global-error`** boundary.
-
-### Engineering
-
-- **Server Components by default** — Route **`page.tsx`** files stay on the server; interactivity lives in **client islands** (`*PageClient`, **`AppLayoutClient`**, forms, tables, theme).
-- **`next/font`** — Inter + JetBrains Mono (CSS variables wired to Tailwind tokens).
-- **Web Vitals (dev)** — Optional logging via **`WebVitalsReporter`** (`useReportWebVitals`).
-- **SEO** — **`metadata`** per route; **`robots.ts`**, **`sitemap.ts`**; Open Graph / Twitter images use **`alt`** text; canonical URLs where configured.
-- **Security headers** — `X-Frame-Options`, `X-Content-Type-Options` via **`next.config.ts`**.
+| Area | Implementation |
+|------|----------------|
+| **Login** | `app/(auth)/login/` — React Hook Form + Zod, `POST /api/auth/login`, httpOnly session cookie |
+| **Dashboard** | Server-rendered KPI cards + recent activity (`app/lib/dashboard/server.ts`, `revalidate: 60`) |
+| **User list** | Responsive table (desktop) + list (mobile), `ConfigurableTable` / `UsersPageClient` |
+| **Search** | Debounced name/email search via `useTableControls` / `useListControls` |
+| **Filter** | Status filter |
+| **Pagination** | Table pagination controls |
+| **Add / edit user** | Forms with validation (`AddUserForm`, edit flows on user routes) |
+| **User detail** | Dynamic `app/(app)/users/[id]/` with `generateMetadata` |
+| **API** | Route handlers under `app/api/auth/`; other reads use `API_BASE_URL` (`app/lib/server-upstream.ts`) and `next.config` rewrites for `/api/*` |
+| **States** | Loading UI, error/empty components, `not-found`, `error.tsx`, `global-error.tsx` |
+| **Tailwind theme** | CSS variables + `@theme` in `app/globals.css` — primary/secondary, surfaces, radius, shadow, typography tokens; dark via `.dark` |
+| **Performance** | `next/image` where avatars apply; dynamic import for post-login handoff overlay; `optimizePackageImports`; dashboard snapshot uses a **single** upstream `users` request; login form is in the main bundle so LCP is not blocked by a lazy chunk |
+| **Web Vitals** | Dev logging: `WebVitalsReporter` + `useReportWebVitals`. Lab: `npm run lighthouse:ci` (writes `lighthouse-reports/`) |
+| **SEO** | Root + per-route `metadata` (title, description, canonical, Open Graph, Twitter); `robots.ts`, `sitemap.ts`; semantic sections and one **h1** per page pattern |
 
 ## Stack
 
-| Area        | Choice                          |
-| ----------- | ------------------------------- |
-| Framework   | Next.js **16** (App Router)     |
-| UI          | React **19**, TypeScript        |
-| Styling     | Tailwind CSS **v4**             |
-| Forms       | React Hook Form + **Zod**       |
-| Data (demo) | **DummyJSON** (`API_BASE_URL`)  |
+- **Next.js** 16 · **React** 19 · **TypeScript**
+- **Tailwind** 4 (`@import "tailwindcss"`, `@theme inline`)
+- **react-hook-form** + **Zod** + **@hookform/resolvers**
 
-## Requirements
+## Troubleshooting
 
-- **Node.js** 20+ recommended (matches toolchain in `package.json`).
+- If TypeScript reports missing modules under `app/(app)/day*` or `products` after you remove routes locally, delete the Next cache and rebuild: `rm -rf .next && npm run build`.
 
 ## Environment
 
-Create **`.env.local`** (see project root):
+Create **`.env.local`** at the project root:
 
-| Variable                 | Purpose |
-| ------------------------ | ------- |
-| `API_BASE_URL`           | DummyJSON-compatible API origin (no trailing slash). **Required for `npm run build` in production** (`next.config.ts` enforces this). |
-| `NEXT_PUBLIC_SITE_URL`   | Optional. Canonical site URL for **metadataBase**, sitemap, and robots (`https://your-domain.example` in production). |
+| Variable | Purpose |
+|----------|---------|
+| `API_BASE_URL` | DummyJSON-compatible origin, no trailing slash. **Required for production builds** (`next.config.ts`). |
+| `NEXT_PUBLIC_SITE_URL` | Public site URL for `metadataBase`, canonical URLs, sitemap, and robots (e.g. `https://your-app.vercel.app`). |
 
 Example:
 
 ```bash
 API_BASE_URL=https://dummyjson.com
-NEXT_PUBLIC_SITE_URL=https://user-dashboard.local
+NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
 ```
 
-DummyJSON demo account (docs): **`emilys`** / **`emilyspass`**.
+Demo credentials (DummyJSON): **`emilys`** / **`emilyspass`**.
 
 ## Scripts
 
 ```bash
-npm run dev          # Dev server
-npm run build        # Production build (needs API_BASE_URL in prod)
-npm run start        # Serve production build
-npm run lint         # ESLint
-npm run typecheck    # tsc --noEmit
+npm run dev              # Development server
+npm run build            # Production build
+npm run start            # Serve production build
+npm run lint             # ESLint
+npm run typecheck        # TypeScript check
+npm run health           # typecheck + lint + build
+npm run lighthouse:audit # Lighthouse JSON + summary (needs running server on LH_PORT)
+npm run lighthouse:ci    # build, start server, audit core routes → lighthouse-reports/
+npm run perf:bundle-stats # After build: print per-route JS from .next diagnostics
 ```
 
-## API & data flow
+## Deploy (Vercel)
 
-1. **`/api/auth/*`** — Implemented as **App Router Route Handlers** under `app/api/auth/` (cookie, login, logout, session). These **must not** rely on blindly proxying upstream auth if you customize paths.
-2. **Other `/api/...`** — `next.config.ts` **rewrites** `/api/:path*` → `{API_BASE_URL}/:path*`. Browser `fetch('/api/products/…')`-style calls hit DummyJSON via that rewrite. Prefer adding **`app/api/.../route.ts`** whenever a path must stay on Next (same origin, cookies, custom logic).
+### Option A — Dashboard (recommended)
 
-Server-side loaders use **`app/lib/server-upstream.ts`** to call `API_BASE_URL` directly (ISR/revalidate where set).
+1. Commit and push this repo to **GitHub**, **GitLab**, or **Bitbucket**.
+2. In [Vercel](https://vercel.com) → **Add New** → **Project** → import the repository. Vercel auto-detects **Next.js**; leave defaults unless you use a monorepo root.
+3. Under **Environment Variables**, add for **Production** (and **Preview** if you want previews to work against DummyJSON):
 
-## Project structure (overview)
+   | Name | Example value |
+   |------|----------------|
+   | `API_BASE_URL` | `https://dummyjson.com` |
+   | `NEXT_PUBLIC_SITE_URL` | Your Vercel URL, e.g. `https://user-dashboard-xxx.vercel.app` (use the real deployment URL so metadata, sitemap, and robots stay correct) |
+
+4. Click **Deploy**. When the build finishes, open the deployment URL, go to **`/login`**, sign in with **`emilys` / `emilyspass`**, then confirm **`/dashboard`**, **`/users`**, and a user detail page load.
+
+If you add a custom domain later, update **`NEXT_PUBLIC_SITE_URL`** to that domain and trigger **Redeploy**.
+
+### Option B — Vercel CLI (from your laptop)
+
+```bash
+cd /path/to/user-dashboard
+npm exec vercel@latest login    # browser / device flow once
+npm exec vercel@latest --prod   # follow prompts; link env vars in the dashboard to match Option A
+```
+
+`npm run build` already passes with **`API_BASE_URL`** set (required in production per `next.config.ts`).
+
+## Project layout (high level)
 
 ```
 app/
-  (app)/              # Main app routes: dashboard, users, products, day1–day8, testing
-  (auth)/login/       # Login page (+ Suspense for search params)
-  api/auth/           # Login, logout, session route handlers
-  components/         # UI primitives, layout, tables, icons, feedback
-  context/            # Theme
-  lib/                # Hooks, validation, upstream helpers, auth helpers, metadata defaults
-middleware.ts         # Auth redirects + JWT exp hint on cookie
+  (app)/           # Authenticated shell: dashboard, users, user [id]
+  (auth)/login/    # Login (post-submit handoff overlay lazy-loaded)
+  api/auth/        # login, logout, session
+  components/      # UI, layout, tables, forms
+  context/         # Theme provider
+  lib/             # hooks, validation, upstream helpers, metadata defaults
+middleware.ts      # Auth redirects, JWT exp hint on cookie
 ```
 
-## Contributing / coursework notes
+## Submission checklists (mark in your report)
 
-- **Server vs client** — `app/(app)/layout.tsx` documents how **`AppLayoutClient`** wraps server `children`.
-- **Images** — Use **`remotePatterns`** in `next.config.ts` when adding image hosts (`cdn.dummyjson.com`, etc.).
+After `npm run lighthouse:ci`, set **Yes** where the lab numbers meet your course thresholds. **Web Vitals:** LCP, CLS, INP, FCP, TTFB appear in Lighthouse JSON (`audits` keys) and in `lighthouse-reports/summary.json`. **SEO:** titles, descriptions, OG/Twitter, canonicals, and dynamic user metadata are implemented in code — confirm scores in the same Lighthouse run. **Tailwind:** see `app/globals.css` and shared components `Button`, `Input`, `Card`, `Badge`, `PanelCard`.
 
 ## License
 
-Private coursework / internal use (`"private": true` in `package.json`).
+Private coursework (`"private": true` in `package.json`).

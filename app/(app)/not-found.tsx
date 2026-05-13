@@ -36,7 +36,6 @@ export default function AppNotFound() {
       >
         <NavPanelLink href="/dashboard">Dashboard</NavPanelLink>
         <NavPanelLink href="/users">Users</NavPanelLink>
-        <NavPanelLink href="/products">Products</NavPanelLink>
       </nav>
     </section>
   );

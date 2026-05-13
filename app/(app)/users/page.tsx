@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 import UsersPageClient from "./UsersPageClient";
 
 const usersDescription =
@@ -12,7 +12,7 @@ export const metadata: Metadata = {
     canonical: "/users",
   },
   openGraph: {
-    title: "Users | User Dashboard",
+    title: `Users | ${SITE_NAME}`,
     description: usersDescription,
     url: "/users",
     type: "website",
@@ -20,7 +20,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "Users | User Dashboard",
+    title: `Users | ${SITE_NAME}`,
     description: usersDescription,
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },

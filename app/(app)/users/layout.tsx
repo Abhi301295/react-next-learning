@@ -6,7 +6,8 @@ import type { ReactNode } from "react";
  * while `[id]/page` async `generateMetadata` resolves.
  */
 export const metadata: Metadata = {
-  description: "User profile in the User Dashboard.",
+  description:
+    "User profile in the directory. Dynamic metadata is supplied by the detail route when available.",
 };
 
 export default function UsersSectionLayout({ children }: { children: ReactNode }) {

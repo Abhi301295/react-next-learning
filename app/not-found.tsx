@@ -37,7 +37,6 @@ export default function NotFound() {
       >
         <NavPanelLink href="/dashboard">Dashboard</NavPanelLink>
         <NavPanelLink href="/users">Users</NavPanelLink>
-        <NavPanelLink href="/products">Products</NavPanelLink>
       </nav>
       <p className="text-xs text-subtle">
         Need to sign in?{" "}

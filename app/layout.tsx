@@ -4,7 +4,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { ThemeInitScript } from "./components/theme/ThemeInitScript";
-import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
+import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 
 const fontSans = Inter({
   subsets: ["latin"],
@@ -20,24 +20,34 @@ export const metadata: Metadata = {
     process.env.NEXT_PUBLIC_SITE_URL ?? "https://user-dashboard.local"
   ),
   title: {
-    default: "User Dashboard",
-    template: "%s | User Dashboard",
+    default: SITE_NAME,
+    template: `%s | ${SITE_NAME}`,
   },
-  description: "User management dashboard built with React and Next.js.",
-  applicationName: "User Dashboard",
-  keywords: ["user dashboard", "nextjs", "react", "admin", "user management"],
-  authors: [{ name: "User Dashboard Team" }],
+  description:
+    "Sign in, review KPIs and recent activity, then search, filter, paginate, and edit users in a responsive Next.js dashboard.",
+  applicationName: SITE_NAME,
+  keywords: [
+    "user management",
+    "admin dashboard",
+    "nextjs",
+    "react",
+    "tailwind",
+  ],
+  authors: [{ name: SITE_NAME }],
   openGraph: {
-    title: "User Dashboard",
-    description: "Manage users with reusable table controls and form workflows.",
+    siteName: SITE_NAME,
+    title: SITE_NAME,
+    description:
+      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
     type: "website",
     url: "/",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "User Dashboard",
-    description: "Manage users with reusable table controls and form workflows.",
+    title: SITE_NAME,
+    description:
+      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   alternates: {
