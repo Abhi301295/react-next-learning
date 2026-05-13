@@ -3,6 +3,7 @@
 /**
  * ============================================================================
  * USERS LISTING — TABLE + MOBILE CONFIG (“tableConfigs” pattern)
+ * Route-level server + client flow: @see root README — "How the `/users` list works (maintainers)"
  * ============================================================================
  *
  * WHO USES THIS
@@ -21,14 +22,14 @@
  * - Only **pagination shape** differs between **`TableConfig`** and **`ListConfig`**.
  *   Search, filters, sort defaults, and empty copy are shared (`USERS_FILTERS`, etc.).
  *
- * DUMMYJSON NOTE
- * - List fetch uses **`GET /users/search?q=`** — one string, not per-column.
- * - **Role / status** are narrowed with **Filters** in this app, not implied by `q`.
+ * SEARCH NOTE
+ * - Listing search uses a single text query across name, email, and related fields.
+ * - **Role / status** are narrowed with **Filters**, not by the search box alone.
  *
  * ADDING A NEW LISTING (copy this file as a template)
  * 1. Replace row type (`User`), filter keys, columns, empty strings.
  * 2. Fill **filter definitions** + one **template** (`FilterTemplateContext<K>`).
- * 3. Set **search** (label, placeholder honest about API, `fields` for docs/UI).
+ * 3. Set **search** (label, placeholder, and `fields` for accessibility / docs).
  * 4. Set **sort** + **mobileFields** (mobile only).
  * 5. Set **pagination** (table vs list shapes).
  * 6. Compose **`(entity)PaginatedDesktopBase`** and **`(entity)PaginatedMobileListBase`**.
@@ -58,12 +59,13 @@ import Badge from "@/components/ui/Badge";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { User } from "@/lib/users/types";
 import { Button } from "@/components/ui/Button";
+import { IconEye } from "@/components/icons";
 
 // ─── 1. Empty-state copy (also referenced by `usersMobileStateConfig`) ───────
 
 export const EMPTY_USERS_TITLE = "No users found";
 export const EMPTY_USERS_DESCRIPTION =
-  "Try again or check your API configuration.";
+  "Try adjusting your search or filters, or try again in a moment.";
 
 // ─── 2. Filter keys (used as generic `K` in TableConfig / ListConfig) ─────────
 
@@ -163,7 +165,7 @@ function UserDetailNavLink({ user }: { user: User }) {
       aria-label={`View profile for ${user.name}`}
       tooltip={`View ${user.name}`}
     >
-      👁
+      <IconEye className="h-4 w-4" />
     </Button>
   );
 }
@@ -173,17 +175,16 @@ const USERS_TABLE_ACTIONS = {
   rowActions: (user: User) => <UserDetailNavLink user={user} />,
 };
 
-// ─── 7. Search (one `q` on DummyJSON; `fields` = hint / non-server client use) ─
+// ─── 7. Search (single query string; `fields` used for a11y / documentation) ─
 
 /**
- * DummyJSON: `GET /users/search?q=` — single text query (name, email, username…).
- * Role/status: use Filters. Docs: https://dummyjson.com/docs/users
+ * Single search query; results are filtered by name and email in the UI.
+ * Role and status use the filter controls.
  */
 const USERS_SEARCH: NonNullable<TableConfig<User, UsersFilterKey>["search"]> = {
   enabled: true,
   label: "Search users",
-  placeholder:
-    "Name, email, or username (DummyJSON). Role & status: use Filters.",
+  placeholder: "Search by name or email…",
   fields: ["name", "email"],
 };
 

@@ -1,9 +1,14 @@
+/**
+ * `/users` route: server prefetch (`initial-list`) + static heading for LCP, then client island.
+ * @see root README — "How the `/users` list works (maintainers)"
+ */
 import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
-import UsersPageClient from "./UsersPageClient";
+import { fetchUsersListInitialForPage } from "@/lib/users/initial-list";
+import UsersListing from "./UsersListing";
 
 const usersDescription =
-  "Browse the user directory with sortable columns, role and status filters, and mobile-friendly list cards. Open any profile for full contact details.";
+  "People and accounts you can manage in this workspace.";
 
 export const metadata: Metadata = {
   title: "Users",
@@ -27,7 +32,22 @@ export const metadata: Metadata = {
   robots: { index: true, follow: true },
 };
 
-export default function UsersPage() {
-  return <UsersPageClient />;
-}
+export const revalidate = 30;
 
+export default async function UsersPage() {
+  const initial = await fetchUsersListInitialForPage();
+
+  return (
+    <section className="space-y-4" aria-labelledby="users-title">
+      <header>
+        <h1
+          id="users-title"
+          className="text-balance text-2xl font-semibold tracking-tight text-primary sm:text-3xl"
+        >
+          Users
+        </h1>
+      </header>
+      <UsersListing initial={initial} />
+    </section>
+  );
+}

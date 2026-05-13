@@ -1,9 +1,14 @@
 "use client";
 
+/**
+ * `/users` interactive listing: `useUsers(initial)` + `ResponsiveList`.
+ * `initial` comes from the RSC parent (`page.tsx`). @see root README — "How the `/users` list works (maintainers)"
+ */
+
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import Badge from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
-import { useUsers } from "@/lib/hooks/useUsers";
+import { useUsers, type UsersInitialSnapshot } from "@/lib/hooks/useUsers";
 import type { User } from "@/lib/users/types";
 import {
   renderUserProfileLink,
@@ -28,7 +33,11 @@ function renderUserCard(user: User) {
   );
 }
 
-export default function UsersPageClient() {
+export default function UsersListing({
+  initial,
+}: {
+  initial?: UsersInitialSnapshot | null;
+}) {
   const {
     users,
     mobileUsers,
@@ -39,42 +48,22 @@ export default function UsersPageClient() {
     userColumns,
     desktopTableConfig,
     mobileListConfig,
-  } = useUsers();
+  } = useUsers(initial);
 
   return (
-    <section className="space-y-4" aria-labelledby="users-title">
-      <header>
-        <h1
-          id="users-title"
-          className="text-display-sm font-semibold text-primary"
-          aria-describedby="users-page-summary"
-        >
-          Users
-        </h1>
-        <p
-          id="users-page-summary"
-          className="mt-1 max-w-prose text-sm text-subtle"
-        >
-          Search, filter by role and status, and open any row for full profile
-          and contact details.
-        </p>
-      </header>
-
-      <ResponsiveList<User, "role" | "status">
-        data={users}
-        mobileData={mobileUsers}
-        loading={loading}
-        loadingMore={loadingMore}
-        error={error}
-        onRetry={refetch}
-        getKey={(user) => user.id}
-        columns={userColumns}
-        desktopTableConfig={desktopTableConfig}
-        mobileListConfig={mobileListConfig}
-        mobileStateConfig={usersMobileStateConfig}
-        renderItem={renderUserCard}
-      />
-    </section>
+    <ResponsiveList<User, "role" | "status">
+      data={users}
+      mobileData={mobileUsers}
+      loading={loading}
+      loadingMore={loadingMore}
+      error={error}
+      onRetry={refetch}
+      getKey={(user) => user.id}
+      columns={userColumns}
+      desktopTableConfig={desktopTableConfig}
+      mobileListConfig={mobileListConfig}
+      mobileStateConfig={usersMobileStateConfig}
+      renderItem={renderUserCard}
+    />
   );
 }
-

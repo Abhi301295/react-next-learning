@@ -38,13 +38,10 @@ export async function DashboardContent() {
         <CardContent className="space-y-3 text-sm text-subtle">
           <p>{result.message}</p>
           <p>
-            Confirm your upstream API is running and{" "}
-            <code className="rounded bg-background px-1 py-0.5 text-xs">
-              API_BASE_URL
-            </code>{" "}
-            is set if needed, then{" "}
-            <TextLink href="/dashboard">reload the dashboard</TextLink>
-            .
+            Check your connection and try again. If this keeps happening, ask
+            your administrator to verify that the application is configured
+            correctly. You can also{" "}
+            <TextLink href="/dashboard">reload the dashboard</TextLink>.
           </p>
         </CardContent>
       </PanelCard>
@@ -70,24 +67,17 @@ export async function DashboardContent() {
       </section>
 
       <PanelCard aria-labelledby="dashboard-activity-heading">
-        <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+        <CardHeader>
           <h2
             id="dashboard-activity-heading"
             className="text-lg font-semibold text-foreground"
           >
             Recent activity
           </h2>
-          <p className="text-xs text-subtle">
-            Newest directory members (by user id), refreshed periodically.
-          </p>
         </CardHeader>
         <CardContent>
           {activities.length === 0 ? (
-            <p className="text-sm text-subtle">
-              No activity to show yet.{" "}
-              <TextLink href="/users">Open the user list</TextLink>{" "}
-              to start managing people.
-            </p>
+            <p className="text-sm text-subtle">No recent activity.</p>
           ) : (
             <ul className="divide-y divide-stroke">
               {activities.map((item) => (
@@ -98,9 +88,6 @@ export async function DashboardContent() {
                   >
                     <span className="font-medium group-hover:underline">
                       {item.label}
-                    </span>
-                    <span className="mt-0.5 block text-xs text-subtle">
-                      View details
                     </span>
                   </Link>
                 </li>

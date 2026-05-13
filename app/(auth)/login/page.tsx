@@ -1,10 +1,15 @@
 import type { Metadata } from "next";
-import { Suspense } from "react";
-import LoginForm from "@/components/auth/LoginForm";
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/Card";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
+import LoginFormGate from "./LoginFormGate";
 
 const loginTitle = "Login";
-const loginDescription = `Sign in with your DummyJSON username and password to access ${SITE_NAME}.`;
+const loginDescription = `Sign in to access ${SITE_NAME}.`;
 
 export const metadata: Metadata = {
   title: loginTitle,
@@ -35,11 +40,23 @@ export const metadata: Metadata = {
 export default function LoginPage() {
   return (
     <main>
-      <Suspense
-        fallback={<div className="min-h-screen bg-background" aria-hidden />}
-      >
-        <LoginForm />
-      </Suspense>
+      <section className="relative flex min-h-screen items-center justify-center bg-background px-4">
+        <div className="w-full max-w-md">
+          <Card>
+            <CardHeader>
+              <CardTitle as="h1" className="text-center text-xl">
+                Sign in
+              </CardTitle>
+              <p className="mt-2 text-center text-xs text-subtle">
+                Sign in with the username and password issued for your account.
+              </p>
+            </CardHeader>
+            <CardContent>
+              <LoginFormGate />
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </main>
   );
 }

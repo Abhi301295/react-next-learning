@@ -1,10 +1,11 @@
-'use client';
+"use client";
 
-import Dropdown from '@/components/shared/dropdown/Dropdown';
-import DropdownOption from '@/components/shared/dropdown/DropdownOption';
-import { SessionBar } from '@/components/layout/SessionBar';
-import { Button } from '@/components/ui/Button';
-import { useTheme } from '@/context/theme-context';
+import Dropdown from "@/components/shared/dropdown/Dropdown";
+import DropdownOption from "@/components/shared/dropdown/DropdownOption";
+import { SessionBar } from "@/components/layout/SessionBar";
+import { Button } from "@/components/ui/Button";
+import { IconMenu } from "@/components/icons";
+import { useTheme } from "@/context/theme-context";
 
 export function Header({ onMenuClick }: { onMenuClick: () => void }) {
   const { themeMode, setTheme } = useTheme();
@@ -12,7 +13,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
 
   const handleThemeChange = (value: string | string[]) => {
     const next = Array.isArray(value) ? value[0] : value;
-    if (next === 'light' || next === 'dark' || next === 'system') {
+    if (next === "light" || next === "dark" || next === "system") {
       setTheme(next);
     }
   };
@@ -30,7 +31,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
           onClick={onMenuClick}
           aria-label="Open navigation menu"
         >
-          ☰
+          <IconMenu className="h-5 w-5" />
         </Button>
 
         <p className="min-w-0 truncate text-base font-semibold text-primary sm:text-lg">

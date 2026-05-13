@@ -3,7 +3,7 @@ import { djUsersEnvelope } from "@/lib/dummy-json/payload";
 import type { HttpResult } from "@/lib/http-result";
 import type { UpstreamUserListItem } from "./types";
 
-export async function fetchUserListDummyJson(
+export async function fetchUserList(
   opts: {
     limit: number;
     skip?: number;

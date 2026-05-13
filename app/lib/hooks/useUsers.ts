@@ -1,12 +1,21 @@
 "use client";
 
+/**
+ * Client-side user directory state for `/users`.
+ *
+ * When `UsersListing` passes `initial` from `fetchUsersListInitialForPage()`, this
+ * hook seeds rows/total, starts with `loading: false`, and skips the first mount
+ * `load()` to avoid duplicating the server snapshot. Keep defaults aligned with
+ * `app/lib/users/initial-list.ts` — full narrative: root README, "How the `/users` list works (maintainers)".
+ */
+
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import type { ListConfig } from "@/components/shared/list/List";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchUserListDummyJson } from "@/lib/users/client";
+import { fetchUserList } from "@/lib/users/client";
 import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { User } from "@/lib/users/types";
 import {
@@ -16,6 +25,11 @@ import {
   usersPaginatedMobileListBase,
   type UsersFilterKey,
 } from "@/(app)/users/tableConfigs";
+
+export type UsersInitialSnapshot = {
+  users: User[];
+  total: number;
+};
 
 const USER_SORT_API: Partial<Record<keyof User, string>> = {
   id: "id",
@@ -61,13 +75,16 @@ function sortUsers(
   return copy;
 }
 
-export function useUsers() {
-  const [users, setUsers] = useState<User[]>([]);
-  const [mobileUsers, setMobileUsers] = useState<User[]>([]);
-  const [totalItems, setTotalItems] = useState(0);
-  const [loading, setLoading] = useState(true);
+export function useUsers(initial?: UsersInitialSnapshot | null) {
+  const seeded = Boolean(initial);
+  const [users, setUsers] = useState<User[]>(() => initial?.users ?? []);
+  const [mobileUsers, setMobileUsers] = useState<User[]>(
+    () => initial?.users ?? []
+  );
+  const [totalItems, setTotalItems] = useState(() => initial?.total ?? 0);
+  const [loading, setLoading] = useState(() => !seeded);
   const [loadingMore, setLoadingMore] = useState(false);
-  const [hasFetched, setHasFetched] = useState(false);
+  const [hasFetched, setHasFetched] = useState(() => seeded);
   const [error, setError] = useState<string | null>(null);
   const [tablePage, setTablePage] = useState(1);
   const [listLoadedPages, setListLoadedPages] = useState(1);
@@ -81,8 +98,9 @@ export function useUsers() {
   const bulkFilteredSnapshotRef = useRef<{ key: string; users: User[] } | null>(
     null
   );
-  const mobileUsersRef = useRef<User[]>([]);
-  const lastListLoadedAfterFetchRef = useRef(0);
+  const mobileUsersRef = useRef<User[]>(initial?.users ?? []);
+  const lastListLoadedAfterFetchRef = useRef(seeded ? 1 : 0);
+  const skipInitialNetworkLoadRef = useRef(seeded);
 
   const resetPaging = useCallback(() => {
     setTablePage(1);
@@ -124,7 +142,7 @@ export function useUsers() {
             listLoadedPages * pageSize
           );
           const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
-          const r = await fetchUserListDummyJson(
+          const r = await fetchUserList(
             {
               limit: itemsNeeded,
               skip: 0,
@@ -162,7 +180,7 @@ export function useUsers() {
           if (snap?.key === bulkKey) {
             sorted = snap.users;
           } else {
-            const r = await fetchUserListDummyJson(
+            const r = await fetchUserList(
               {
                 limit: UPSTREAM_USER_FETCH_CAP,
                 skip: 0,
@@ -233,6 +251,10 @@ export function useUsers() {
 
   useEffect(() => {
     const controller = new AbortController();
+    if (skipInitialNetworkLoadRef.current) {
+      skipInitialNetworkLoadRef.current = false;
+      return () => controller.abort();
+    }
     queueMicrotask(() => {
       void load(controller.signal);
     });

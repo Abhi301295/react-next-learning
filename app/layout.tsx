@@ -24,21 +24,20 @@ export const metadata: Metadata = {
     template: `%s | ${SITE_NAME}`,
   },
   description:
-    "Sign in, review KPIs and recent activity, then search, filter, paginate, and edit users in a responsive Next.js dashboard.",
+    "Sign in, review key metrics and recent activity, then search, filter, and manage users from any device.",
   applicationName: SITE_NAME,
   keywords: [
     "user management",
     "admin dashboard",
-    "nextjs",
-    "react",
-    "tailwind",
+    "team directory",
+    "user directory",
   ],
   authors: [{ name: SITE_NAME }],
   openGraph: {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description:
-      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
+      "User directory with search, filters, forms, and an accessible, responsive interface.",
     type: "website",
     url: "/",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
@@ -47,7 +46,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
+      "User directory with search, filters, forms, and an accessible, responsive interface.",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   alternates: {
