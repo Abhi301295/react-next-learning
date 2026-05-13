@@ -31,7 +31,7 @@ const LoginForm = () => {
         <Card>
           <CardHeader>
             <CardTitle as="h1" className="text-center text-xl">
-              Sign in
+              Sign In
             </CardTitle>
             <p className="mt-2 text-center text-xs text-subtle">
               DummyJSON accounts use a username (for example{" "}
