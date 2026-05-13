@@ -41,7 +41,7 @@ function clearCookie(res: NextResponse) {
   });
 }
 
-export function middleware(request: NextRequest) {
+export function proxy(request: NextRequest) {
   const pathname = normalizePath(request.nextUrl.pathname);
   let token = request.cookies.get(AUTH_COOKIE_NAME)?.value;
   let tokenStale = false;

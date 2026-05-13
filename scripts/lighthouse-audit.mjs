@@ -295,7 +295,7 @@ async function main() {
 
   const routes = [
     { name: "login", path: "/login", headers: {} },
-    /** Logged-in hit on `/` (middleware redirects to `/dashboard`). */
+    /** Logged-in hit on `/` (proxy redirects to `/dashboard`). */
     { name: "root", path: "/", headers: cookie },
     { name: "dashboard", path: "/dashboard", headers: cookie },
     { name: "users", path: "/users", headers: cookie },

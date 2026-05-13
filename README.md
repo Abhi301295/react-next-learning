@@ -100,7 +100,7 @@ app/
   components/      # UI, layout, tables, forms
   context/         # Theme provider
   lib/             # hooks, validation, upstream helpers, metadata defaults
-middleware.ts      # Auth redirects, JWT exp hint on cookie
+proxy.ts           # Auth redirects, JWT exp hint on cookie (Next.js proxy convention)
 ```
 
 ## Submission checklists (mark in your report)
