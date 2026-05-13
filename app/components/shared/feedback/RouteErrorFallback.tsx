@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { PageHeading } from "@/components/ui/PageHeading";
 import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { safeInternalPath } from "@/lib/navigation/safe-internal-path";
 import { useRouter } from "next/navigation";
@@ -40,12 +41,9 @@ export function RouteErrorFallback({
         aria-live="assertive"
         aria-atomic="true"
       >
-        <h1
-          id="route-error-title"
-          className="text-display-sm font-semibold text-brand-600"
-        >
+        <PageHeading id="route-error-title">
           Something went wrong
-        </h1>
+        </PageHeading>
         <p className="text-subtle">
           {error.message ||
             "We could not load this page. Check your connection and try again."}

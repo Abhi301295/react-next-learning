@@ -1,6 +1,7 @@
 "use client";
 
 import { Button } from "@/components/ui/Button";
+import { PageHeading } from "@/components/ui/PageHeading";
 
 export default function GlobalError({
   error,
@@ -19,12 +20,9 @@ export default function GlobalError({
           aria-labelledby="global-error-title"
         >
           <div role="alert" aria-live="assertive" aria-atomic="true">
-            <h1
-              id="global-error-title"
-              className="text-display-sm font-semibold text-brand-600"
-            >
+            <PageHeading id="global-error-title">
               Something went wrong
-            </h1>
+            </PageHeading>
             <p className="mt-3 text-sm text-subtle">
               {error.message ||
                 "The application failed to load. Try again or reload the page."}

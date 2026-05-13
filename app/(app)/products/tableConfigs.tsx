@@ -26,7 +26,7 @@
  * ============================================================================
  */
 
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
@@ -37,7 +37,6 @@ import type {
 import type { Column } from "@/components/shared/table/core/Table";
 import type { CatalogProduct } from "@/lib/products/types";
 import { Button } from "@/components/ui/Button";
-import { cn } from "@/lib/utils";
 
 // ─── 1. Empty-state copy ──────────────────────────────────────────────────────
 
@@ -259,13 +258,8 @@ export const productsMobileStateConfig = {
 
 export function renderProductDetailLink(productId: number) {
   return (
-    <Link
-      href={`/products/${productId}`}
-      className={cn(
-        "inline-block text-sm font-medium text-primary underline-offset-4 hover:underline focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-      )}
-    >
+    <TextLink href={`/products/${productId}`} variant="inlineBlock">
       View product details<span className="sr-only">{`, product ${productId}`}</span>
-    </Link>
+    </TextLink>
   );
 }

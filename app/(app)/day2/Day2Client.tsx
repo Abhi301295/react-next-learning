@@ -10,6 +10,7 @@ import Tabs from '../../components/shared/tabs/Tabs';
 import Badge from '../../components/ui/Badge';
 import { Button } from '../../components/ui/Button';
 import Input from '../../components/ui/Input';
+import { PageHeading } from '../../components/ui/PageHeading';
 
 const Day2Client = () => {
   const [modalType, setModalType] = useState<string | null>(null);
@@ -18,7 +19,7 @@ const Day2Client = () => {
 
   return (
     <section className="space-y-8">
-      <h1 className="text-display-sm font-semibold text-brand-600">Day 2 - Components Practice</h1>
+      <PageHeading>Day 2 - Components Practice</PageHeading>
       <section>
         <h2 className="mb-2 text-lg font-semibold">Counter with limit (min 0 && max 10 && step 2)</h2>
         <Counter initialValue={5} min={0} max={10} step={2} />

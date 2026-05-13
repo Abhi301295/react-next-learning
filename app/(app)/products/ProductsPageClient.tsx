@@ -1,6 +1,7 @@
 "use client";
 
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { PanelCard } from "@/components/ui/PanelCard";
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import { useProducts } from "@/lib/hooks/useProducts";
 import type { CatalogProduct } from "@/lib/products/types";
@@ -21,10 +22,11 @@ function renderProductCard(product: CatalogProduct) {
   })}`;
 
   return (
-    <Card
+    <PanelCard
       role="article"
       aria-labelledby={headingId}
-      className={cn("rounded-card border-stroke bg-panel", cardFocusInside)}
+      elevation="flat"
+      className={cn(cardFocusInside)}
     >
       <CardHeader>
         <CardTitle as="p" id={headingId} className="line-clamp-2">
@@ -44,7 +46,7 @@ function renderProductCard(product: CatalogProduct) {
         <p className="line-clamp-3 text-sm">{product.excerpt}</p>
         {renderProductDetailLink(product.id)}
       </CardContent>
-    </Card>
+    </PanelCard>
   );
 }
 

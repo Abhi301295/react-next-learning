@@ -1,10 +1,6 @@
 import Image from "next/image";
-import Link from "next/link";
-import { cn } from "@/lib/utils";
+import { TextLink } from "@/components/ui/TextLink";
 import type { UpstreamProduct } from "@/lib/products/types";
-
-const linkFocus =
-  "focus-visible:rounded-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
 
 export default function ProductDetail({
   product,
@@ -102,15 +98,9 @@ export default function ProductDetail({
       </section>
 
       <nav aria-label="Product page navigation">
-        <Link
-          href="/products"
-          className={cn(
-            "inline-block text-sm font-medium text-primary underline-offset-4 hover:underline",
-            linkFocus
-          )}
-        >
+        <TextLink href="/products" variant="inlineBlock">
           ← Back to all products
-        </Link>
+        </TextLink>
       </nav>
     </article>
   );

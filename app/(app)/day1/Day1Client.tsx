@@ -1,12 +1,11 @@
 import { Button } from "../../components/ui/Button";
 import { Card, CardContent, CardHeader, CardTitle } from "../../components/ui/Card";
+import { PageHeading } from "../../components/ui/PageHeading";
 
 const Day1Client = () => {
   return (
     <section aria-label="Day 1 UI Components">
-      <h1 className="mb-3 text-display-sm font-semibold text-brand-600">
-        Day 1 - UI Components
-      </h1>
+      <PageHeading className="mb-3">Day 1 - UI Components</PageHeading>
       <Card className="max-w-xl">
         <CardHeader>
           <CardTitle as="h2">UI Components</CardTitle>

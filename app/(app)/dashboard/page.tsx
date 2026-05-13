@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import { Suspense } from "react";
 import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
@@ -50,19 +50,9 @@ export default function DashboardPage() {
         <p className="max-w-2xl text-sm text-subtle sm:text-base">
           Live metrics from your user directory and a compact activity feed
           sourced from the latest products and newest members. Jump to{" "}
-          <Link
-            href="/users"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Users
-          </Link>{" "}
+          <TextLink href="/users">Users</TextLink>{" "}
           or{" "}
-          <Link
-            href="/products"
-            className="font-medium text-primary underline-offset-4 hover:underline"
-          >
-            Products
-          </Link>{" "}
+          <TextLink href="/products">Products</TextLink>{" "}
           for full lists.
         </p>
       </header>

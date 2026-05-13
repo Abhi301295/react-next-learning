@@ -1,15 +1,16 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { CardContent, CardHeader } from "@/components/ui/Card";
+import { PanelCard } from "@/components/ui/PanelCard";
 
 function KpiSkeleton() {
   return (
-    <Card className="rounded-card border-stroke bg-panel shadow-soft">
+    <PanelCard>
       <CardHeader className="pb-2">
         <div className="h-4 w-24 animate-pulse rounded bg-stroke" />
       </CardHeader>
       <CardContent>
         <div className="min-h-[2.75rem] w-28 max-w-full animate-pulse rounded-md bg-stroke" />
       </CardContent>
-    </Card>
+    </PanelCard>
   );
 }
 
@@ -25,7 +26,7 @@ export function DashboardContentSkeleton() {
         </div>
       </section>
 
-      <Card className="rounded-card border-stroke bg-panel shadow-soft">
+      <PanelCard>
         <CardHeader>
           <div className="h-6 w-40 animate-pulse rounded bg-stroke" />
         </CardHeader>
@@ -37,7 +38,7 @@ export function DashboardContentSkeleton() {
             />
           ))}
         </CardContent>
-      </Card>
+      </PanelCard>
     </div>
   );
 }

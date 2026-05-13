@@ -1,12 +1,14 @@
 import Link from "next/link";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { CardContent, CardHeader } from "@/components/ui/Card";
+import { PanelCard } from "@/components/ui/PanelCard";
+import { TextLink } from "@/components/ui/TextLink";
 import { fetchDashboardSnapshot } from "@/lib/dashboard/server";
 
 const nf = new Intl.NumberFormat("en-US");
 
 function KpiCard({ label, value }: { label: string; value: number }) {
   return (
-    <Card className="rounded-card border-stroke bg-panel shadow-soft">
+    <PanelCard>
       <CardHeader className="pb-2">
         <p className="text-sm font-medium text-subtle">{label}</p>
       </CardHeader>
@@ -18,7 +20,7 @@ function KpiCard({ label, value }: { label: string; value: number }) {
           {nf.format(value)}
         </p>
       </CardContent>
-    </Card>
+    </PanelCard>
   );
 }
 
@@ -27,7 +29,7 @@ export async function DashboardContent() {
 
   if (!result.ok) {
     return (
-      <Card className="rounded-card border-stroke border-dashed bg-panel shadow-soft">
+      <PanelCard className="border-dashed">
         <CardHeader>
           <h2 className="text-base font-semibold text-foreground">
             Could not load dashboard
@@ -41,16 +43,11 @@ export async function DashboardContent() {
               API_BASE_URL
             </code>{" "}
             is set if needed, then{" "}
-            <Link
-              href="/dashboard"
-              className="font-medium text-primary underline-offset-4 hover:underline"
-            >
-              reload the dashboard
-            </Link>
+            <TextLink href="/dashboard">reload the dashboard</TextLink>
             .
           </p>
         </CardContent>
-      </Card>
+      </PanelCard>
     );
   }
 
@@ -72,10 +69,7 @@ export async function DashboardContent() {
         </div>
       </section>
 
-      <Card
-        className="rounded-card border-stroke bg-panel shadow-soft"
-        aria-labelledby="dashboard-activity-heading"
-      >
+      <PanelCard aria-labelledby="dashboard-activity-heading">
         <CardHeader className="flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
           <h2
             id="dashboard-activity-heading"
@@ -91,12 +85,7 @@ export async function DashboardContent() {
           {activities.length === 0 ? (
             <p className="text-sm text-subtle">
               No activity to show yet.{" "}
-              <Link
-                href="/users"
-                className="font-medium text-primary underline-offset-4 hover:underline"
-              >
-                Open the user list
-              </Link>{" "}
+              <TextLink href="/users">Open the user list</TextLink>{" "}
               to start managing people.
             </p>
           ) : (
@@ -119,7 +108,7 @@ export async function DashboardContent() {
             </ul>
           )}
         </CardContent>
-      </Card>
+      </PanelCard>
     </>
   );
 }

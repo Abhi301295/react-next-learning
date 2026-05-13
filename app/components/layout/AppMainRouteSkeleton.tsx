@@ -1,5 +1,6 @@
 import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
-import { Card, CardContent, CardHeader } from "@/components/ui/Card";
+import { CardContent, CardHeader } from "@/components/ui/Card";
+import { PanelCard } from "@/components/ui/PanelCard";
 import { cn } from "@/lib/utils";
 
 type AppMainRouteSkeletonProps = {
@@ -33,7 +34,7 @@ export function AppMainRouteSkeleton({
         <SkeletonPulse className="h-10 w-full max-w-[10rem] sm:w-32" />
       </div>
 
-      <Card className="rounded-card border-stroke bg-panel shadow-soft">
+      <PanelCard>
         <CardHeader className="pb-3">
           <SkeletonPulse className="h-6 w-40" />
         </CardHeader>
@@ -64,7 +65,7 @@ export function AppMainRouteSkeleton({
             </div>
           </div>
         </CardContent>
-      </Card>
+      </PanelCard>
     </section>
   );
 }

@@ -1,4 +1,6 @@
-import Link from "next/link";
+import { NavPanelLink } from "@/components/ui/NavPanelLink";
+import { PageHeading } from "@/components/ui/PageHeading";
+import { TextLink } from "@/components/ui/TextLink";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
@@ -11,9 +13,6 @@ export const metadata: Metadata = {
   },
 };
 
-const linkClass =
-  "inline-flex min-h-11 min-w-[10rem] items-center justify-center rounded-lg border border-stroke bg-panel px-4 py-2 text-sm font-medium text-foreground shadow-sm transition hover:bg-secondary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background";
-
 export default function NotFound() {
   return (
     <section
@@ -24,12 +23,9 @@ export default function NotFound() {
         <p className="text-sm font-medium uppercase tracking-wide text-subtle">
           Error 404
         </p>
-        <h1
-          id="global-not-found-title"
-          className="text-display-sm font-semibold text-brand-600"
-        >
+        <PageHeading id="global-not-found-title">
           This page does not exist
-        </h1>
+        </PageHeading>
         <p className="text-subtle">
           The URL may be mistyped, or the page may have been moved. Pick a destination
           below to get back to your work.
@@ -39,24 +35,15 @@ export default function NotFound() {
         className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center"
         aria-label="Suggested pages"
       >
-        <Link href="/dashboard" className={linkClass}>
-          Dashboard
-        </Link>
-        <Link href="/users" className={linkClass}>
-          Users
-        </Link>
-        <Link href="/products" className={linkClass}>
-          Products
-        </Link>
+        <NavPanelLink href="/dashboard">Dashboard</NavPanelLink>
+        <NavPanelLink href="/users">Users</NavPanelLink>
+        <NavPanelLink href="/products">Products</NavPanelLink>
       </nav>
       <p className="text-xs text-subtle">
         Need to sign in?{" "}
-        <Link
-          href="/login"
-          className="font-medium text-brand-600 underline-offset-4 hover:underline focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded-sm"
-        >
+        <TextLink href="/login" accent="brand" showFocusRing>
           Go to login
-        </Link>
+        </TextLink>
         .
       </p>
     </section>
