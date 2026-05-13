@@ -346,7 +346,14 @@ export default function ConfigurableTable<T, K extends string>({
         </section>
       )}
 
-      {loading && <TableSkeleton rows={5} columnCount={columns.length + 1} />}
+      {loading && (
+        <TableSkeleton
+          rows={effectivePageSize}
+          columnCount={columns.length}
+          includeActionColumn={Boolean(rowActions)}
+          includePaginationFooter={hasPagination}
+        />
+      )}
       {!loading && error && <ErrorState message={error} onRetry={onRetry} />}
 
       {!loading && !error && effectiveEmptyStateVariant === "no-data" && (

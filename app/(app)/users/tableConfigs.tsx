@@ -49,6 +49,7 @@
 import Link from "next/link";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
+import { UsersMobileCardsSkeleton } from "./UsersMobileCardsSkeleton";
 import TableFilterField from "@/components/shared/table/filters/TableFilterField";
 import type {
   FilterTemplateContext,
@@ -279,6 +280,12 @@ export const usersMobileStateConfig = {
   emptyComponent: (
     <EmptyState title={EMPTY_USERS_TITLE} description={EMPTY_USERS_DESCRIPTION} />
   ),
+  /**
+   * Override the generic cards `LoadingState` with a skeleton tuned to the
+   * actual `renderUserCard` height (and reserve the load-more footer),
+   * so the mobile list does not shift when the first page resolves.
+   */
+  loadingComponent: <UsersMobileCardsSkeleton />,
 };
 
 // ─── 14. Card body helper (not part of TableConfig / ListConfig) ─────────────

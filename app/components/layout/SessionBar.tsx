@@ -67,17 +67,26 @@ export function SessionBar() {
     }
   }, [router, beginNavigation]);
 
+  /**
+   * Fixed shell so the skeleton state, the empty-session state, and the
+   * loaded "name + Log out" state all occupy the same width on every
+   * breakpoint. Prevents the theme dropdown to the right from sliding
+   * left when the session API resolves (the only CLS culprit Lighthouse
+   * detected for `/users` locally).
+   */
+  const shellClass =
+    "flex h-8 w-8 shrink-0 items-center justify-end overflow-hidden sm:h-9 sm:w-[8.5rem] md:w-[13rem]";
+
   if (user === undefined) {
     return (
-      <div
-        className="h-8 w-8 shrink-0 animate-pulse rounded-md bg-stroke sm:h-9 sm:w-[7rem] md:w-40"
-        aria-hidden
-      />
+      <div className={shellClass} aria-hidden>
+        <div className="h-8 w-8 animate-pulse rounded-md bg-stroke sm:h-9 sm:w-full" />
+      </div>
     );
   }
 
   if (user === null) {
-    return null;
+    return <div className={shellClass} aria-hidden />;
   }
 
   const label =
@@ -90,11 +99,11 @@ export function SessionBar() {
 
   return (
     <div
-      className="flex shrink-0 items-center gap-1.5 sm:gap-2 md:gap-3"
+      className={`${shellClass} gap-1.5 sm:gap-2 md:gap-3`}
       aria-busy={logoutPending}
     >
       <span
-        className="hidden max-w-[10rem] truncate text-sm text-subtle md:inline"
+        className="hidden min-w-0 flex-1 truncate text-right text-sm text-subtle md:inline-block"
         title={label}
       >
         {logoutPending ? "Signing out…" : label}
@@ -114,7 +123,7 @@ export function SessionBar() {
         type="button"
         variant="outline"
         size="sm"
-        className="hidden sm:inline-flex"
+        className="hidden shrink-0 sm:inline-flex"
         onClick={() => void logout()}
         aria-label={signOutAria}
         disabled={logoutPending}

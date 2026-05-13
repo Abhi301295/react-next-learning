@@ -1,5 +1,5 @@
-import { AppMainRouteSkeleton } from "@/components/layout/AppMainRouteSkeleton";
+import { UsersPageSkeleton } from "./UsersPageSkeleton";
 
 export default function UsersLoading() {
-  return <AppMainRouteSkeleton />;
+  return <UsersPageSkeleton />;
 }
