@@ -34,7 +34,7 @@ export function Header({ onMenuClick }: { onMenuClick: () => void }) {
         </Button>
 
         <p className="min-w-0 truncate text-base font-semibold text-primary sm:text-lg">
-          Header Title
+          User Management Dashboard
         </p>
       </div>
 
