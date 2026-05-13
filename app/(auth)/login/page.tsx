@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import dynamic from "next/dynamic";
 import { Suspense } from "react";
+import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 
 const LoginForm = dynamic(
   () => import("@/components/auth/LoginForm").then((m) => m.default),
@@ -17,11 +18,29 @@ const LoginForm = dynamic(
   }
 );
 
+const loginTitle = "Login";
+const loginDescription =
+  "Sign in with your DummyJSON username and password to access the User Dashboard.";
+
 export const metadata: Metadata = {
-  title: "Login",
-  description: "Sign in with your DummyJSON username to access the dashboard.",
+  title: loginTitle,
+  description: loginDescription,
   alternates: {
     canonical: "/login",
+  },
+  openGraph: {
+    title: `${loginTitle} | User Dashboard`,
+    description: loginDescription,
+    url: "/login",
+    type: "website",
+    siteName: "User Dashboard",
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${loginTitle} | User Dashboard`,
+    description: loginDescription,
+    images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   robots: {
     index: true,

@@ -1,5 +1,5 @@
 import Image from "next/image";
-import Link from "next/link";
+import { TextLink } from "@/components/ui/TextLink";
 import {
   Card,
   CardContent,
@@ -121,12 +121,11 @@ export default function UserDetail({
         </CardContent>
       </Card>
 
-      <Link
-        href="/users"
-        className="inline-block text-sm font-medium text-primary hover:underline"
-      >
-        ← Back to users
-      </Link>
+      <nav aria-label="Profile navigation">
+        <TextLink href="/users" variant="inlineBlock">
+          ← Back to users
+        </TextLink>
+      </nav>
     </article>
   );
 }

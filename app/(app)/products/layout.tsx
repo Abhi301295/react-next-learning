@@ -3,7 +3,7 @@ import type { ReactNode } from "react";
 
 /**
  * Static baseline so the initial HTML shell can include a meta description
- * while `[id]/layout` async `generateMetadata` resolves.
+ * while `[id]/page` async `generateMetadata` resolves.
  */
 export const metadata: Metadata = {
   description: "Product details in the User Dashboard.",
