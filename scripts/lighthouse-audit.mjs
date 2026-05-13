@@ -42,6 +42,7 @@ async function waitForServer(maxAttempts = 90) {
  */
 async function warmupAuthenticatedRoutes(cookie) {
   const paths = [
+    "/",
     "/dashboard",
     "/users",
     "/users/1",
@@ -119,6 +120,143 @@ function runLighthouse(name, routePath, extraHeaders) {
   return data;
 }
 
+/**
+ * Lighthouse category score is 0–1 (= 0–100 in UI).
+ * @param {number | null | undefined} score
+ * @returns {string | null}
+ */
+function markCategory(score) {
+  if (typeof score !== "number") return null;
+  if (score >= 0.95) return "excellent";
+  if (score >= 0.9) return "good";
+  if (score >= 0.5) return "needs-improvement";
+  return "poor";
+}
+
+/**
+ * LCP (ms): Core Web Vitals–aligned bands (lab).
+ * @param {number | null | undefined} ms
+ */
+function markLcp(ms) {
+  if (typeof ms !== "number") return null;
+  if (ms <= 2000) return "excellent";
+  if (ms <= 2500) return "good";
+  if (ms <= 4000) return "needs-improvement";
+  return "poor";
+}
+
+/**
+ * CLS: cumulative layout shift.
+ * @param {number | null | undefined} cls
+ */
+function markCls(cls) {
+  if (typeof cls !== "number") return null;
+  if (cls <= 0.05) return "excellent";
+  if (cls <= 0.1) return "good";
+  if (cls <= 0.25) return "needs-improvement";
+  return "poor";
+}
+
+/**
+ * FCP (ms): first contentful paint.
+ * @param {number | null | undefined} ms
+ */
+function markFcp(ms) {
+  if (typeof ms !== "number") return null;
+  if (ms <= 1000) return "excellent";
+  if (ms <= 1800) return "good";
+  if (ms <= 3000) return "needs-improvement";
+  return "poor";
+}
+
+/**
+ * TBT (ms): total blocking time (lab proxy for interactivity).
+ * @param {number | null | undefined} ms
+ */
+function markTbt(ms) {
+  if (typeof ms !== "number") return null;
+  if (ms <= 150) return "excellent";
+  if (ms <= 200) return "good";
+  if (ms <= 600) return "needs-improvement";
+  return "poor";
+}
+
+/**
+ * Enrich one summary row with *Mark fields for tooling / spreadsheets.
+ * @param {Record<string, unknown>} row
+ */
+function addMarks(row) {
+  return {
+    ...row,
+    performanceMark: markCategory(
+      /** @type {number | undefined} */ (row.performance)
+    ),
+    accessibilityMark: markCategory(
+      /** @type {number | undefined} */ (row.accessibility)
+    ),
+    bestPracticesMark: markCategory(
+      /** @type {number | undefined} */ (row.bestPractices)
+    ),
+    seoMark: markCategory(/** @type {number | undefined} */ (row.seo)),
+    fcpMark: markFcp(/** @type {number | undefined} */ (row.fcpMs)),
+    lcpMark: markLcp(/** @type {number | undefined} */ (row.lcpMs)),
+    tbtMark: markTbt(/** @type {number | undefined} */ (row.tbtMs)),
+    clsMark: markCls(/** @type {number | undefined} */ (row.cls)),
+  };
+}
+
+/**
+ * Build a Markdown table + legend for quick reading.
+ * @param {Array<Record<string, unknown>>} rows
+ */
+function buildRatedMarkdown(rows) {
+  const legend = `## Lighthouse ratings legend
+
+Category scores (Lighthouse Performance / Accessibility / Best practices / SEO), 0–1 scale:
+
+| Mark | Range |
+|------|--------|
+| **excellent** | ≥ 0.95 (95–100) |
+| **good** | 0.90 – 0.94 (90–94) |
+| **needs-improvement** | 0.50 – 0.89 (50–89) |
+| **poor** | < 0.50 (<50) |
+
+**LCP** marks (ms): **excellent** ≤2000 · **good** ≤2500 · **needs-improvement** ≤4000 · **poor** \>4000.
+
+**CLS** marks: **excellent** ≤0.05 · **good** ≤0.1 · **needs-improvement** ≤0.25 · **poor** \>0.25.
+
+All \`*Mark\` fields are also in \`summary.json\` for spreadsheets (\`performanceMark\`, \`lcpMark\`, \`clsMark\`, \`fcpMark\`, \`tbtMark\`, …).
+
+---
+
+## Per-route summary
+
+| Route | Performance | Accessibility | Best practices | SEO | LCP (ms) · mark | CLS · mark |
+|-------|-------------|--------------|----------------|-----|------------------|------------|
+`;
+
+  const lines = rows.map((r) => {
+    const lcp =
+      typeof r.lcpMs === "number" ? `${Math.round(r.lcpMs)}` : "—";
+    const cls =
+      typeof r.cls === "number" ? r.cls.toFixed(4) : "—";
+    return `| ${r.path} | ${cellScore(r.performance, r.performanceMark)} | ${cellScore(r.accessibility, r.accessibilityMark)} | ${cellScore(r.bestPractices, r.bestPracticesMark)} | ${cellScore(r.seo, r.seoMark)} | ${lcp} · ${r.lcpMark ?? "—"} | ${cls} · ${r.clsMark ?? "—"} |`;
+  });
+
+  return `${legend}${lines.join("\n")}\n`;
+}
+
+function formatPct(v) {
+  if (typeof v !== "number") return "—";
+  return `${Math.round(v * 100)}%`;
+}
+
+function cellScore(score, mark) {
+  if (typeof score !== "number") return "—";
+  const p = formatPct(score);
+  return mark ? `${p} (${mark})` : p;
+}
+
 function aggregateOpportunities(allReports) {
   /** @type {Map<string, { maxMs: number, route: string, title?: string }>} */
   const byId = new Map();
@@ -172,6 +310,8 @@ async function main() {
 
   const routes = [
     { name: "login", path: "/login", headers: {} },
+    /** Logged-in hit on `/` (middleware redirects to `/dashboard`). */
+    { name: "root", path: "/", headers: cookie },
     { name: "dashboard", path: "/dashboard", headers: cookie },
     { name: "users", path: "/users", headers: cookie },
     { name: "users_1", path: "/users/1", headers: cookie },
@@ -194,7 +334,7 @@ async function main() {
     process.stdout.write(`Lighthouse: ${r.name} (${r.path})…\n`);
     const data = runLighthouse(r.name, r.path, r.headers);
     full.push({ path: r.path, data });
-    summary.push({
+    const base = {
       path: r.path,
       performance: data.categories?.performance?.score,
       accessibility: data.categories?.accessibility?.score,
@@ -206,7 +346,8 @@ async function main() {
         data.audits?.["largest-contentful-paint"]?.numericValue ?? null,
       tbtMs: data.audits?.["total-blocking-time"]?.numericValue ?? null,
       cls: data.audits?.["cumulative-layout-shift"]?.numericValue ?? null,
-    });
+    };
+    summary.push(addMarks(base));
   }
 
   fs.mkdirSync(OUT_DIR, { recursive: true });
@@ -214,14 +355,51 @@ async function main() {
     path.join(OUT_DIR, "summary.json"),
     JSON.stringify(summary, null, 2)
   );
+  fs.writeFileSync(
+    path.join(OUT_DIR, "summary-rated.md"),
+    buildRatedMarkdown(summary)
+  );
   const opps = aggregateOpportunities(full);
   fs.writeFileSync(
     path.join(OUT_DIR, "opportunities-top.json"),
     JSON.stringify(opps, null, 2)
   );
 
-  process.stdout.write(`\nWrote ${OUT_DIR}/summary.json and per-route *.json\n`);
+  process.stdout.write(
+    `\nWrote ${OUT_DIR}/summary.json (with *Mark fields), summary-rated.md, and per-route *.json\n`
+  );
   process.stdout.write(`Top opportunities: ${OUT_DIR}/opportunities-top.json\n`);
+
+  const minPerf = Number(process.env.LH_MIN_PERFORMANCE ?? "0.9");
+  const minOther = Number(process.env.LH_MIN_OTHER ?? "0.95");
+  let failed = false;
+  for (const row of summary) {
+    const checks = [
+      ["performance", row.performance, minPerf],
+      ["accessibility", row.accessibility, minOther],
+      ["bestPractices", row.bestPractices, minOther],
+      ["seo", row.seo, minOther],
+    ];
+    for (const [label, score, min] of checks) {
+      if (typeof score !== "number") continue;
+      if (score < min) {
+        process.stdout.write(
+          `FAIL ${row.path} ${label} ${score} < ${min}\n`
+        );
+        failed = true;
+      }
+    }
+  }
+  if (failed) {
+    process.stderr.write(
+      `\nSet LH_MIN_PERFORMANCE / LH_MIN_OTHER to adjust thresholds (default perf ${minPerf}, other ${minOther}).\n`
+    );
+    if (proc) proc.kill("SIGTERM");
+    process.exit(1);
+  }
+  process.stdout.write(
+    `All routes meet thresholds (performance ≥ ${minPerf}, others ≥ ${minOther}).\n`
+  );
 
   if (proc) {
     proc.kill("SIGTERM");

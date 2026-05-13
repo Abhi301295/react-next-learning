@@ -56,7 +56,6 @@ export default function UserDetail({
             className="object-cover"
             sizes="9rem"
             priority
-            unoptimized
           />
         ) : (
           <span className="sr-only">No profile photo</span>

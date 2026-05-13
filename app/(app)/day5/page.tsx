@@ -1,5 +1,18 @@
-import AddUserForm from "@/components/forms/AddUserForm";
 import type { Metadata } from "next";
+import dynamic from "next/dynamic";
+
+const AddUserForm = dynamic(
+  () => import("@/components/forms/AddUserForm").then((m) => m.default),
+  {
+    loading: () => (
+      <div
+        className="h-72 w-full max-w-xl animate-pulse rounded-lg bg-stroke"
+        aria-busy="true"
+        aria-label="Loading form"
+      />
+    ),
+  }
+);
 
 export const metadata: Metadata = {
   title: "Day 5 - Add User Form",

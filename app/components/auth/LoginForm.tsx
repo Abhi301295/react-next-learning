@@ -1,12 +1,20 @@
 "use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
 import { IconEye, IconEyeOff } from "@/components/icons";
 import Input from "@/components/ui/Input";
-import { WorkspaceHandoffLoader } from "@/components/auth/WorkspaceHandoffLoader";
 import { useLoginForm } from "@/lib/hooks/useLoginForm";
+import dynamic from "next/dynamic";
 import { useState } from "react";
+
+const LazyHandoffOverlay = dynamic(
+  () =>
+    import("@/components/auth/WorkspaceHandoffLoader").then((m) => ({
+      default: m.WorkspaceHandoffLoader,
+    })),
+  { ssr: false }
+);
 
 const LoginForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -107,7 +115,7 @@ const LoginForm = () => {
         </Card>
       </div>
 
-      {isNavigationPending ? <WorkspaceHandoffLoader /> : null}
+      {isNavigationPending ? <LazyHandoffOverlay /> : null}
     </section>
   );
 };

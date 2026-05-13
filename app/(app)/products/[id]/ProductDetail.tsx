@@ -21,8 +21,40 @@ export default function ProductDetail({
   const imageAlt = `${product.title}${product.brand ? `. ${product.brand}.` : "."} Product preview image`;
 
   return (
-    <article className="space-y-6" aria-labelledby="product-heading">
-      <header className="space-y-4">
+    <article className="space-y-6">
+      {/* Hero first in DOM so the image can become LCP early; title remains visible directly below. */}
+      <figure className="max-w-xl">
+        <div
+          className="relative aspect-video overflow-hidden rounded-card border border-stroke bg-panel"
+          role="presentation"
+        >
+          {hero ? (
+            <Image
+              src={hero}
+              alt={imageAlt}
+              fill
+              className="object-contain"
+              sizes="(max-width: 640px) 100vw, min(36rem, 85vw)"
+              priority
+              fetchPriority="high"
+            />
+          ) : (
+            <div
+              className="flex h-full min-h-0 items-center justify-center px-4 text-center text-xs text-subtle"
+              aria-hidden
+            >
+              No catalog image
+            </div>
+          )}
+        </div>
+        <figcaption className="mt-2 text-xs text-subtle">
+          {hero
+            ? "Illustrated image supplied by the product catalog API."
+            : "This product has no preview image in the catalog."}
+        </figcaption>
+      </figure>
+
+      <header className="space-y-4" aria-labelledby="product-heading">
         <h1
           id="product-heading"
           className="text-display-sm font-semibold text-primary"
@@ -53,37 +85,6 @@ export default function ProductDetail({
           </div>
         </dl>
       </header>
-
-      <figure className="max-w-xl">
-        <div
-          className="relative aspect-video overflow-hidden rounded-card border border-stroke bg-panel"
-          role="presentation"
-        >
-          {hero ? (
-            <Image
-              src={hero}
-              alt={imageAlt}
-              fill
-              className="object-contain"
-              sizes="(max-width: 640px) 100vw, min(36rem, 85vw)"
-              priority
-              unoptimized
-            />
-          ) : (
-            <div
-              className="flex h-full min-h-0 items-center justify-center px-4 text-center text-xs text-subtle"
-              aria-hidden
-            >
-              No catalog image
-            </div>
-          )}
-        </div>
-        <figcaption className="mt-2 text-xs text-subtle">
-          {hero
-            ? "Illustrated image supplied by the product catalog API."
-            : "This product has no preview image in the catalog."}
-        </figcaption>
-      </figure>
 
       <section
         className="rounded-card border border-stroke bg-panel p-4"

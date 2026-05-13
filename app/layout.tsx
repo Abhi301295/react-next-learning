@@ -9,9 +9,9 @@ import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
 const fontSans = Inter({
   subsets: ["latin"],
   variable: "--font-geist-sans",
-  /** Prefer first paint with fallback on slow links; avoids render-blocking font wait. */
-  display: "optional",
-  preload: false,
+  /** swap + preload improves FCP/LCP in lab without invisible text from `optional`. */
+  display: "swap",
+  preload: true,
   adjustFontFallback: true,
 });
 
