@@ -1,6 +1,5 @@
 "use client";
 
-import { getFirebaseClientAuth } from "@/lib/firebase/client-app";
 import { DEFAULT_POST_LOGIN_PATH } from "@/lib/constants/routes";
 import {
   firebaseAuthCodeMessage,
@@ -8,7 +7,6 @@ import {
 } from "@/lib/constants/messages";
 import { loginSchema } from "@/lib/validation/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { signInWithEmailAndPassword } from "firebase/auth";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
@@ -54,6 +52,11 @@ export function useLoginForm() {
     form.clearErrors("root");
 
     try {
+      const [{ getFirebaseClientAuth }, { signInWithEmailAndPassword }] =
+        await Promise.all([
+          import("@/lib/firebase/client-app"),
+          import("firebase/auth"),
+        ]);
       const auth = getFirebaseClientAuth();
       const cred = await signInWithEmailAndPassword(
         auth,

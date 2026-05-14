@@ -13,6 +13,7 @@
     "build": "next build",
     "start": "next start",
     "perf:bundle-stats": "node ./scripts/print-route-bundle-stats.mjs",
+    "perf:lighthouse": "npx --yes lighthouse@11.7.1 http://127.0.0.1:3000/login --preset=desktop --only-categories=performance,accessibility,best-practices,seo --chrome-flags=\"--headless=new --no-sandbox\" --output=html --output-path=./lighthouse-report.html",
     "perf:check": "npm run build && npm run perf:bundle-stats",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
