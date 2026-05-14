@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import type { UpstreamUserDetail } from "@/lib/users/types";
+import type { UserProfileDto } from "@/lib/users/types";
 import UsersFormDialog from "@/(app)/users/UsersFormDialog";
 
 function profilePhotoSrc(raw: string | undefined): string | null {
@@ -30,7 +30,7 @@ function websiteHref(website: string) {
 export default function UserDetail({
   user,
 }: {
-  user: UpstreamUserDetail;
+  user: UserProfileDto;
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const phoneHrefDigits = user.phone

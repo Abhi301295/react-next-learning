@@ -10,7 +10,7 @@ export const revalidate = 60;
 
 const title = "Dashboard";
 const description =
-  "Overview of user totals, active vs inactive members, and recent directory activity.";
+  "Overview of user totals, active vs inactive members, and recent activity.";
 
 export const metadata: Metadata = {
   title,
@@ -48,8 +48,8 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="max-w-2xl text-sm text-subtle sm:text-base">
-          Live metrics from your user directory and a compact activity feed for
-          the newest members. Open the{" "}
+          Live metrics and a compact activity feed for the newest members. Open
+          the{" "}
           <TextLink href="/users">user list</TextLink> to search, filter, and
           edit profiles.
         </p>

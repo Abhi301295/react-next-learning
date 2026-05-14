@@ -1,3 +1,4 @@
+import { validationMessages } from "@/lib/constants/validation-messages";
 import { z } from "zod";
 
 const emptyToUndefined = (value: unknown) => {
@@ -7,48 +8,63 @@ const emptyToUndefined = (value: unknown) => {
 };
 
 const addressSchema = z.object({
-  street: z.string().trim().min(3, { message: "Street is required" }),
-  city: z.string().trim().min(2, { message: "City is required" }),
-  state: z.string().trim().min(2, { message: "State is required" }),
-  zip: z.string().trim().min(3, { message: "Postal code is required" }),
-  country: z.string().trim().min(2, { message: "Country is required" }),
+  street: z
+    .string()
+    .trim()
+    .min(3, { message: validationMessages.user.street }),
+  city: z
+    .string()
+    .trim()
+    .min(2, { message: validationMessages.user.city }),
+  state: z
+    .string()
+    .trim()
+    .min(2, { message: validationMessages.user.state }),
+  zip: z
+    .string()
+    .trim()
+    .min(3, { message: validationMessages.user.postalCode }),
+  country: z
+    .string()
+    .trim()
+    .min(2, { message: validationMessages.user.country }),
 });
 
 /**
- * Directory user profile stored in Firestore (`directory_users`).
+ * User profile form stored in Firestore (see `USERS_COLLECTION_ID` in `user-repository.ts`).
  * `status` is listing-only (active / inactive).
  */
-export const dummyJsonUserFormSchema = z.object({
+export const userProfileFormSchema = z.object({
   firstName: z
     .string()
     .trim()
-    .min(1, { message: "First name is required" })
+    .min(1, { message: validationMessages.user.firstName })
     .max(50),
   lastName: z
     .string()
     .trim()
-    .min(1, { message: "Last name is required" })
+    .min(1, { message: validationMessages.user.lastName })
     .max(50),
   username: z
     .string()
     .trim()
-    .min(2, { message: "Username must be at least 2 characters" })
+    .min(2, { message: validationMessages.user.usernameMin })
     .max(32)
     .regex(/^[a-zA-Z0-9_-]+$/, {
-      message: "Use letters, numbers, underscores, or hyphens only",
+      message: validationMessages.user.usernamePattern,
     }),
   email: z
     .string()
     .trim()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Invalid email address" }),
+    .min(1, { message: validationMessages.user.emailRequired })
+    .email({ message: validationMessages.user.emailInvalid }),
   phone: z.preprocess(
     emptyToUndefined,
     z
       .string()
       .trim()
-      .min(7, { message: "Phone is too short" })
-      .max(40, { message: "Phone is too long" })
+      .min(7, { message: validationMessages.user.phoneShort })
+      .max(40, { message: validationMessages.user.phoneLong })
       .optional()
   ),
   age: z.preprocess((v) => {
@@ -61,19 +77,21 @@ export const dummyJsonUserFormSchema = z.object({
     z.enum(["male", "female", "other"]).optional()
   ),
   role: z.enum(["admin", "user"]),
-  /** Used for local listing only (not sent upstream). */
   status: z.enum(["active", "inactive"]),
   address: addressSchema,
   image: z.preprocess(
     emptyToUndefined,
-    z.string().url({ message: "Invalid image URL" }).optional()
+    z
+      .string()
+      .url({ message: validationMessages.user.imageUrl })
+      .optional()
   ),
 });
 
-export type DummyJsonUserFormData = z.input<typeof dummyJsonUserFormSchema>;
-export type DummyJsonUserFormValues = z.infer<typeof dummyJsonUserFormSchema>;
+export type UserProfileFormInput = z.input<typeof userProfileFormSchema>;
+export type UserProfileFormValues = z.infer<typeof userProfileFormSchema>;
 
-export const defaultDummyJsonUserFormValues: DummyJsonUserFormData = {
+export const defaultUserProfileFormInput: UserProfileFormInput = {
   firstName: "",
   lastName: "",
   username: "",

@@ -5,9 +5,10 @@ import type { ListConfig } from "@/components/shared/list/List";
 import type { TableConfig } from "@/components/shared/table/core/ConfigurableTable";
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
+import { messages } from "@/lib/constants/messages";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
 import { fetchUserList } from "@/lib/users/client";
-import { mapUpstreamListRow } from "@/lib/users/map-row";
+import { mapUserListDtoToRow } from "@/lib/users/map-row";
 import type { User } from "@/lib/users/types";
 import {
   USER_COLUMNS,
@@ -17,7 +18,7 @@ import {
   type UsersFilterKey,
 } from "@/(app)/users/tableConfigs";
 
-const USER_SORT_API: Partial<Record<keyof User, string>> = {
+const USER_LIST_SORT_FIELD_MAP: Partial<Record<keyof User, string>> = {
   id: "id",
   name: "firstName",
   email: "email",
@@ -38,8 +39,8 @@ function resolveTotal(
   return (page - 1) * pageSize + rowCount;
 }
 
-/** `limit=0` loads the full in-memory directory slice (role/status sort + filters). */
-const DIRECTORY_LIST_FETCH_ALL = 0;
+/** `limit=0` loads the full in-memory user list slice (role/status sort + filters). */
+const USER_LIST_FETCH_ALL = 0;
 
 function sortUsers(
   users: User[],
@@ -124,7 +125,7 @@ export function useUsers() {
             tablePage * pageSize,
             listLoadedPages * pageSize
           );
-          const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
+          const apiSort = USER_LIST_SORT_FIELD_MAP[sortBy ?? "id"] ?? "id";
           const r = await fetchUserList(
             {
               limit: itemsNeeded,
@@ -143,7 +144,7 @@ export function useUsers() {
             throw new Error(httpErrPublicMessage(r));
           }
           const { users: rows, total: catalogTotal } = r.data;
-          const mapped = rows.map(mapUpstreamListRow);
+          const mapped = rows.map(mapUserListDtoToRow);
           const tableSlice = mapped.slice(
             (tablePage - 1) * pageSize,
             tablePage * pageSize
@@ -165,7 +166,7 @@ export function useUsers() {
           } else {
             const r = await fetchUserList(
               {
-                limit: DIRECTORY_LIST_FETCH_ALL,
+                limit: USER_LIST_FETCH_ALL,
                 skip: 0,
                 search: debouncedSearch || undefined,
                 sortBy: "id",
@@ -180,7 +181,7 @@ export function useUsers() {
               }
               throw new Error(httpErrPublicMessage(r));
             }
-            const mapped = r.data.users.map(mapUpstreamListRow);
+            const mapped = r.data.users.map(mapUserListDtoToRow);
             const fv: Record<UsersFilterKey, FilterValue> = {
               role: filterRole,
               status: filterStatus,
@@ -211,7 +212,7 @@ export function useUsers() {
         if (err instanceof Error) {
           setError(err.message);
         } else {
-          setError("Something went wrong");
+          setError(messages.common.somethingWentWrong);
         }
       } finally {
         if (requestAborted || signal?.aborted) return;

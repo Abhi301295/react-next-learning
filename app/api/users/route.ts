@@ -1,16 +1,20 @@
 import { verifySessionCookie } from "@/lib/auth/firebase-session";
-import { dummyJsonUserFormSchema } from "@/lib/validation/user.schema";
+import { messages } from "@/lib/constants/messages";
+import { userProfileFormSchema } from "@/lib/validation/user.schema";
 import {
-  createDirectoryUser,
-  directoryDocToListItem,
-  directoryDocToPublicRecord,
-  listAllDirectoryUsers,
-} from "@/lib/users/directory-repository";
-import { queryDirectoryListItems } from "@/lib/users/directory-query";
+  createUserRecord,
+  listAllUserRecords,
+  userRecordToListDto,
+  userRecordToResponseJson,
+} from "@/lib/users/user-repository";
+import { applyUserListQuery } from "@/lib/users/user-list-query";
 import { NextRequest, NextResponse } from "next/server";
 
 function unauthorized() {
-  return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  return NextResponse.json(
+    { message: messages.api.unauthorized },
+    { status: 401 }
+  );
 }
 
 export async function GET(request: NextRequest) {
@@ -28,9 +32,9 @@ export async function GET(request: NextRequest) {
   const order =
     searchParams.get("order") === "desc" ? ("desc" as const) : ("asc" as const);
 
-  const rows = await listAllDirectoryUsers();
-  const items = rows.map((r) => directoryDocToListItem(r.id, r.data));
-  const { users, total } = queryDirectoryListItems(items, {
+  const rows = await listAllUserRecords();
+  const items = rows.map((r) => userRecordToListDto(r.id, r.data));
+  const { users, total } = applyUserListQuery(items, {
     q: q || undefined,
     sortBy,
     order,
@@ -52,25 +56,32 @@ export async function POST(request: NextRequest) {
   try {
     jsonBody = await request.json();
   } catch {
-    return NextResponse.json({ message: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json(
+      { message: messages.api.invalidJsonBody },
+      { status: 400 }
+    );
   }
 
-  const parsed = dummyJsonUserFormSchema.safeParse(jsonBody);
+  const parsed = userProfileFormSchema.safeParse(jsonBody);
   if (!parsed.success) {
     return NextResponse.json(
-      { message: "Validation failed", issues: parsed.error.flatten() },
+      {
+        message: messages.api.validationFailed,
+        issues: parsed.error.flatten(),
+      },
       { status: 400 }
     );
   }
 
   try {
-    const created = await createDirectoryUser(parsed.data);
+    const created = await createUserRecord(parsed.data);
     return NextResponse.json(
-      directoryDocToPublicRecord(created.id, created.data),
+      userRecordToResponseJson(created.id, created.data),
       { status: 201 }
     );
   } catch (e: unknown) {
-    const msg = e instanceof Error ? e.message : "Could not create user.";
+    const msg =
+      e instanceof Error ? e.message : messages.api.couldNotCreateUser;
     return NextResponse.json({ message: msg }, { status: 500 });
   }
 }

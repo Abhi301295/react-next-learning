@@ -82,7 +82,7 @@ export async function DashboardContent() {
             Recent activity
           </h2>
           <p className="text-xs text-subtle">
-            Newest directory members (by user id), refreshed periodically.
+            Newest members (by user id), refreshed periodically.
           </p>
         </CardHeader>
         <CardContent>

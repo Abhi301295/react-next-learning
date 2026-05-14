@@ -1,5 +1,5 @@
-import type { User, UpstreamUserDetail } from "./types";
-import type { DummyJsonUserFormData } from "@/lib/validation/user.schema";
+import type { User, UserProfileDto } from "./types";
+import type { UserProfileFormInput } from "@/lib/validation/user.schema";
 
 function isRecord(v: unknown): v is Record<string, unknown> {
   return typeof v === "object" && v !== null;
@@ -7,13 +7,14 @@ function isRecord(v: unknown): v is Record<string, unknown> {
 
 function parseId(data: Record<string, unknown>): string | null {
   const raw = data.id;
-  if (typeof raw === "number" && Number.isFinite(raw)) return String(Math.trunc(raw));
+  if (typeof raw === "number" && Number.isFinite(raw))
+    return String(Math.trunc(raw));
   if (typeof raw === "string" && raw.trim()) return raw.trim();
   return null;
 }
 
-/** Map upstream user JSON to list row `User` (with optional status override for optimistic rows). */
-export function mapUpstreamUserJsonToUser(
+/** Map API JSON to a table `User` (optional `status` for optimistic rows). */
+export function mapJsonToListUser(
   data: unknown,
   status: "active" | "inactive"
 ): User | null {
@@ -31,11 +32,10 @@ export function mapUpstreamUserJsonToUser(
 }
 
 export function detailToFormDefaults(
-  user: UpstreamUserDetail
-): DummyJsonUserFormData {
+  user: UserProfileDto
+): UserProfileFormInput {
   const addr = user.address;
-  const street =
-    typeof addr?.address === "string" ? addr.address : "";
+  const street = typeof addr?.address === "string" ? addr.address : "";
   const city = typeof addr?.city === "string" ? addr.city : "";
   const state = typeof addr?.state === "string" ? addr.state : "";
   const zip =
@@ -85,7 +85,7 @@ export function detailToFormDefaults(
 
 export function jsonRecordToFormDefaults(
   data: unknown
-): DummyJsonUserFormData | null {
+): UserProfileFormInput | null {
   if (!isRecord(data)) return null;
   const id = parseId(data);
   if (id == null) return null;
@@ -102,15 +102,12 @@ export function jsonRecordToFormDefaults(
       ? data.age
       : undefined;
   const g = data.gender;
-  const gender =
-    g === "male" || g === "female" || g === "other" ? g : "";
+  const gender = g === "male" || g === "female" || g === "other" ? g : "";
   const roleRaw = typeof data.role === "string" ? data.role : "user";
   const role = roleRaw === "admin" ? "admin" : "user";
   const statusRaw = data.status;
   const status =
-    statusRaw === "active" || statusRaw === "inactive"
-      ? statusRaw
-      : "active";
+    statusRaw === "active" || statusRaw === "inactive" ? statusRaw : "active";
   const addr = data.address;
   let street = "";
   let city = "";

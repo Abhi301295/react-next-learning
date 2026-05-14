@@ -1,5 +1,6 @@
 "use client";
 
+import { messages } from "@/lib/constants/messages";
 import { Button } from "@/components/ui/Button";
 import { PageHeading } from "@/components/ui/PageHeading";
 
@@ -21,11 +22,10 @@ export default function GlobalError({
         >
           <div role="alert" aria-live="assertive" aria-atomic="true">
             <PageHeading id="global-error-title">
-              Something went wrong
+              {messages.common.somethingWentWrong}
             </PageHeading>
             <p className="mt-3 text-sm text-subtle">
-              {error.message ||
-                "The application failed to load. Try again or reload the page."}
+              {error.message || messages.errors.globalAppBody}
             </p>
             {digest ? (
               <p className="mt-3 text-xs text-subtle">
@@ -36,14 +36,14 @@ export default function GlobalError({
           </div>
           <div className="flex flex-wrap justify-center gap-3">
             <Button type="button" onClick={() => reset()}>
-              Try again
+              {messages.actions.tryAgain}
             </Button>
             <Button
               type="button"
               variant="outline"
               onClick={() => window.location.reload()}
             >
-              Reload page
+              {messages.actions.reloadPage}
             </Button>
           </div>
         </main>

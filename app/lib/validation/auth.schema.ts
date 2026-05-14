@@ -1,17 +1,18 @@
+import { validationMessages } from "@/lib/constants/validation-messages";
 import { z } from "zod";
 
 export const loginSchema = z.object({
   email: z
     .string()
     .trim()
-    .min(1, { message: "Email is required" })
-    .email({ message: "Enter a valid email address" })
-    .max(128, { message: "Email is too long" }),
+    .min(1, { message: validationMessages.login.emailRequired })
+    .email({ message: validationMessages.login.emailInvalid })
+    .max(128, { message: validationMessages.login.emailTooLong }),
 
   password: z
     .string()
-    .min(1, { message: "Password is required" })
-    .max(128, { message: "Password is too long" }),
+    .min(1, { message: validationMessages.login.passwordRequired })
+    .max(128, { message: validationMessages.login.passwordTooLong }),
 });
 
 export type LoginFormData = z.infer<typeof loginSchema>;
