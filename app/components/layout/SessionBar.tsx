@@ -3,6 +3,8 @@
 import { IconLogOut } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
 import { useNavigationProgress } from "@/context/navigation-progress-context";
+import { useSnackbar } from "@/context/snackbar-context";
+import { messages } from "@/lib/constants/messages";
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 
@@ -15,6 +17,7 @@ type SessionUser = {
 export function SessionBar() {
   const router = useRouter();
   const { beginNavigation } = useNavigationProgress();
+  const { showSnackbar } = useSnackbar();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
   /** Avoid clearing session UI before `/login` RSC arrives on slow networks. */
   const [logoutPending, setLogoutPending] = useState(false);
@@ -51,10 +54,18 @@ export function SessionBar() {
     try {
       const res = await fetch("/api/auth/logout", { method: "POST" });
       if (!res.ok) {
+        showSnackbar({
+          message: messages.auth.signOutFailed,
+          tone: "error",
+        });
         logoutInFlight.current = false;
         setLogoutPending(false);
         return;
       }
+      showSnackbar({
+        message: messages.auth.signedOut,
+        tone: "success",
+      });
       beginNavigation();
       router.replace("/login");
       router.refresh();
@@ -62,10 +73,14 @@ export function SessionBar() {
       if (process.env.NODE_ENV === "development") {
         console.error("[SessionBar] logout failed", err);
       }
+      showSnackbar({
+        message: messages.auth.signOutFailed,
+        tone: "error",
+      });
       logoutInFlight.current = false;
       setLogoutPending(false);
     }
-  }, [router, beginNavigation]);
+  }, [router, beginNavigation, showSnackbar]);
 
   /**
    * Fixed shell so the skeleton state, the empty-session state, and the

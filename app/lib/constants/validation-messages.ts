@@ -12,8 +12,11 @@ export const validationMessages = {
     usernamePattern: "Use letters, numbers, underscores, or hyphens only",
     emailRequired: "Email is required",
     emailInvalid: "Invalid email address",
-    phoneShort: "Phone is too short",
-    phoneLong: "Phone is too long",
+    phoneDigitsRange:
+      "Optional. Enter 8 to 15 digits only (numbers only; include country code if needed).",
+    postalCodeFormat:
+      "Use letters, numbers, single spaces, or hyphens only (e.g. 110001, 94102, or SW1A 1AA).",
+    postalCodeLong: "Postal code is too long",
     imageUrl: "Invalid image URL",
   },
   login: {

@@ -41,11 +41,15 @@ export const messages = {
     unexpectedServiceResponse: "Unexpected response from the user service.",
     tryAgain: "Something went wrong. Try again.",
     formFixErrors: "Please fix the errors in the form before submitting.",
+    createdSuccess: "User was created.",
+    updatedSuccess: "User was updated.",
   },
   auth: {
     signInFailed: "Sign-in failed.",
     signInFailedRetry:
       "Sign-in failed. Check email/password and try again.",
+    signedOut: "You have been signed out.",
+    signOutFailed: "Could not sign out. Try again.",
   },
   errors: {
     routePageBody:

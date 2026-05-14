@@ -12,14 +12,11 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lighthouse:audit": "node ./scripts/lighthouse-audit.mjs",
-    "lighthouse:ci": "npm run build && START_SERVER=1 LH_PORT=3010 node ./scripts/lighthouse-audit.mjs",
     "perf:bundle-stats": "node ./scripts/print-route-bundle-stats.mjs",
     "perf:check": "npm run build && npm run perf:bundle-stats",
     "lint": "eslint",
     "typecheck": "tsc --noEmit",
-    "health": "npm run typecheck && npm run lint && npm run build",
-    "health:lab": "npm run lighthouse:ci"
+    "health": "npm run typecheck && npm run lint && npm run build"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -41,7 +38,6 @@
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
-    "lighthouse": "^13.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

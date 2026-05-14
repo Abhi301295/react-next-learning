@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/shared/modal/Modal";
 import UserForm from "@/components/forms/UserForm";
 import { Button } from "@/components/ui/Button";
+import { useSnackbar } from "@/context/snackbar-context";
 import { messages } from "@/lib/constants/messages";
 import type { UserProfileFormInput } from "@/lib/validation/user.schema";
 import {
@@ -37,6 +38,7 @@ export default function UsersFormDialog({
   onSuccess,
 }: UsersFormDialogProps) {
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [fetchedDefaults, setFetchedDefaults] = useState<
@@ -124,6 +126,13 @@ export default function UsersFormDialog({
           setServerError(messages.users.unexpectedServiceResponse);
           return;
         }
+        showSnackbar({
+          message:
+            mode === "create"
+              ? messages.users.createdSuccess
+              : messages.users.updatedSuccess,
+          tone: "success",
+        });
         onSuccess?.(user, mode === "create" ? "create" : "update");
         onOpenChange(false);
         if (initialDetail) {
@@ -133,7 +142,15 @@ export default function UsersFormDialog({
         setServerError(messages.users.tryAgain);
       }
     },
-    [mode, editUserId, initialDetail, onOpenChange, onSuccess, router]
+    [
+      mode,
+      editUserId,
+      initialDetail,
+      onOpenChange,
+      onSuccess,
+      router,
+      showSnackbar,
+    ]
   );
 
   return (
