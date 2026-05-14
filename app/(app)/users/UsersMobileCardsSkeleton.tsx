@@ -3,7 +3,7 @@ import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
 /**
  * Card skeleton sized to match the rendered `renderUserCard` output:
  * `<Card p-4>` + `<CardHeader mb-3>` (title + badge) + `<CardContent space-y-2>`
- * (email line, role line, "View profile" link). Matching the height per
+ * (email line, role line, action icon row). Matching the height per
  * card is what keeps mobile CLS low when the list resolves.
  */
 function UserCardSkeleton() {
@@ -16,7 +16,7 @@ function UserCardSkeleton() {
       <div className="space-y-2">
         <SkeletonPulse className="h-5 w-full max-w-[18rem]" />
         <SkeletonPulse className="h-5 w-3/4 max-w-[14rem]" />
-        <SkeletonPulse className="mt-1 h-5 w-28" />
+        <SkeletonPulse className="mt-1 h-10 w-24" />
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ A **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** t
 | **States** | Loading UI, error/empty components, `not-found`, `error.tsx`, `global-error.tsx` |
 | **Tailwind theme** | CSS variables + `@theme` in `app/globals.css` — primary/secondary, surfaces, radius, shadow, typography tokens; dark via `.dark` |
 | **Performance** | `next/image` where avatars apply; dynamic import for post-login handoff overlay; `optimizePackageImports`; dashboard loads user data once server-side; login form stays in the main bundle so LCP is not blocked by a lazy chunk |
-| **Web Vitals** | Dev logging: `WebVitalsReporter` + `useReportWebVitals`. Lab: `npm run lighthouse:ci` (writes `lighthouse-reports/`) |
+| **Web Vitals** | Dev logging: `WebVitalsReporter` + `useReportWebVitals`; lab audits via browser Lighthouse when needed |
 | **SEO** | Root + per-route `metadata` (title, description, canonical, Open Graph, Twitter); `robots.ts`, `sitemap.ts`; semantic sections and one **h1** per page pattern |
 
 ## Stack
@@ -52,8 +52,7 @@ npm run start            # Serve production build
 npm run lint             # ESLint
 npm run typecheck        # TypeScript check
 npm run health           # typecheck + lint + build
-npm run lighthouse:audit # Lighthouse JSON + summary (needs running server on LH_PORT)
-npm run lighthouse:ci    # build, start server, audit core routes → lighthouse-reports/
+npm run perf:check       # build then print-route-bundle-stats
 npm run perf:bundle-stats # After build: print per-route JS from .next diagnostics
 ```
 
@@ -94,10 +93,6 @@ app/
   lib/             # hooks, validation, Firebase + user persistence helpers, metadata defaults
 proxy.ts           # Auth redirects (Next.js proxy convention)
 ```
-
-## Submission checklists (mark in your report)
-
-After `npm run lighthouse:ci`, set **Yes** where the lab numbers meet your course thresholds. **Web Vitals:** LCP, CLS, INP, FCP, TTFB appear in Lighthouse JSON (`audits` keys) and in `lighthouse-reports/summary.json`. **SEO:** titles, descriptions, OG/Twitter, canonicals, and dynamic user metadata are implemented in code — confirm scores in the same Lighthouse run. **Tailwind:** see `app/globals.css` and shared components `Button`, `Input`, `Card`, `Badge`, `PanelCard`.
 
 ## License
 

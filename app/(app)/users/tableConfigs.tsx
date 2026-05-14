@@ -5,7 +5,7 @@
  * `useUsers` injects `server` (fetch, pagination, search) at runtime.
  */
 
-import Link from "next/link";
+import { IconEye } from "@/components/icons";
 import { messages } from "@/lib/constants/messages";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
@@ -113,13 +113,13 @@ const USERS_FILTERS = {
 function UserDetailNavLink({ user }: { user: User }) {
   return (
     <Button
-      href={`/users/${user.id}`}
+      href={`/users/${encodeURIComponent(String(user.id))}`}
       variant="outline"
       iconOnly
       aria-label={`View profile for ${user.name}`}
       tooltip={`View ${user.name}`}
     >
-      👁
+      <IconEye className="h-4 w-4" />
     </Button>
   );
 }
@@ -262,15 +262,18 @@ export const usersMobileStateConfig = {
   loadingComponent: <UsersMobileCardsSkeleton />,
 };
 
-// ─── 14. Card body helper (not part of TableConfig / ListConfig) ─────────────
+// ─── 14. Card / row: view profile (icon button, same pattern as desktop row) ─
 
-export function renderUserProfileLink(userId: string | number) {
+export function renderViewProfileButton(user: Pick<User, "id" | "name">) {
   return (
-    <Link
-      href={`/users/${encodeURIComponent(String(userId))}`}
-      className="inline-block text-sm font-medium text-primary hover:underline"
+    <Button
+      href={`/users/${encodeURIComponent(String(user.id))}`}
+      variant="outline"
+      iconOnly
+      aria-label={`View profile for ${user.name}`}
+      tooltip={`View ${user.name}`}
     >
-      View profile
-    </Link>
+      <IconEye className="h-4 w-4" />
+    </Button>
   );
 }
