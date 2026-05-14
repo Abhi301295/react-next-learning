@@ -5,8 +5,14 @@ import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
 import { DashboardContentSkeleton } from "./DashboardSkeleton";
 
-/** Matches `fetch` cache in dashboard snapshot + avoids fully-dynamic TTFB on every visit. */
-export const revalidate = 60;
+/**
+ * Dashboard KPIs must reflect Firestore on every visit. We combine:
+ * - `force-dynamic` (no static / ISR route cache),
+ * - `await connection()` + `unstable_noStore()` in the content/data path,
+ * - `prefetch={false}` on `/dashboard` nav links so the client router does not
+ *   reuse a stale prefetched RSC payload after edits elsewhere.
+ */
+export const dynamic = "force-dynamic";
 
 const title = "Dashboard";
 const description =

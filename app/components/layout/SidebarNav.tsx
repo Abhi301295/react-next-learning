@@ -16,6 +16,11 @@ type SidebarNavProps = {
 
 const navButtonActive = 'bg-primary/15 font-medium text-primary';
 const navHover = 'hover:bg-background';
+
+/** Avoid stale KPIs: client router can reuse prefetched `/dashboard` RSC payloads. */
+function navPrefetch(href: string | undefined) {
+  return href === "/dashboard" ? false : undefined;
+}
 const groupId = (variant: string, label: string) =>
   `${variant}-group-${label.toLowerCase().replace(/\s+/g, "-")}`;
 
@@ -89,6 +94,7 @@ export function SidebarNav({
                       <Link
                         key={child.href}
                         href={child.href ?? '#'}
+                        prefetch={navPrefetch(child.href)}
                         onClick={onNavigate}
                         className={cn(
                           'block rounded-md px-3 py-2 text-sm',
@@ -110,6 +116,7 @@ export function SidebarNav({
           <Link
             key={item.href}
             href={item.href ?? '#'}
+            prefetch={navPrefetch(item.href)}
             onClick={onNavigate}
             title={isDesktop && collapsed ? item.label : undefined}
             className={cn(

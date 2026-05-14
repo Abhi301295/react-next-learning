@@ -7,7 +7,7 @@ A **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** t
 | Area | Implementation |
 |------|----------------|
 | **Login** | `app/(auth)/login/` — React Hook Form + Zod, `POST /api/auth/login`, httpOnly session cookie |
-| **Dashboard** | Server-rendered KPI cards + recent activity (`app/lib/dashboard/server.ts`, `revalidate: 60`) |
+| **Dashboard** | Server-rendered KPI cards + recent activity (`app/lib/dashboard/server.ts`, `dynamic = 'force-dynamic'`) |
 | **User list** | Responsive table (desktop) + list (mobile), `ConfigurableTable` / `UsersPageClient` |
 | **Search** | Debounced query via `useTableControls` (table + mobile list) |
 | **Filter** | Role and status filters |
