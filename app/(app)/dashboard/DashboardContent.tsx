@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { connection } from "next/server";
 import { CardContent, CardHeader } from "@/components/ui/Card";
 import { PanelCard } from "@/components/ui/PanelCard";
 import { TextLink } from "@/components/ui/TextLink";
@@ -25,6 +26,7 @@ function KpiCard({ label, value }: { label: string; value: number }) {
 }
 
 export async function DashboardContent() {
+  await connection();
   const result = await fetchDashboardSnapshot();
 
   if (!result.ok) {
@@ -47,7 +49,9 @@ export async function DashboardContent() {
               NEXT_PUBLIC_FIREBASE_*
             </code>{" "}
             are set, then{" "}
-            <TextLink href="/dashboard">reload the dashboard</TextLink>
+            <TextLink href="/dashboard" prefetch={false}>
+              reload the dashboard
+            </TextLink>
             .
           </p>
         </CardContent>
@@ -82,7 +86,7 @@ export async function DashboardContent() {
             Recent activity
           </h2>
           <p className="text-xs text-subtle">
-            Newest members (by user id), refreshed periodically.
+            Newest members (by user id) from your directory.
           </p>
         </CardHeader>
         <CardContent>

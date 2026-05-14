@@ -35,7 +35,9 @@ export default function NotFound() {
         className="flex w-full max-w-md flex-col gap-3 sm:flex-row sm:justify-center"
         aria-label="Suggested pages"
       >
-        <NavPanelLink href="/dashboard">Dashboard</NavPanelLink>
+        <NavPanelLink href="/dashboard" prefetch={false}>
+          Dashboard
+        </NavPanelLink>
         <NavPanelLink href="/users">Users</NavPanelLink>
       </nav>
       <p className="text-xs text-subtle">

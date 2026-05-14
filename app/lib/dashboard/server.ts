@@ -1,3 +1,4 @@
+import { unstable_noStore } from "next/cache";
 import { messages } from "@/lib/constants/messages";
 import {
   httpErrPublicMessage,
@@ -59,6 +60,7 @@ export async function fetchDashboardSnapshot(): Promise<
   | { ok: true; data: DashboardSnapshot }
   | { ok: false; message: string }
 > {
+  unstable_noStore();
   const usersR = await fetchUsersForDashboard();
 
   if (!isHttpOk(usersR)) {

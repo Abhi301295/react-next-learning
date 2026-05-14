@@ -223,7 +223,7 @@ export default function UserForm({
               )}
             />
           </FormField>
-          <FormField label="Status (listing)">
+          <FormField label="Status">
             <Controller
               name="status"
               control={control}
