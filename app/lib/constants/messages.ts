@@ -33,7 +33,7 @@ export const messages = {
     emptyListDescription:
       "Try adjusting search or filters, or add a user to get started.",
     filterTitle: "Filter users",
-    searchPlaceholder: "Search by name, email, or username",
+    searchPlaceholder: "Search by name, email",
     addUser: "Add new user",
     editUser: "Edit user",
     loadForEditFailed: "Could not load user for editing.",
