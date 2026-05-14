@@ -6,7 +6,7 @@ import type { TableConfig } from "@/components/shared/table/core/ConfigurableTab
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchUserListDummyJson } from "@/lib/users/client";
+import { fetchUserList } from "@/lib/users/client";
 import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { User } from "@/lib/users/types";
 import {
@@ -124,7 +124,7 @@ export function useUsers() {
             listLoadedPages * pageSize
           );
           const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
-          const r = await fetchUserListDummyJson(
+          const r = await fetchUserList(
             {
               limit: itemsNeeded,
               skip: 0,
@@ -162,7 +162,7 @@ export function useUsers() {
           if (snap?.key === bulkKey) {
             sorted = snap.users;
           } else {
-            const r = await fetchUserListDummyJson(
+            const r = await fetchUserList(
               {
                 limit: UPSTREAM_USER_FETCH_CAP,
                 skip: 0,

@@ -47,17 +47,9 @@ export default function UsersPageClient() {
         <h1
           id="users-title"
           className="text-display-sm font-semibold text-primary"
-          aria-describedby="users-page-summary"
         >
           Users
         </h1>
-        <p
-          id="users-page-summary"
-          className="mt-1 max-w-prose text-sm text-subtle"
-        >
-          Search, filter by role and status, and open any row for full profile
-          and contact details.
-        </p>
       </header>
 
       <ResponsiveList<User, "role" | "status">

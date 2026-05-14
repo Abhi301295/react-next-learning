@@ -4,7 +4,7 @@ import {
   responseToJsonResult,
   type HttpResult,
 } from "@/lib/http-result";
-import { djUsersEnvelope } from "@/lib/dummy-json/payload";
+import { parseUsersListEnvelope } from "@/lib/upstream/users-payload";
 import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { UpstreamUserListItem } from "@/lib/users/types";
 import { upstreamFetch } from "@/lib/server-upstream";
@@ -31,7 +31,7 @@ async function fetchUsersForDashboard(): Promise<
   if (!isHttpOk(json)) {
     return json;
   }
-  const env = djUsersEnvelope(json.data);
+  const env = parseUsersListEnvelope(json.data);
   if (!env) {
     return {
       ok: false,

@@ -1,4 +1,5 @@
 import { type HttpResult, responseToJsonResult } from "@/lib/http-result";
+import { DEFAULT_UPSTREAM_API_ORIGIN } from "@/lib/upstream/default-origin";
 
 export type UpstreamRequestInit = RequestInit & {
   next?: { revalidate?: number; tags?: string[] };
@@ -8,7 +9,7 @@ export type { HttpResult, HttpErr, HttpOk } from "@/lib/http-result";
 export { isHttpOk, httpErrPublicMessage, responseToJsonResult } from "@/lib/http-result";
 
 export function getUpstreamApiOrigin(): string {
-  return process.env.API_BASE_URL ?? "https://dummyjson.com";
+  return process.env.API_BASE_URL ?? DEFAULT_UPSTREAM_API_ORIGIN;
 }
 
 export function upstreamUrl(path: string): string {

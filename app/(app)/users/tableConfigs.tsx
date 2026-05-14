@@ -21,7 +21,7 @@
  * - Only **pagination shape** differs between **`TableConfig`** and **`ListConfig`**.
  *   Search, filters, sort defaults, and empty copy are shared (`USERS_FILTERS`, etc.).
  *
- * DUMMYJSON NOTE
+ * UPSTREAM SEARCH NOTE
  * - List fetch uses **`GET /users/search?q=`** — one string, not per-column.
  * - **Role / status** are narrowed with **Filters** in this app, not implied by `q`.
  *
@@ -174,17 +174,17 @@ const USERS_TABLE_ACTIONS = {
   rowActions: (user: User) => <UserDetailNavLink user={user} />,
 };
 
-// ─── 7. Search (one `q` on DummyJSON; `fields` = hint / non-server client use) ─
+// ─── 7. Search (single `q` param upstream; `fields` = hint / non-server client use) ─
 
 /**
- * DummyJSON: `GET /users/search?q=` — single text query (name, email, username…).
- * Role/status: use Filters. Docs: https://dummyjson.com/docs/users
+ * Upstream: `GET /users/search?q=` — one text query (name, email, username, …).
+ * Role and status are applied with **Filters**, not via `q`.
  */
 const USERS_SEARCH: NonNullable<TableConfig<User, UsersFilterKey>["search"]> = {
   enabled: true,
   label: "Search users",
   placeholder:
-    "Name, email, or username (DummyJSON). Role & status: use Filters.",
+    "Search by name, email, or username. Refine role and status with Filters.",
   fields: ["name", "email"],
 };
 

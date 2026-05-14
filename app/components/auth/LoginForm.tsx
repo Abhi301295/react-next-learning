@@ -34,15 +34,7 @@ const LoginForm = () => {
               Sign in
             </CardTitle>
             <p className="mt-2 text-center text-xs text-subtle">
-              DummyJSON accounts use a username (for example{" "}
-              <code className="rounded bg-background px-1 py-px text-foreground">
-                emilys
-              </code>{" "}
-              /{" "}
-              <code className="rounded bg-background px-1 py-px text-foreground">
-                emilyspass
-              </code>
-              ).
+              Enter the username and password issued for your account.
             </p>
           </CardHeader>
 

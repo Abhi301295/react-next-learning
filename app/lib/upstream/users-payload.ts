@@ -1,6 +1,7 @@
 import type { UpstreamUserListItem } from "@/lib/users/types";
 
-export function djUsersEnvelope(
+/** Parses `{ users, total }` list payloads from the configured upstream user API. */
+export function parseUsersListEnvelope(
   data: unknown
 ): { users: UpstreamUserListItem[]; total: number } | null {
   if (typeof data !== "object" || data === null) return null;

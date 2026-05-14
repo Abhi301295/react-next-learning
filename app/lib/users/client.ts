@@ -1,9 +1,9 @@
 import { appApiFetch, isHttpOk, responseToJsonResult } from "@/lib/app-api";
-import { djUsersEnvelope } from "@/lib/dummy-json/payload";
+import { parseUsersListEnvelope } from "@/lib/upstream/users-payload";
 import type { HttpResult } from "@/lib/http-result";
 import type { UpstreamUserListItem } from "./types";
 
-export async function fetchUserListDummyJson(
+export async function fetchUserList(
   opts: {
     limit: number;
     skip?: number;
@@ -37,7 +37,7 @@ export async function fetchUserListDummyJson(
   }
   const json = await responseToJsonResult<unknown>(res);
   if (!isHttpOk(json)) return json;
-  const env = djUsersEnvelope(json.data);
+  const env = parseUsersListEnvelope(json.data);
   if (!env) {
     return {
       ok: false,

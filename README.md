@@ -1,6 +1,6 @@
 # User Management Dashboard
 
-Final mini project: a **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** theming (light/dark), **DummyJSON** as the upstream API, **cookie-based auth**, and routes focused on **login**, **dashboard**, and **users** (list, search with debounce, status filter, pagination, add/edit flows, and dynamic user detail).
+A **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** theming (light/dark), a **REST user directory** upstream, **cookie-based auth**, and routes focused on **login**, **dashboard**, and **users** (list, search with debounce, status filter, pagination, add/edit flows, and dynamic user detail).
 
 ## Features (rubric)
 
@@ -37,17 +37,17 @@ Create **`.env.local`** at the project root:
 
 | Variable | Purpose |
 |----------|---------|
-| `API_BASE_URL` | DummyJSON-compatible origin, no trailing slash. **Required for production builds** (`next.config.ts`). |
+| `API_BASE_URL` | Origin of the user directory HTTP API (no trailing slash). Must match the API your deployment uses. **Required for production builds** (`next.config.ts`). |
 | `NEXT_PUBLIC_SITE_URL` | Public site URL for `metadataBase`, canonical URLs, sitemap, and robots (e.g. `https://your-app.vercel.app`). |
 
 Example:
 
 ```bash
-API_BASE_URL=https://dummyjson.com
+API_BASE_URL=https://example.com
 NEXT_PUBLIC_SITE_URL=https://your-app.vercel.app
 ```
 
-Demo credentials (DummyJSON): **`emilys`** / **`emilyspass`**.
+For local development you can point `API_BASE_URL` at any compatible JSON user service (see `app/lib/upstream/users-payload.ts` for the expected list shape). A sample public endpoint is often used in `.env.example`; use credentials from that service’s documentation.
 
 ## Scripts
 
@@ -69,14 +69,14 @@ npm run perf:bundle-stats # After build: print per-route JS from .next diagnosti
 
 1. Commit and push this repo to **GitHub**, **GitLab**, or **Bitbucket**.
 2. In [Vercel](https://vercel.com) → **Add New** → **Project** → import the repository. Vercel auto-detects **Next.js**; leave defaults unless you use a monorepo root.
-3. Under **Environment Variables**, add for **Production** (and **Preview** if you want previews to work against DummyJSON):
+3. Under **Environment Variables**, add for **Production** (and **Preview** if previews should call a real API):
 
    | Name | Example value |
    |------|----------------|
-   | `API_BASE_URL` | `https://dummyjson.com` |
+   | `API_BASE_URL` | Your user API origin, e.g. `https://api.yourcompany.com` |
    | `NEXT_PUBLIC_SITE_URL` | Your Vercel URL, e.g. `https://user-dashboard-xxx.vercel.app` (use the real deployment URL so metadata, sitemap, and robots stay correct) |
 
-4. Click **Deploy**. When the build finishes, open the deployment URL, go to **`/login`**, sign in with **`emilys` / `emilyspass`**, then confirm **`/dashboard`**, **`/users`**, and a user detail page load.
+4. Click **Deploy**. When the build finishes, open the deployment URL, sign in at **`/login`** with credentials from your upstream, then confirm **`/dashboard`**, **`/users`**, and a user detail page load.
 
 If you add a custom domain later, update **`NEXT_PUBLIC_SITE_URL`** to that domain and trigger **Redeploy**.
 
