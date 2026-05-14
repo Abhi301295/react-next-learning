@@ -41,6 +41,7 @@
     "autoprefixer": "^10.5.0",
     "eslint": "^9",
     "eslint-config-next": "16.2.4",
+    "firebase-tools": "^15.18.0",
     "lighthouse": "^13.3.0",
     "tailwindcss": "^4",
     "typescript": "^5"
