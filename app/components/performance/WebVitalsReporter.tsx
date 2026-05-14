@@ -10,7 +10,7 @@ import { useReportWebVitals } from "next/web-vitals";
 /**
  * Logs Core Web Vitals in development (TTFB, FCP, LCP, INP, CLS, and FID when emitted).
  * Mounted from `Providers` only when `NODE_ENV === "development"`.
- * For lab scores on deployed builds, use your browser’s Lighthouse (DevTools).
+ * For lab scores, use Chrome DevTools → Lighthouse (or your browser’s equivalent).
  */
 export function WebVitalsReporter() {
   useReportWebVitals((metric) => {
