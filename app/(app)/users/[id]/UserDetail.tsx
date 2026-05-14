@@ -1,3 +1,6 @@
+"use client";
+
+import { useState } from "react";
 import Image from "next/image";
 import { TextLink } from "@/components/ui/TextLink";
 import {
@@ -6,7 +9,9 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import type { UpstreamUserDetail } from "@/lib/users/types";
+import UsersFormDialog from "@/(app)/users/UsersFormDialog";
 
 function profilePhotoSrc(raw: string | undefined): string | null {
   if (typeof raw !== "string") return null;
@@ -27,6 +32,7 @@ export default function UserDetail({
 }: {
   user: UpstreamUserDetail;
 }) {
+  const [editOpen, setEditOpen] = useState(false);
   const phoneHrefDigits = user.phone
     ? user.phone.replace(/[^\d+]/g, "")
     : "";
@@ -35,16 +41,19 @@ export default function UserDetail({
 
   return (
     <article className="space-y-4" aria-labelledby="user-heading">
-      <header className="space-y-1">
-        <h1
-          id="user-heading"
-          className="text-display-sm font-semibold text-primary"
-        >
-          {user.name}
-        </h1>
-        <p className="text-sm text-subtle">
-          Profile · User ID {user.id}
-        </p>
+      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
+        <div className="space-y-1">
+          <h1
+            id="user-heading"
+            className="text-display-sm font-semibold text-primary"
+          >
+            {user.name}
+          </h1>
+          <p className="text-sm text-subtle">Profile · User ID {user.id}</p>
+        </div>
+        <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
+          Edit user
+        </Button>
       </header>
 
       <div className="relative h-36 w-36 shrink-0 overflow-hidden rounded-full border border-stroke bg-panel">
@@ -53,6 +62,7 @@ export default function UserDetail({
             src={portraitUrl}
             alt={portraitAlt}
             fill
+            unoptimized
             className="object-cover"
             sizes="9rem"
             priority
@@ -125,6 +135,14 @@ export default function UserDetail({
           ← Back to users
         </TextLink>
       </nav>
+
+      <UsersFormDialog
+        open={editOpen}
+        onOpenChange={setEditOpen}
+        mode="edit"
+        editUserId={user.id}
+        initialDetail={user}
+      />
     </article>
   );
 }

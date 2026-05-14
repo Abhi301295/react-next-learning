@@ -2,8 +2,7 @@ import type { Metadata } from "next";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 import UsersPageClient from "./UsersPageClient";
 
-const usersDescription =
-  "Browse the user directory with sortable columns, role and status filters, and mobile-friendly list cards. Open any profile for full contact details.";
+const usersDescription = "User accounts, roles, and profiles.";
 
 export const metadata: Metadata = {
   title: "Users",

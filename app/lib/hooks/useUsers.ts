@@ -6,7 +6,7 @@ import type { TableConfig } from "@/components/shared/table/core/ConfigurableTab
 import type { SortDirection } from "@/components/shared/table/core/Table";
 import type { FilterValue } from "@/lib/hooks/useTableControls";
 import { httpErrPublicMessage, isHttpOk } from "@/lib/app-api";
-import { fetchUserListDummyJson } from "@/lib/users/client";
+import { fetchUserList } from "@/lib/users/client";
 import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { User } from "@/lib/users/types";
 import {
@@ -38,7 +38,8 @@ function resolveTotal(
   return (page - 1) * pageSize + rowCount;
 }
 
-const UPSTREAM_USER_FETCH_CAP = 0;
+/** `limit=0` loads the full in-memory directory slice (role/status sort + filters). */
+const DIRECTORY_LIST_FETCH_ALL = 0;
 
 function sortUsers(
   users: User[],
@@ -124,7 +125,7 @@ export function useUsers() {
             listLoadedPages * pageSize
           );
           const apiSort = USER_SORT_API[sortBy ?? "id"] ?? "id";
-          const r = await fetchUserListDummyJson(
+          const r = await fetchUserList(
             {
               limit: itemsNeeded,
               skip: 0,
@@ -162,9 +163,9 @@ export function useUsers() {
           if (snap?.key === bulkKey) {
             sorted = snap.users;
           } else {
-            const r = await fetchUserListDummyJson(
+            const r = await fetchUserList(
               {
-                limit: UPSTREAM_USER_FETCH_CAP,
+                limit: DIRECTORY_LIST_FETCH_ALL,
                 skip: 0,
                 search: debouncedSearch || undefined,
                 sortBy: "id",
@@ -242,6 +243,36 @@ export function useUsers() {
   const refetch = useCallback(() => {
     void load();
   }, [load]);
+
+  const upsertUserAfterMutation = useCallback(
+    (user: User, kind: "create" | "update") => {
+      if (kind === "update") {
+        setUsers((prev) => prev.map((u) => (u.id === user.id ? user : u)));
+        setMobileUsers((prev) => {
+          const next = prev.map((u) => (u.id === user.id ? user : u));
+          mobileUsersRef.current = next;
+          return next;
+        });
+        bulkFilteredSnapshotRef.current = null;
+        return;
+      }
+      setTotalItems((t) => t + 1);
+      setUsers((prev) => {
+        if (tablePage !== 1) return prev;
+        const next = [user, ...prev.filter((u) => u.id !== user.id)];
+        return next.slice(0, pageSize);
+      });
+      setMobileUsers((prev) => {
+        const cap = listLoadedPages * pageSize;
+        const next = [user, ...prev.filter((u) => u.id !== user.id)];
+        const sliced = next.slice(0, cap);
+        mobileUsersRef.current = sliced;
+        return sliced;
+      });
+      bulkFilteredSnapshotRef.current = null;
+    },
+    [tablePage, pageSize, listLoadedPages]
+  );
 
   const serverBlock = useMemo(
     () => {
@@ -335,6 +366,7 @@ export function useUsers() {
     hasFetched,
     error,
     refetch,
+    upsertUserAfterMutation,
     userColumns: USER_COLUMNS,
     desktopTableConfig,
     mobileListConfig: mobileListConfigWithServer,

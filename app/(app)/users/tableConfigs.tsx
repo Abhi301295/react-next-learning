@@ -21,7 +21,7 @@
  * - Only **pagination shape** differs between **`TableConfig`** and **`ListConfig`**.
  *   Search, filters, sort defaults, and empty copy are shared (`USERS_FILTERS`, etc.).
  *
- * DUMMYJSON NOTE
+ * UPSTREAM SEARCH NOTE
  * - List fetch uses **`GET /users/search?q=`** — one string, not per-column.
  * - **Role / status** are narrowed with **Filters** in this app, not implied by `q`.
  *
@@ -59,6 +59,7 @@ import Badge from "@/components/ui/Badge";
 import type { Column } from "@/components/shared/table/core/Table";
 import type { User } from "@/lib/users/types";
 import { Button } from "@/components/ui/Button";
+import { useUsersMutateOptional } from "./UsersMutateContext";
 
 // ─── 1. Empty-state copy (also referenced by `usersMobileStateConfig`) ───────
 
@@ -169,22 +170,43 @@ function UserDetailNavLink({ user }: { user: User }) {
   );
 }
 
+function UserRowActions({ user }: { user: User }) {
+  const mutate = useUsersMutateOptional();
+  return (
+    <div className="flex items-center justify-end gap-2">
+      {mutate ? (
+        <Button
+          type="button"
+          variant="outline"
+          iconOnly
+          onClick={() => mutate.openEdit(user)}
+          aria-label={`Edit ${user.name}`}
+          tooltip={`Edit ${user.name}`}
+        >
+          ✎
+        </Button>
+      ) : null}
+      <UserDetailNavLink user={user} />
+    </div>
+  );
+}
+
 const USERS_TABLE_ACTIONS = {
   rowActionsLabel: "Actions" as const,
-  rowActions: (user: User) => <UserDetailNavLink user={user} />,
+  rowActions: (user: User) => <UserRowActions user={user} />,
 };
 
-// ─── 7. Search (one `q` on DummyJSON; `fields` = hint / non-server client use) ─
+// ─── 7. Search (single `q` param upstream; `fields` = hint / non-server client use) ─
 
 /**
- * DummyJSON: `GET /users/search?q=` — single text query (name, email, username…).
- * Role/status: use Filters. Docs: https://dummyjson.com/docs/users
+ * Upstream: `GET /users/search?q=` — one text query (name, email, username, …).
+ * Role and status are applied with **Filters**, not via `q`.
  */
 const USERS_SEARCH: NonNullable<TableConfig<User, UsersFilterKey>["search"]> = {
   enabled: true,
   label: "Search users",
   placeholder:
-    "Name, email, or username (DummyJSON). Role & status: use Filters.",
+    "Search by name, email, or username. Refine role and status with Filters.",
   fields: ["name", "email"],
 };
 
@@ -290,10 +312,10 @@ export const usersMobileStateConfig = {
 
 // ─── 14. Card body helper (not part of TableConfig / ListConfig) ─────────────
 
-export function renderUserProfileLink(userId: number) {
+export function renderUserProfileLink(userId: string | number) {
   return (
     <Link
-      href={`/users/${userId}`}
+      href={`/users/${encodeURIComponent(String(userId))}`}
       className="inline-block text-sm font-medium text-primary hover:underline"
     >
       View profile

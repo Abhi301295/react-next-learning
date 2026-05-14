@@ -4,7 +4,7 @@ import LoginForm from "@/components/auth/LoginForm";
 import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 
 const loginTitle = "Login";
-const loginDescription = `Sign in with your DummyJSON username and password to access ${SITE_NAME}.`;
+const loginDescription = `Sign in with your username and password to access ${SITE_NAME}.`;
 
 export const metadata: Metadata = {
   title: loginTitle,

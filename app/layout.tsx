@@ -38,7 +38,7 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_NAME,
     description:
-      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
+      "User directory with debounced search, filters, forms, and an accessible UI.",
     type: "website",
     url: "/",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
@@ -47,7 +47,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: SITE_NAME,
     description:
-      "DummyJSON-backed user directory with debounced search, filters, forms, and accessible UI.",
+      "User directory with debounced search, filters, forms, and an accessible UI.",
     images: [{ url: DEFAULT_OG_IMAGE.url, alt: DEFAULT_OG_IMAGE.alt }],
   },
   alternates: {

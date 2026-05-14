@@ -34,29 +34,21 @@ const LoginForm = () => {
               Sign in
             </CardTitle>
             <p className="mt-2 text-center text-xs text-subtle">
-              DummyJSON accounts use a username (for example{" "}
-              <code className="rounded bg-background px-1 py-px text-foreground">
-                emilys
-              </code>{" "}
-              /{" "}
-              <code className="rounded bg-background px-1 py-px text-foreground">
-                emilyspass
-              </code>
-              ).
+              Sign in with the email and password for your Firebase account.
             </p>
           </CardHeader>
 
           <CardContent>
             <form onSubmit={onSubmit} className="space-y-4" noValidate>
               <Input
-                id="username"
-                type="text"
-                label="Username"
-                autoComplete="username"
-                placeholder="your username"
-                {...register("username")}
-                error={errors.username?.message}
-                aria-invalid={!!errors.username}
+                id="email"
+                type="email"
+                label="Email"
+                autoComplete="email"
+                placeholder="you@example.com"
+                {...register("email")}
+                error={errors.email?.message}
+                aria-invalid={!!errors.email}
               />
 
               <Input

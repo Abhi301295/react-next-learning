@@ -1,18 +1,11 @@
 import type { NextConfig } from "next";
 
-const isProd = process.env.NODE_ENV === "production";
-const API_BASE_URL = process.env.API_BASE_URL ?? "https://dummyjson.com";
-
-if (isProd && !process.env.API_BASE_URL) {
-  throw new Error("API_BASE_URL must be defined in production.");
-}
-
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: [
       "react-hook-form",
-      "@hookform/resolvers",
+      "@hookform/resolvers/zod",
       "zod",
     ],
   },
@@ -20,12 +13,22 @@ const nextConfig: NextConfig = {
     remotePatterns: [
       {
         protocol: "https",
-        hostname: "cdn.dummyjson.com",
+        hostname: "firebasestorage.googleapis.com",
         pathname: "/**",
       },
       {
         protocol: "https",
-        hostname: "dummyjson.com",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
         pathname: "/**",
       },
     ],
@@ -34,12 +37,7 @@ const nextConfig: NextConfig = {
     removeConsole: process.env.NODE_ENV === "production",
   },
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${API_BASE_URL}/:path*`,
-      },
-    ];
+    return [];
   },
   async headers() {
     return [

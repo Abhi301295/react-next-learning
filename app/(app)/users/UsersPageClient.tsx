@@ -1,16 +1,24 @@
 "use client";
 
+import { useCallback, useMemo, useState } from "react";
 import ResponsiveList from "@/components/shared/list/ResponsiveList";
 import Badge from "@/components/ui/Badge";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/Card";
+import { Button } from "@/components/ui/Button";
 import { useUsers } from "@/lib/hooks/useUsers";
 import type { User } from "@/lib/users/types";
 import {
   renderUserProfileLink,
   usersMobileStateConfig,
 } from "./tableConfigs";
+import {
+  UsersMutateProvider,
+  useUsersMutateOptional,
+} from "./UsersMutateContext";
+import UsersFormDialog from "./UsersFormDialog";
 
-function renderUserCard(user: User) {
+function UserMobileCard({ user }: { user: User }) {
+  const mutate = useUsersMutateOptional();
   return (
     <Card className="border-stroke bg-panel">
       <CardHeader className="flex items-start justify-between gap-3">
@@ -22,7 +30,21 @@ function renderUserCard(user: User) {
       <CardContent className="space-y-2">
         <p className="text-sm text-subtle">{user.email}</p>
         <p className="text-sm text-subtle">Role: {user.role}</p>
-        {renderUserProfileLink(user.id)}
+        <div className="flex flex-wrap items-center gap-2">
+          {mutate ? (
+            <Button
+              type="button"
+              variant="outline"
+              iconOnly
+              onClick={() => mutate.openEdit(user)}
+              aria-label={`Edit ${user.name}`}
+              tooltip={`Edit ${user.name}`}
+            >
+              ✎
+            </Button>
+          ) : null}
+          {renderUserProfileLink(user.id)}
+        </div>
       </CardContent>
     </Card>
   );
@@ -36,45 +58,79 @@ export default function UsersPageClient() {
     loadingMore,
     error,
     refetch,
+    upsertUserAfterMutation,
     userColumns,
     desktopTableConfig,
     mobileListConfig,
   } = useUsers();
 
-  return (
-    <section className="space-y-4" aria-labelledby="users-title">
-      <header>
-        <h1
-          id="users-title"
-          className="text-display-sm font-semibold text-primary"
-          aria-describedby="users-page-summary"
-        >
-          Users
-        </h1>
-        <p
-          id="users-page-summary"
-          className="mt-1 max-w-prose text-sm text-subtle"
-        >
-          Search, filter by role and status, and open any row for full profile
-          and contact details.
-        </p>
-      </header>
+  const [dialogOpen, setDialogOpen] = useState(false);
+  const [dialogMode, setDialogMode] = useState<"create" | "edit">("create");
+  const [editUserId, setEditUserId] = useState<string | null>(null);
 
-      <ResponsiveList<User, "role" | "status">
-        data={users}
-        mobileData={mobileUsers}
-        loading={loading}
-        loadingMore={loadingMore}
-        error={error}
-        onRetry={refetch}
-        getKey={(user) => user.id}
-        columns={userColumns}
-        desktopTableConfig={desktopTableConfig}
-        mobileListConfig={mobileListConfig}
-        mobileStateConfig={usersMobileStateConfig}
-        renderItem={renderUserCard}
-      />
-    </section>
+  const mutateValue = useMemo(
+    () => ({
+      openCreate: () => {
+        setDialogMode("create");
+        setEditUserId(null);
+        setDialogOpen(true);
+      },
+      openEdit: (user: User) => {
+        setDialogMode("edit");
+        setEditUserId(user.id);
+        setDialogOpen(true);
+      },
+    }),
+    []
+  );
+
+  const handleDialogSuccess = useCallback(
+    (user: User, kind: "create" | "update") => {
+      upsertUserAfterMutation(user, kind);
+    },
+    [upsertUserAfterMutation]
+  );
+
+  return (
+    <UsersMutateProvider value={mutateValue}>
+      <section className="space-y-4" aria-labelledby="users-title">
+        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <h1
+            id="users-title"
+            className="text-display-sm font-semibold text-primary"
+          >
+            Users
+          </h1>
+          <Button type="button" onClick={mutateValue.openCreate}>
+            Add new user
+          </Button>
+        </header>
+
+        <ResponsiveList<User, "role" | "status">
+          data={users}
+          mobileData={mobileUsers}
+          loading={loading}
+          loadingMore={loadingMore}
+          error={error}
+          onRetry={refetch}
+          getKey={(user) => user.id}
+          columns={userColumns}
+          desktopTableConfig={desktopTableConfig}
+          mobileListConfig={mobileListConfig}
+          mobileStateConfig={usersMobileStateConfig}
+          renderItem={(user) => <UserMobileCard user={user} />}
+        />
+
+        <UsersFormDialog
+          key={`dlg-${String(dialogOpen)}-${dialogMode}-${editUserId ?? "n"}`}
+          open={dialogOpen}
+          onOpenChange={setDialogOpen}
+          mode={dialogMode}
+          editUserId={editUserId}
+          initialDetail={null}
+          onSuccess={handleDialogSuccess}
+        />
+      </section>
+    </UsersMutateProvider>
   );
 }
-
