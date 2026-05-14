@@ -1,7 +1,8 @@
-import { appApiFetch, isHttpOk, responseToJsonResult } from "@/lib/app-api";
-import { parseUsersListEnvelope } from "@/lib/upstream/users-payload";
+import { isHttpOk, runAppApiJson } from "@/lib/app-api";
+import { parseUserListResponse } from "@/lib/users/list-response";
 import type { HttpResult } from "@/lib/http-result";
-import type { UpstreamUserListItem } from "./types";
+import { messages } from "@/lib/constants/messages";
+import type { UserListDto } from "./types";
 
 export async function fetchUserList(
   opts: {
@@ -12,7 +13,7 @@ export async function fetchUserList(
     order: "asc" | "desc";
   },
   signal?: AbortSignal
-): Promise<HttpResult<{ users: UpstreamUserListItem[]; total: number }>> {
+): Promise<HttpResult<{ users: UserListDto[]; total: number }>> {
   const skip = Math.max(0, opts.skip ?? 0);
   const qs = new URLSearchParams();
   qs.set("limit", opts.limit <= 0 ? "0" : String(opts.limit));
@@ -23,27 +24,16 @@ export async function fetchUserList(
     qs.set("q", opts.search.trim());
   }
   const pathBase = `users?${qs.toString()}`;
-  let res: Response;
-  try {
-    res = await appApiFetch(pathBase, { signal });
-  } catch (e: unknown) {
-    if (e instanceof DOMException && e.name === "AbortError") {
-      return { ok: false, kind: "aborted" };
-    }
-    return {
-      ok: false,
-      kind: "network",
-      message: e instanceof Error ? e.message : "Network error",
-    };
-  }
-  const json = await responseToJsonResult<unknown>(res);
+
+  const json = await runAppApiJson<unknown>(pathBase, { signal });
   if (!isHttpOk(json)) return json;
-  const env = parseUsersListEnvelope(json.data);
+
+  const env = parseUserListResponse(json.data);
   if (!env) {
     return {
       ok: false,
       kind: "decode",
-      message: "Unexpected users response shape.",
+      message: messages.users.unexpectedListShape,
     };
   }
   return {

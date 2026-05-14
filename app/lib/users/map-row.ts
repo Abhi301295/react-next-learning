@@ -1,17 +1,15 @@
-import type { UpstreamUserListItem, User } from "@/lib/users/types";
+import type { UserListDto, User } from "@/lib/users/types";
 
-export function userListDisplayName(u: UpstreamUserListItem): string {
+export function userListDisplayName(u: UserListDto): string {
   const joined = `${u.firstName ?? ""} ${u.lastName ?? ""}`.trim();
   if (joined) return joined;
   if (typeof u.username === "string" && u.username.trim()) return u.username;
   return `User ${u.id}`;
 }
 
-export function mapUpstreamListRow(u: UpstreamUserListItem): User {
+export function mapUserListDtoToRow(u: UserListDto): User {
   const status =
-    u.status === "active" || u.status === "inactive"
-      ? u.status
-      : "active";
+    u.status === "active" || u.status === "inactive" ? u.status : "active";
   return {
     id: u.id,
     name: userListDisplayName(u),

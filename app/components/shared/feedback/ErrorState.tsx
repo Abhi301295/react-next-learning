@@ -1,7 +1,8 @@
-import { Button } from '@/components/ui/Button';
+import { Button } from "@/components/ui/Button";
+import { messages } from "@/lib/constants/messages";
 
 export function ErrorState({
-  message = "Something went wrong",
+  message = messages.common.somethingWentWrong,
   onRetry,
 }: {
   message?: string;
@@ -16,9 +17,7 @@ export function ErrorState({
       <p className="font-medium text-red-600 dark:text-red-400">{message}</p>
 
       {onRetry && (
-        <Button onClick={onRetry}>
-          Retry
-        </Button>
+        <Button onClick={onRetry}>{messages.actions.retry}</Button>
       )}
     </div>
   );

@@ -2,6 +2,7 @@ import {
   AUTH_COOKIE_NAME,
   SESSION_MAX_AGE_SEC,
 } from "@/lib/auth/constants";
+import { messages } from "@/lib/constants/messages";
 import { createSessionCookieFromIdToken } from "@/lib/auth/firebase-session";
 import { NextResponse } from "next/server";
 
@@ -14,13 +15,16 @@ export async function POST(request: Request) {
   try {
     body = (await request.json()) as LoginBody;
   } catch {
-    return NextResponse.json({ message: "Invalid JSON body." }, { status: 400 });
+    return NextResponse.json(
+      { message: messages.api.invalidJsonBody },
+      { status: 400 }
+    );
   }
 
   const idToken = typeof body.idToken === "string" ? body.idToken.trim() : "";
   if (!idToken) {
     return NextResponse.json(
-      { message: "Missing authentication token." },
+      { message: messages.api.missingAuthToken },
       { status: 400 }
     );
   }
@@ -51,7 +55,7 @@ export async function POST(request: Request) {
     const detail =
       process.env.NODE_ENV === "development" && e instanceof Error
         ? e.message
-        : "Invalid or expired sign-in. Try again.";
+        : messages.api.signInInvalidOrExpired;
     return NextResponse.json({ message: detail }, { status: 401 });
   }
 }

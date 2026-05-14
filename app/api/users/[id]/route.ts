@@ -1,21 +1,28 @@
 import { verifySessionCookie } from "@/lib/auth/firebase-session";
-import { dummyJsonUserFormSchema } from "@/lib/validation/user.schema";
+import { messages } from "@/lib/constants/messages";
+import { userProfileFormSchema } from "@/lib/validation/user.schema";
 import {
-  deleteDirectoryUser,
-  directoryDocToPublicRecord,
-  getDirectoryUserById,
-  updateDirectoryUser,
-} from "@/lib/users/directory-repository";
+  deleteUserRecord,
+  getUserRecordById,
+  updateUserRecord,
+  userRecordToResponseJson,
+} from "@/lib/users/user-repository";
 import { NextRequest, NextResponse } from "next/server";
 
 function unauthorized() {
-  return NextResponse.json({ message: "Unauthorized" }, { status: 401 });
+  return NextResponse.json(
+    { message: messages.api.unauthorized },
+    { status: 401 }
+  );
 }
 
 type RouteContext = { params: Promise<{ id: string }> };
 
 function invalidId() {
-  return NextResponse.json({ message: "Invalid user id." }, { status: 400 });
+  return NextResponse.json(
+    { message: messages.api.invalidUserId },
+    { status: 400 }
+  );
 }
 
 export async function GET(_request: NextRequest, ctx: RouteContext) {
@@ -25,12 +32,12 @@ export async function GET(_request: NextRequest, ctx: RouteContext) {
   const { id } = await ctx.params;
   if (!id.trim()) return invalidId();
 
-  const row = await getDirectoryUserById(id);
+  const row = await getUserRecordById(id);
   if (!row) {
-    return NextResponse.json({ message: "Not found." }, { status: 404 });
+    return NextResponse.json({ message: messages.api.notFound }, { status: 404 });
   }
 
-  return NextResponse.json(directoryDocToPublicRecord(row.id, row.data), {
+  return NextResponse.json(userRecordToResponseJson(row.id, row.data), {
     headers: { "Cache-Control": "no-store" },
   });
 }
@@ -46,23 +53,29 @@ export async function PUT(request: NextRequest, ctx: RouteContext) {
   try {
     jsonBody = await request.json();
   } catch {
-    return NextResponse.json({ message: "Invalid JSON body." }, { status: 400 });
-  }
-
-  const parsed = dummyJsonUserFormSchema.safeParse(jsonBody);
-  if (!parsed.success) {
     return NextResponse.json(
-      { message: "Validation failed", issues: parsed.error.flatten() },
+      { message: messages.api.invalidJsonBody },
       { status: 400 }
     );
   }
 
-  const updated = await updateDirectoryUser(id, parsed.data);
-  if (!updated) {
-    return NextResponse.json({ message: "Not found." }, { status: 404 });
+  const parsed = userProfileFormSchema.safeParse(jsonBody);
+  if (!parsed.success) {
+    return NextResponse.json(
+      {
+        message: messages.api.validationFailed,
+        issues: parsed.error.flatten(),
+      },
+      { status: 400 }
+    );
   }
 
-  return NextResponse.json(directoryDocToPublicRecord(updated.id, updated.data));
+  const updated = await updateUserRecord(id, parsed.data);
+  if (!updated) {
+    return NextResponse.json({ message: messages.api.notFound }, { status: 404 });
+  }
+
+  return NextResponse.json(userRecordToResponseJson(updated.id, updated.data));
 }
 
 export async function DELETE(_request: NextRequest, ctx: RouteContext) {
@@ -72,9 +85,9 @@ export async function DELETE(_request: NextRequest, ctx: RouteContext) {
   const { id } = await ctx.params;
   if (!id.trim()) return invalidId();
 
-  const ok = await deleteDirectoryUser(id);
+  const ok = await deleteUserRecord(id);
   if (!ok) {
-    return NextResponse.json({ message: "Not found." }, { status: 404 });
+    return NextResponse.json({ message: messages.api.notFound }, { status: 404 });
   }
 
   return NextResponse.json({ ok: true });

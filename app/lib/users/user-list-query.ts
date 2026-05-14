@@ -1,6 +1,6 @@
-import type { UpstreamUserListItem } from "@/lib/users/types";
+import type { UserListDto } from "@/lib/users/types";
 
-function matchesSearch(item: UpstreamUserListItem, q: string): boolean {
+function matchesSearch(item: UserListDto, q: string): boolean {
   const needle = q.trim().toLowerCase();
   if (!needle) return true;
   const hay = [
@@ -14,10 +14,7 @@ function matchesSearch(item: UpstreamUserListItem, q: string): boolean {
   return hay.includes(needle);
 }
 
-function sortValue(
-  item: UpstreamUserListItem,
-  sortBy: string
-): string | number {
+function sortValue(item: UserListDto, sortBy: string): string | number {
   switch (sortBy) {
     case "id":
       return item.id;
@@ -34,8 +31,9 @@ function sortValue(
   }
 }
 
-export function queryDirectoryListItems(
-  items: UpstreamUserListItem[],
+/** Filter, sort, and page an in-memory user list (used after loading from Firestore). */
+export function applyUserListQuery(
+  items: UserListDto[],
   opts: {
     q?: string;
     sortBy: string;
@@ -43,7 +41,7 @@ export function queryDirectoryListItems(
     skip: number;
     limit: number;
   }
-): { users: UpstreamUserListItem[]; total: number } {
+): { users: UserListDto[]; total: number } {
   const q = opts.q?.trim() ?? "";
   const list = q ? items.filter((u) => matchesSearch(u, q)) : [...items];
 

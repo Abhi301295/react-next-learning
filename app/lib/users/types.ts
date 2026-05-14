@@ -1,4 +1,5 @@
-export type UpstreamUserListItem = {
+/** List row shape returned by `GET /api/users`. */
+export type UserListDto = {
   id: string;
   firstName: string;
   lastName: string;
@@ -16,7 +17,8 @@ export type User = {
   status: "active" | "inactive";
 };
 
-export type UpstreamUserDetail = {
+/** Full profile from `GET/PUT /api/users/:id`. */
+export type UserProfileDto = {
   id: string;
   name: string;
   email: string;

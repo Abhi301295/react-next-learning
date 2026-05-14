@@ -1,10 +1,12 @@
 import { FieldValue, Timestamp } from "firebase-admin/firestore";
 import type { DocumentData, DocumentSnapshot } from "firebase-admin/firestore";
 import { getAdminFirestore } from "@/lib/firebase/admin";
-import type { DummyJsonUserFormValues } from "@/lib/validation/user.schema";
-import type { UpstreamUserDetail, UpstreamUserListItem } from "./types";
+import { messages } from "@/lib/constants/messages";
+import type { UserProfileFormValues } from "@/lib/validation/user.schema";
+import type { UserListDto, UserProfileDto } from "./types";
 
-export const DIRECTORY_USERS_COLLECTION = "directory_users";
+/** Firestore collection id (legacy segment name; changing it requires a data migration). */
+export const USERS_COLLECTION_ID = "directory_users";
 
 const LIST_CAP = 500;
 
@@ -16,7 +18,7 @@ type AddressDoc = {
   country: string;
 };
 
-export type DirectoryUserDoc = {
+export type UserRecord = {
   firstName: string;
   lastName: string;
   username: string;
@@ -64,9 +66,9 @@ function parseAddress(raw: unknown): AddressDoc {
   };
 }
 
-export function parseDirectoryDoc(
+export function parseUserRecordSnapshot(
   snap: DocumentSnapshot
-): { id: string; data: DirectoryUserDoc } | null {
+): { id: string; data: UserRecord } | null {
   if (!snap.exists) return null;
   const d = snap.data() as DocumentData | undefined;
   if (!d) return null;
@@ -92,9 +94,9 @@ export function parseDirectoryDoc(
   };
 }
 
-export function formValuesToDirectoryFields(
-  data: DummyJsonUserFormValues
-): Omit<DirectoryUserDoc, "createdAt" | "updatedAt"> {
+export function formValuesToUserRecordFields(
+  data: UserProfileFormValues
+): Omit<UserRecord, "createdAt" | "updatedAt"> {
   return {
     firstName: data.firstName.trim(),
     lastName: data.lastName.trim(),
@@ -116,10 +118,7 @@ export function formValuesToDirectoryFields(
   };
 }
 
-export function directoryDocToListItem(
-  id: string,
-  d: DirectoryUserDoc
-): UpstreamUserListItem {
+export function userRecordToListDto(id: string, d: UserRecord): UserListDto {
   return {
     id,
     firstName: d.firstName,
@@ -131,10 +130,7 @@ export function directoryDocToListItem(
   };
 }
 
-export function directoryDocToDetail(
-  id: string,
-  d: DirectoryUserDoc
-): UpstreamUserDetail {
+export function userRecordToProfileDto(id: string, d: UserRecord): UserProfileDto {
   const name =
     `${d.firstName} ${d.lastName}`.trim() ||
     d.username.trim() ||
@@ -162,10 +158,10 @@ export function directoryDocToDetail(
   };
 }
 
-/** JSON record compatible with `jsonRecordToFormDefaults` / clients. */
-export function directoryDocToPublicRecord(
+/** JSON body for API clients and `jsonRecordToFormDefaults`. */
+export function userRecordToResponseJson(
   id: string,
-  d: DirectoryUserDoc
+  d: UserRecord
 ): Record<string, unknown> {
   return {
     id,
@@ -189,34 +185,34 @@ export function directoryDocToPublicRecord(
   };
 }
 
-export async function listAllDirectoryUsers(): Promise<
-  { id: string; data: DirectoryUserDoc }[]
+export async function listAllUserRecords(): Promise<
+  { id: string; data: UserRecord }[]
 > {
   const db = getAdminFirestore();
-  const snap = await db.collection(DIRECTORY_USERS_COLLECTION).limit(LIST_CAP).get();
-  const out: { id: string; data: DirectoryUserDoc }[] = [];
+  const snap = await db.collection(USERS_COLLECTION_ID).limit(LIST_CAP).get();
+  const out: { id: string; data: UserRecord }[] = [];
   for (const doc of snap.docs) {
-    const parsed = parseDirectoryDoc(doc);
+    const parsed = parseUserRecordSnapshot(doc);
     if (parsed) out.push(parsed);
   }
   return out;
 }
 
-export async function getDirectoryUserById(
+export async function getUserRecordById(
   id: string
-): Promise<{ id: string; data: DirectoryUserDoc } | null> {
+): Promise<{ id: string; data: UserRecord } | null> {
   if (!id.trim()) return null;
   const db = getAdminFirestore();
-  const snap = await db.collection(DIRECTORY_USERS_COLLECTION).doc(id).get();
-  return parseDirectoryDoc(snap);
+  const snap = await db.collection(USERS_COLLECTION_ID).doc(id).get();
+  return parseUserRecordSnapshot(snap);
 }
 
-export async function createDirectoryUser(
-  data: DummyJsonUserFormValues
-): Promise<{ id: string; data: DirectoryUserDoc }> {
+export async function createUserRecord(
+  data: UserProfileFormValues
+): Promise<{ id: string; data: UserRecord }> {
   const db = getAdminFirestore();
-  const fields = formValuesToDirectoryFields(data);
-  const ref = db.collection(DIRECTORY_USERS_COLLECTION).doc();
+  const fields = formValuesToUserRecordFields(data);
+  const ref = db.collection(USERS_COLLECTION_ID).doc();
   const now = FieldValue.serverTimestamp();
   await ref.set({
     ...fields,
@@ -224,22 +220,22 @@ export async function createDirectoryUser(
     updatedAt: now,
   });
   const snap = await ref.get();
-  const parsed = parseDirectoryDoc(snap);
+  const parsed = parseUserRecordSnapshot(snap);
   if (!parsed) {
-    throw new Error("Failed to read created user.");
+    throw new Error(messages.users.repositoryReadCreated);
   }
   return parsed;
 }
 
-export async function updateDirectoryUser(
+export async function updateUserRecord(
   id: string,
-  data: DummyJsonUserFormValues
-): Promise<{ id: string; data: DirectoryUserDoc } | null> {
+  data: UserProfileFormValues
+): Promise<{ id: string; data: UserRecord } | null> {
   const db = getAdminFirestore();
-  const ref = db.collection(DIRECTORY_USERS_COLLECTION).doc(id);
+  const ref = db.collection(USERS_COLLECTION_ID).doc(id);
   const existing = await ref.get();
   if (!existing.exists) return null;
-  const fields = formValuesToDirectoryFields(data);
+  const fields = formValuesToUserRecordFields(data);
   await ref.set(
     {
       ...fields,
@@ -248,12 +244,12 @@ export async function updateDirectoryUser(
     { merge: true }
   );
   const snap = await ref.get();
-  return parseDirectoryDoc(snap);
+  return parseUserRecordSnapshot(snap);
 }
 
-export async function deleteDirectoryUser(id: string): Promise<boolean> {
+export async function deleteUserRecord(id: string): Promise<boolean> {
   const db = getAdminFirestore();
-  const ref = db.collection(DIRECTORY_USERS_COLLECTION).doc(id);
+  const ref = db.collection(USERS_COLLECTION_ID).doc(id);
   const snap = await ref.get();
   if (!snap.exists) return false;
   await ref.delete();

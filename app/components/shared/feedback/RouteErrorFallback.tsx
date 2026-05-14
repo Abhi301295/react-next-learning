@@ -1,5 +1,6 @@
 "use client";
 
+import { messages } from "@/lib/constants/messages";
 import { Button } from "@/components/ui/Button";
 import { PageHeading } from "@/components/ui/PageHeading";
 import { useNavigationProgress } from "@/context/navigation-progress-context";
@@ -42,11 +43,10 @@ export function RouteErrorFallback({
         aria-atomic="true"
       >
         <PageHeading id="route-error-title">
-          Something went wrong
+          {messages.common.somethingWentWrong}
         </PageHeading>
         <p className="text-subtle">
-          {error.message ||
-            "We could not load this page. Check your connection and try again."}
+          {error.message || messages.errors.routePageBody}
         </p>
         {digest ? (
           <p className="text-xs text-subtle">
@@ -57,7 +57,7 @@ export function RouteErrorFallback({
       </div>
       <div className="flex flex-wrap items-center justify-center gap-3">
         <Button type="button" onClick={() => reset()}>
-          Try again
+          {messages.actions.tryAgain}
         </Button>
         <Button type="button" variant="outline" onClick={goHome}>
           {homeLabel}

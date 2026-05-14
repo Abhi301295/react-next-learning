@@ -1,16 +1,17 @@
 import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
+import { messages } from "@/lib/constants/messages";
 import type { HttpErr } from "@/lib/http-result";
 import { cache } from "react";
 import {
-  directoryDocToDetail,
-  getDirectoryUserById,
-} from "@/lib/users/directory-repository";
-import type { UpstreamUserDetail } from "./types";
+  getUserRecordById,
+  userRecordToProfileDto,
+} from "@/lib/users/user-repository";
+import type { UserProfileDto } from "./types";
 
-export type { UpstreamUserDetail } from "./types";
+export type { UserProfileDto } from "./types";
 
 export type FetchUserDetailResult =
-  | { ok: true; user: UpstreamUserDetail }
+  | { ok: true; user: UserProfileDto }
   | { ok: false; kind: "not_found" }
   | { ok: false; kind: "invalid" }
   | { ok: false; kind: "error"; cause: HttpErr };
@@ -24,11 +25,11 @@ async function fetchUserByIdImpl(
   }
 
   try {
-    const row = await getDirectoryUserById(trimmed);
+    const row = await getUserRecordById(trimmed);
     if (!row) {
       return { ok: false, kind: "not_found" };
     }
-    const user = directoryDocToDetail(row.id, row.data);
+    const user = userRecordToProfileDto(row.id, row.data);
     return { ok: true, user };
   } catch (e: unknown) {
     return {
@@ -37,7 +38,8 @@ async function fetchUserByIdImpl(
       cause: {
         ok: false,
         kind: "network",
-        message: e instanceof Error ? e.message : "Failed to load user.",
+        message:
+          e instanceof Error ? e.message : messages.users.detailLoadFailed,
       },
     };
   }
@@ -47,7 +49,7 @@ export const fetchUserById = cache(fetchUserByIdImpl);
 
 export function userDetailMetadataFallback(id: string) {
   const title = `User ${id}`;
-  const description = "This user could not be loaded.";
+  const description = messages.users.detailMissingDescription;
   return {
     title,
     description,

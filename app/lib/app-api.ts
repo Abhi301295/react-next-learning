@@ -1,12 +1,13 @@
-import {
-  type HttpResult,
-  httpErrPublicMessage,
-  isHttpOk,
-  responseToJsonResult,
-} from "@/lib/http-result";
+import type { HttpResult } from "@/lib/http-result";
+import { responseToJsonResult } from "@/lib/http-result";
+import { messages } from "@/lib/constants/messages";
 
 export type { HttpResult, HttpErr, HttpOk } from "@/lib/http-result";
-export { isHttpOk, httpErrPublicMessage, responseToJsonResult } from "@/lib/http-result";
+export {
+  isHttpOk,
+  httpErrPublicMessage,
+  responseToJsonResult,
+} from "@/lib/http-result";
 
 export function appApiUrl(pathUnderApi: string): string {
   const clean = pathUnderApi.replace(/^\//, "");
@@ -39,19 +40,9 @@ export async function runAppApiJson<T>(
     return {
       ok: false,
       kind: "network",
-      message: e instanceof Error ? e.message : "Network error",
+      message:
+        e instanceof Error ? e.message : messages.http.networkError,
     };
   }
   return responseToJsonResult<T>(res);
-}
-
-export async function appApiJson<T>(
-  pathUnderApi: string,
-  init?: RequestInit
-): Promise<T> {
-  const r = await runAppApiJson<T>(pathUnderApi, init);
-  if (!isHttpOk(r)) {
-    throw new Error(httpErrPublicMessage(r));
-  }
-  return r.data;
 }

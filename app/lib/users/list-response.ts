@@ -1,21 +1,21 @@
-import type { UpstreamUserListItem } from "@/lib/users/types";
+import type { UserListDto } from "@/lib/users/types";
 
-/** Parses `{ users, total }` list payloads from the configured upstream user API. */
-export function parseUsersListEnvelope(
+/** Parses `{ users, total }` from `GET /api/users`. */
+export function parseUserListResponse(
   data: unknown
-): { users: UpstreamUserListItem[]; total: number } | null {
+): { users: UserListDto[]; total: number } | null {
   if (typeof data !== "object" || data === null) return null;
   const o = data as Record<string, unknown>;
   if (!Array.isArray(o.users) || typeof o.total !== "number") return null;
   return {
     users: o.users
       .filter(isUserListShape)
-      .map((u) => normalizeListItem(u)) as UpstreamUserListItem[],
+      .map((u) => normalizeListItem(u)) as UserListDto[],
     total: o.total,
   };
 }
 
-function normalizeListItem(x: unknown): UpstreamUserListItem {
+function normalizeListItem(x: unknown): UserListDto {
   const u = x as Record<string, unknown>;
   const id =
     typeof u.id === "number" && Number.isFinite(u.id)
