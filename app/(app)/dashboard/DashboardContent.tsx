@@ -38,11 +38,15 @@ export async function DashboardContent() {
         <CardContent className="space-y-3 text-sm text-subtle">
           <p>{result.message}</p>
           <p>
-            Confirm your upstream API is running and{" "}
+            Confirm{" "}
             <code className="rounded bg-background px-1 py-0.5 text-xs">
-              API_BASE_URL
+              FIREBASE_SERVICE_ACCOUNT_JSON
             </code>{" "}
-            is set if needed, then{" "}
+            and{" "}
+            <code className="rounded bg-background px-1 py-0.5 text-xs">
+              NEXT_PUBLIC_FIREBASE_*
+            </code>{" "}
+            are set, then{" "}
             <TextLink href="/dashboard">reload the dashboard</TextLink>
             .
           </p>

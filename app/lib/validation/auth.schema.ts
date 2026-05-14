@@ -1,11 +1,12 @@
 import { z } from "zod";
 
 export const loginSchema = z.object({
-  username: z
+  email: z
     .string()
     .trim()
-    .min(1, { message: "Username is required" })
-    .max(128, { message: "Username is too long" }),
+    .min(1, { message: "Email is required" })
+    .email({ message: "Enter a valid email address" })
+    .max(128, { message: "Email is too long" }),
 
   password: z
     .string()

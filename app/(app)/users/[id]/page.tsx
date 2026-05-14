@@ -2,13 +2,17 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import UserDetail from "./UserDetail";
 import { DEFAULT_OG_IMAGE } from "@/lib/metadata/defaults";
-import { httpErrPublicMessage } from "@/lib/server-upstream";
+import { httpErrPublicMessage } from "@/lib/http-result";
 import {
   fetchUserById,
   userDetailMetadataFallback,
 } from "@/lib/users/server";
 
 type PageProps = { params: Promise<{ id: string }> };
+
+function isValidUserId(id: string): boolean {
+  return /^[A-Za-z0-9_-]{1,128}$/.test(id.trim());
+}
 
 function userDescription(user: {
   name: string;
@@ -30,17 +34,14 @@ export async function generateMetadata({
 }: PageProps): Promise<Metadata> {
   const { id } = await params;
 
-  if (!/^\d+$/.test(id)) {
+  if (!isValidUserId(id)) {
     return userDetailMetadataFallback(id);
   }
 
   const r = await fetchUserById(id);
 
   if (!r.ok) {
-    if (r.kind === "not_found" || r.kind === "invalid") {
-      return userDetailMetadataFallback(id);
-    }
-    throw new Error(httpErrPublicMessage(r.cause));
+    return userDetailMetadataFallback(id);
   }
 
   const user = r.user;
@@ -84,7 +85,7 @@ export async function generateMetadata({
 export default async function UserDetailPage({ params }: PageProps) {
   const { id } = await params;
 
-  if (!/^\d+$/.test(id)) {
+  if (!isValidUserId(id)) {
     notFound();
   }
 

@@ -19,9 +19,10 @@ export async function fetchUserList(
   qs.set("skip", String(skip));
   qs.set("sortBy", opts.sortBy);
   qs.set("order", opts.order);
-  const pathBase = opts.search?.trim()
-    ? `users/search?q=${encodeURIComponent(opts.search.trim())}&${qs.toString()}`
-    : `users?${qs.toString()}`;
+  if (opts.search?.trim()) {
+    qs.set("q", opts.search.trim());
+  }
+  const pathBase = `users?${qs.toString()}`;
   let res: Response;
   try {
     res = await appApiFetch(pathBase, { signal });

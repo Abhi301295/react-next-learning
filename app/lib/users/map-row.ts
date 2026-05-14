@@ -8,11 +8,15 @@ export function userListDisplayName(u: UpstreamUserListItem): string {
 }
 
 export function mapUpstreamListRow(u: UpstreamUserListItem): User {
+  const status =
+    u.status === "active" || u.status === "inactive"
+      ? u.status
+      : "active";
   return {
     id: u.id,
     name: userListDisplayName(u),
     email: u.email,
     role: u.role === "admin" ? "admin" : "user",
-    status: u.id % 3 === 0 ? "inactive" : "active",
+    status,
   };
 }

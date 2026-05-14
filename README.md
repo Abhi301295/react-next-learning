@@ -12,7 +12,7 @@ A **Next.js 16** (App Router) **user management** app with **Tailwind CSS v4** t
 | **Search** | Debounced name/email search via `useTableControls` / `useListControls` |
 | **Filter** | Status filter |
 | **Pagination** | Table pagination controls |
-| **Add / edit user** | Forms with validation (`AddUserForm`, edit flows on user routes) |
+| **Add / edit user** | `UserForm` in `UsersFormDialog` (modal); `POST`/`PUT` `app/api/user-mutations` → upstream; listing merges via `useUsers` |
 | **User detail** | Dynamic `app/(app)/users/[id]/` with `generateMetadata` |
 | **API** | Route handlers under `app/api/auth/`; other reads use `API_BASE_URL` (`app/lib/server-upstream.ts`) and `next.config` rewrites for `/api/*` |
 | **States** | Loading UI, error/empty components, `not-found`, `error.tsx`, `global-error.tsx` |

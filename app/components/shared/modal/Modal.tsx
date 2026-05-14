@@ -1,7 +1,7 @@
 'use client';
 
 import { cn } from '@/lib/utils';
-import { useEffect, useId, useRef } from 'react';
+import { useEffect, useId, useRef, type ReactNode } from 'react';
 
 const FOCUSABLE_SELECTOR =
   'button:not([disabled]), [href], input:not([disabled]), select:not([disabled]), textarea:not([disabled]), [tabindex]:not([tabindex="-1"])';
@@ -11,6 +11,8 @@ interface ModalProps {
   onClose: () => void;
   title?: string;
   children: React.ReactNode;
+  /** When set (including `null`), body scrolls independently and the footer stays pinned under the header. */
+  footer?: ReactNode;
   showCloseButton?: boolean;
   disableClose?: boolean;
   panelClass?: string;
@@ -21,6 +23,7 @@ const Modal = ({
   onClose,
   title,
   children,
+  footer,
   showCloseButton = true,
   disableClose = false,
   panelClass
@@ -136,14 +139,35 @@ const Modal = ({
           </div>
         ) : null}
 
-        <div
-          className={cn(
-            'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]',
-            title ? 'px-6 py-4' : 'p-6'
-          )}
-        >
-          {children}
-        </div>
+        {footer !== undefined ? (
+          <div className="flex min-h-0 flex-1 flex-col overflow-hidden">
+            <div
+              className={cn(
+                'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]',
+                title ? 'px-6 py-4' : 'p-6'
+              )}
+            >
+              {children}
+            </div>
+            <div
+              className={cn(
+                'shrink-0 border-t border-stroke bg-panel',
+                title ? 'px-6 py-4' : 'px-6 pb-5 pt-4'
+              )}
+            >
+              {footer}
+            </div>
+          </div>
+        ) : (
+          <div
+            className={cn(
+              'min-h-0 flex-1 overflow-y-auto overflow-x-hidden [-webkit-overflow-scrolling:touch] [scrollbar-width:thin]',
+              title ? 'px-6 py-4' : 'p-6'
+            )}
+          >
+            {children}
+          </div>
+        )}
       </div>
     </div>
   );

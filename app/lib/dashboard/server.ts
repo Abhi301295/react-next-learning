@@ -1,25 +1,26 @@
 import {
   httpErrPublicMessage,
   isHttpOk,
-  responseToJsonResult,
   type HttpResult,
 } from "@/lib/http-result";
-import { parseUsersListEnvelope } from "@/lib/upstream/users-payload";
 import { mapUpstreamListRow } from "@/lib/users/map-row";
 import type { UpstreamUserListItem } from "@/lib/users/types";
-import { upstreamFetch } from "@/lib/server-upstream";
+import {
+  directoryDocToListItem,
+  listAllDirectoryUsers,
+} from "@/lib/users/directory-repository";
 
 async function fetchUsersForDashboard(): Promise<
   HttpResult<{ users: UpstreamUserListItem[]; total: number }>
 > {
-  let res: Response;
   try {
-    res = await upstreamFetch(
-      "users?limit=100&skip=0&sortBy=id&order=desc",
-      {
-        next: { revalidate: 60 },
-      }
-    );
+    const rows = await listAllDirectoryUsers();
+    const users = rows.map((r) => directoryDocToListItem(r.id, r.data));
+    return {
+      ok: true,
+      status: 200,
+      data: { users, total: users.length },
+    };
   } catch (e: unknown) {
     return {
       ok: false,
@@ -27,19 +28,6 @@ async function fetchUsersForDashboard(): Promise<
       message: e instanceof Error ? e.message : "Network error.",
     };
   }
-  const json = await responseToJsonResult<unknown>(res);
-  if (!isHttpOk(json)) {
-    return json;
-  }
-  const env = parseUsersListEnvelope(json.data);
-  if (!env) {
-    return {
-      ok: false,
-      kind: "decode",
-      message: "Unexpected users payload.",
-    };
-  }
-  return { ok: true, status: json.status, data: env };
 }
 
 export type DashboardActivityItem = {
@@ -54,16 +42,6 @@ export type DashboardSnapshot = {
   inactiveUsers: number;
   activities: DashboardActivityItem[];
 };
-
-function scaledMetric(
-  sampleCount: number,
-  sampleLen: number,
-  catalogTotal: number
-): number {
-  if (sampleLen === 0) return 0;
-  if (sampleLen >= catalogTotal) return sampleCount;
-  return Math.round((sampleCount / sampleLen) * catalogTotal);
-}
 
 function buildActivities(
   users: ReturnType<typeof mapUpstreamListRow>[]
@@ -89,23 +67,13 @@ export async function fetchDashboardSnapshot(): Promise<
   const mapped = raw.map(mapUpstreamListRow);
   const activeInSample = mapped.filter((u) => u.status === "active").length;
   const inactiveInSample = mapped.length - activeInSample;
-  const activeUsers = scaledMetric(
-    activeInSample,
-    mapped.length,
-    catalogTotal
-  );
-  const inactiveUsers = scaledMetric(
-    inactiveInSample,
-    mapped.length,
-    catalogTotal
-  );
 
   return {
     ok: true,
     data: {
       totalUsers: catalogTotal,
-      activeUsers,
-      inactiveUsers,
+      activeUsers: activeInSample,
+      inactiveUsers: inactiveInSample,
       activities: buildActivities(mapped),
     },
   };

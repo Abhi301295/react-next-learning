@@ -1,45 +1,43 @@
 import type { NextConfig } from "next";
-import { DEFAULT_UPSTREAM_API_ORIGIN } from "./app/lib/upstream/default-origin";
-
-const isProd = process.env.NODE_ENV === "production";
-const API_BASE_URL = process.env.API_BASE_URL ?? DEFAULT_UPSTREAM_API_ORIGIN;
-
-if (isProd && !process.env.API_BASE_URL) {
-  throw new Error("API_BASE_URL must be defined in production.");
-}
 
 const nextConfig: NextConfig = {
   reactStrictMode: true,
   experimental: {
     optimizePackageImports: [
       "react-hook-form",
-      "@hookform/resolvers",
+      "@hookform/resolvers/zod",
       "zod",
     ],
   },
   images: {
-    remotePatterns: (() => {
-      const upstream = new URL(API_BASE_URL);
-      const protocol = upstream.protocol === "https:" ? "https" : "http";
-      return [
-        {
-          protocol,
-          hostname: upstream.hostname,
-          pathname: "/**",
-        },
-      ];
-    })(),
+    remotePatterns: [
+      {
+        protocol: "https",
+        hostname: "firebasestorage.googleapis.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "lh3.googleusercontent.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "images.unsplash.com",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "i.pravatar.cc",
+        pathname: "/**",
+      },
+    ],
   },
   compiler: {
     removeConsole: process.env.NODE_ENV === "production",
   },
   async rewrites() {
-    return [
-      {
-        source: "/api/:path*",
-        destination: `${API_BASE_URL}/:path*`,
-      },
-    ];
+    return [];
   },
   async headers() {
     return [
