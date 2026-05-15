@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/lib/navigation/use-app-router";
 import Modal from "@/components/shared/modal/Modal";
 import UserForm from "@/components/forms/UserForm";
 import { Button } from "@/components/ui/Button";
@@ -37,7 +37,7 @@ export default function UsersFormDialog({
   initialDetail,
   onSuccess,
 }: UsersFormDialogProps) {
-  const router = useRouter();
+  const router = useAppRouter();
   const { showSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState(false);

@@ -3,9 +3,8 @@
 import { messages } from "@/lib/constants/messages";
 import { Button } from "@/components/ui/Button";
 import { PageHeading } from "@/components/ui/PageHeading";
-import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { safeInternalPath } from "@/lib/navigation/safe-internal-path";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/lib/navigation/use-app-router";
 import { useCallback } from "react";
 
 type RouteErrorFallbackProps = {
@@ -21,15 +20,13 @@ export function RouteErrorFallback({
   homeHref,
   homeLabel,
 }: RouteErrorFallbackProps) {
-  const router = useRouter();
-  const { beginNavigation } = useNavigationProgress();
+  const router = useAppRouter();
   const digest = error.digest;
 
   const goHome = useCallback(() => {
     const path = safeInternalPath(homeHref) ?? "/";
-    beginNavigation();
     router.replace(path);
-  }, [router, homeHref, beginNavigation]);
+  }, [router, homeHref]);
 
   return (
     <section

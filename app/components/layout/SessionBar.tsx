@@ -2,10 +2,9 @@
 
 import { IconLogOut } from "@/components/icons";
 import { Button } from "@/components/ui/Button";
-import { useNavigationProgress } from "@/context/navigation-progress-context";
 import { useSnackbar } from "@/context/snackbar-context";
 import { messages } from "@/lib/constants/messages";
-import { useRouter } from "next/navigation";
+import { useAppRouter } from "@/lib/navigation/use-app-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 
 type SessionUser = {
@@ -15,8 +14,7 @@ type SessionUser = {
 };
 
 export function SessionBar() {
-  const router = useRouter();
-  const { beginNavigation } = useNavigationProgress();
+  const router = useAppRouter();
   const { showSnackbar } = useSnackbar();
   const [user, setUser] = useState<SessionUser | null | undefined>(undefined);
   /** Avoid clearing session UI before `/login` RSC arrives on slow networks. */
@@ -66,7 +64,6 @@ export function SessionBar() {
         message: messages.auth.signedOut,
         tone: "success",
       });
-      beginNavigation();
       router.replace("/login");
       router.refresh();
     } catch (err) {
@@ -80,7 +77,7 @@ export function SessionBar() {
       logoutInFlight.current = false;
       setLogoutPending(false);
     }
-  }, [router, beginNavigation, showSnackbar]);
+  }, [router, showSnackbar]);
 
   /**
    * Fixed shell so the skeleton state, the empty-session state, and the

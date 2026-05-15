@@ -7,7 +7,8 @@ import {
 } from "@/lib/constants/messages";
 import { loginSchema } from "@/lib/validation/auth.schema";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useAppRouter } from "@/lib/navigation/use-app-router";
+import { useSearchParams } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { useTransition } from "react";
 import { z } from "zod";
@@ -37,7 +38,7 @@ function safeRedirectPath(from: string | null): string {
 }
 
 export function useLoginForm() {
-  const router = useRouter();
+  const router = useAppRouter();
   const searchParams = useSearchParams();
   const fromParam = searchParams.get("from");
   const [isNavigationPending, startNavigation] = useTransition();
