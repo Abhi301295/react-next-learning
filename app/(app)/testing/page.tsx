@@ -6,6 +6,7 @@ import UseTransitionDemo from "./useTransitionDemo";
 import type { Metadata } from "next";
 import UseLayoutEffectDemo from "./useLayoutEffectDemo";
 import UseActionStateDemo from "./useActionStateDemo";
+import { Form } from "./Form";
 
 export const metadata: Metadata = {
   title: "Testing",
@@ -24,12 +25,13 @@ export default function TestingPage() {
     <div className="p-6">
       <h1 className="mb-4 text-xl font-bold">Testing Redirects and Users</h1>
         <div className="mb-8 space-y-4">
-          <UseReducerDemo />
+          {/* <UseReducerDemo />
           <UseImperativeDemo />
           <UseTransitionDemo />
           <UseDeferredValueDemo />
           <UseLayoutEffectDemo />
-          <UseActionStateDemo />
+          <UseActionStateDemo /> */}
+          <Form />
         </div>
       <UsersClient />
     </div>
