@@ -1,5 +1,3 @@
-'use client';
-
 import { SkeletonPulse } from "@/components/shared/feedback/SkeletonPulse";
 
 type TableSkeletonProps = {

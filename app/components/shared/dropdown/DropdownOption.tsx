@@ -1,5 +1,3 @@
-'use client';
-
 export interface DropdownOptionProps {
   value: string;
   children: React.ReactNode;
