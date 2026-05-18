@@ -19,9 +19,9 @@ export function UsersPageSkeleton() {
       aria-busy="true"
       aria-label="Loading users"
     >
-      <header>
+      <header className="flex items-center justify-between gap-3">
         <SkeletonPulse className="h-8 w-32 sm:h-9 sm:w-40" />
-        <SkeletonPulse className="mt-2 h-4 w-full max-w-prose" />
+        <SkeletonPulse className="h-10 w-32 shrink-0 rounded-lg" />
       </header>
 
       <div className="block md:hidden">

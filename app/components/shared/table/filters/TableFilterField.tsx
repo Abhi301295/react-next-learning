@@ -1,5 +1,3 @@
-'use client';
-
 import { useId } from 'react';
 import Dropdown from '@/components/shared/dropdown/Dropdown';
 import DropdownOption from '@/components/shared/dropdown/DropdownOption';

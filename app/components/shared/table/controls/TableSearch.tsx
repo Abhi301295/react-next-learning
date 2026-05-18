@@ -1,5 +1,3 @@
-'use client';
-
 import Input from '@/components/ui/Input';
 
 type TableSearchProps = {
