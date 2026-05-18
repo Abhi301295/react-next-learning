@@ -94,14 +94,18 @@ export default function UsersPageClient() {
   return (
     <UsersMutateProvider value={mutateValue}>
       <section className="space-y-4" aria-labelledby="users-title">
-        <header className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+        <header className="flex items-center justify-between gap-3">
           <h1
             id="users-title"
-            className="text-display-sm font-semibold text-primary"
+            className="min-w-0 text-display-sm font-semibold text-primary"
           >
             Users
           </h1>
-          <Button type="button" onClick={mutateValue.openCreate}>
+          <Button
+            type="button"
+            className="shrink-0"
+            onClick={mutateValue.openCreate}
+          >
             Add new user
           </Button>
         </header>
