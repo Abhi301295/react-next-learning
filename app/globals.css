@@ -50,10 +50,6 @@ body {
   color: var(--foreground);
 }
 
-.test-flex {
-  user-select: none;
-}
-
 @keyframes fadeSlide {
   0% {
     opacity: 0;
@@ -100,6 +96,11 @@ body {
 }
 
 @media (prefers-reduced-motion: reduce) {
+  .animate-fade-slide,
+  .animate-fade-scale {
+    animation: none;
+  }
+
   .animate-nav-progress-bar {
     animation: none;
     transform: translateX(0);

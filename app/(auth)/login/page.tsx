@@ -34,9 +34,15 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <main>
+    <main className="min-h-screen bg-background text-foreground">
       <Suspense
-        fallback={<div className="min-h-screen bg-background" aria-hidden />}
+        fallback={
+          <div
+            className="min-h-screen bg-background"
+            aria-hidden
+            aria-busy="true"
+          />
+        }
       >
         <LoginForm />
       </Suspense>

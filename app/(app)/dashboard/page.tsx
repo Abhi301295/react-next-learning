@@ -5,12 +5,18 @@ import { DEFAULT_OG_IMAGE, SITE_NAME } from "@/lib/metadata/defaults";
 import { DashboardContent } from "./DashboardContent";
 import { DashboardContentSkeleton } from "./DashboardSkeleton";
 
-/** Matches `fetch` cache in dashboard snapshot + avoids fully-dynamic TTFB on every visit. */
-export const revalidate = 60;
+/**
+ * Dashboard KPIs must reflect Firestore on every visit. We combine:
+ * - `force-dynamic` (no static / ISR route cache),
+ * - `await connection()` + `unstable_noStore()` in the content/data path,
+ * - `prefetch={false}` on `/dashboard` nav links so the client router does not
+ *   reuse a stale prefetched RSC payload after edits elsewhere.
+ */
+export const dynamic = "force-dynamic";
 
 const title = "Dashboard";
 const description =
-  "Overview of user totals, active vs inactive members, and recent directory activity.";
+  "Overview of user totals, active vs inactive members, and recent activity.";
 
 export const metadata: Metadata = {
   title,
@@ -48,8 +54,8 @@ export default function DashboardPage() {
           Dashboard
         </h1>
         <p className="max-w-2xl text-sm text-subtle sm:text-base">
-          Live metrics from your user directory and a compact activity feed for
-          the newest members. Open the{" "}
+          Live metrics and a compact activity feed for the newest members. Open
+          the{" "}
           <TextLink href="/users">user list</TextLink> to search, filter, and
           edit profiles.
         </p>

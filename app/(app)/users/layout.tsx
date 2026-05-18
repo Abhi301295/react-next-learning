@@ -7,7 +7,7 @@ import type { ReactNode } from "react";
  */
 export const metadata: Metadata = {
   description:
-    "User profile in the directory. Dynamic metadata is supplied by the detail route when available.",
+    "User profile. Dynamic metadata is supplied by the detail route when available.",
 };
 
 export default function UsersSectionLayout({ children }: { children: ReactNode }) {

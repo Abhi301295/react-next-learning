@@ -1,52 +1,12 @@
 "use client";
 
 /**
- * ============================================================================
- * USERS LISTING — TABLE + MOBILE CONFIG (“tableConfigs” pattern)
- * ============================================================================
- *
- * WHO USES THIS
- * - `UsersPageClient` → `ResponsiveList` → passes pieces from `useUsers()`.
- * - `useUsers` (`app/lib/hooks/useUsers.ts`) merges **`server`** (live URL state,
- *   fetch, pagination handlers) into the objects exported here.
- *
- * HOW THE UI SPLITS
- * - **Desktop (md+):** `ConfigurableTable` + **`TableConfig`** — grid, row actions,
- *   page-size pagination; filters use the same `filters` object as the list.
- * - **Mobile:** `List` + **`ListConfig`** — cards, “load more”, **`mobileFields`** on sort.
- *
- * WHAT MUST STAY IN SYNC
- * - **Search / filters / sort defaults / empty copy** are shared between both
- *   breakpoints (`*_RESPONSIVE_CONTROLS`, **`USERS_FILTERS`**, sort core).
- * - Only **pagination shape** differs between **`TableConfig`** and **`ListConfig`**.
- *   Search, filters, sort defaults, and empty copy are shared (`USERS_FILTERS`, etc.).
- *
- * UPSTREAM SEARCH NOTE
- * - List fetch uses **`GET /users/search?q=`** — one string, not per-column.
- * - **Role / status** are narrowed with **Filters** in this app, not implied by `q`.
- *
- * ADDING A NEW LISTING (copy this file as a template)
- * 1. Replace row type (`User`), filter keys, columns, empty strings.
- * 2. Fill **filter definitions** + one **template** (`FilterTemplateContext<K>`).
- * 3. Set **search** (label, placeholder honest about API, `fields` for docs/UI).
- * 4. Set **sort** + **mobileFields** (mobile only).
- * 5. Set **pagination** (table vs list shapes).
- * 6. Compose **`(entity)PaginatedDesktopBase`** and **`(entity)PaginatedMobileListBase`**.
- * 7. In a **`use<Entity>`** hook, `useMemo` spread the desktop base + `{ server }`,
- *    and the mobile base + `{ server }` the same way as `useUsers`.
- *
- * SECTION MAP (read top → bottom)
- * 1. Empty copy        2. Filter key type     3. Columns
- * 4. Filter definitions 5. Shared **`USERS_FILTERS`** (same object on table + list)
- * 6. Row actions        7. Search              8. Sort + mobile sort labels
- * 9. Empty object       10. Responsive merge (search + empty)
- * 11. Pagination        12. Composed desktop + mobile exports
- * 13. Aliases           14. Mobile empty override
- * 15. Card-only helpers
- * ============================================================================
+ * Shared table + mobile list config for the users area.
+ * `useUsers` injects `server` (fetch, pagination, search) at runtime.
  */
 
-import Link from "next/link";
+import { IconEye } from "@/components/icons";
+import { messages } from "@/lib/constants/messages";
 import { EmptyState } from "@/components/shared/feedback/EmptyState";
 import type { ListConfig } from "@/components/shared/list/List";
 import { UsersMobileCardsSkeleton } from "./UsersMobileCardsSkeleton";
@@ -61,17 +21,11 @@ import type { User } from "@/lib/users/types";
 import { Button } from "@/components/ui/Button";
 import { useUsersMutateOptional } from "./UsersMutateContext";
 
-// ─── 1. Empty-state copy (also referenced by `usersMobileStateConfig`) ───────
-
-export const EMPTY_USERS_TITLE = "No users found";
-export const EMPTY_USERS_DESCRIPTION =
-  "Try again or check your API configuration.";
-
-// ─── 2. Filter keys (used as generic `K` in TableConfig / ListConfig) ─────────
+// ─── 1. Filter keys (used as generic `K` in TableConfig / ListConfig) ─────────
 
 export type UsersFilterKey = "role" | "status";
 
-// ─── 3. Desktop table columns (`ResponsiveList` passes this as `columns`) ───
+// ─── 2. Desktop table columns (`ResponsiveList` passes this as `columns`) ───
 
 export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
   { key: "id", label: "User ID", sortable: true },
@@ -97,7 +51,7 @@ export const USER_COLUMNS: readonly Column<User, keyof User>[] = [
   },
 ];
 
-// ─── 4. Filter definitions (predicates; used client-side + filter panel) ─────
+// ─── 3. Filter definitions (predicates; used client-side + filter panel) ─────
 
 export const usersFilterDefinitions = [
   {
@@ -114,7 +68,7 @@ export const usersFilterDefinitions = [
   },
 ];
 
-// ─── 5. `USERS_FILTERS` (template + metadata; used by table and list) ─────────
+// ─── 4. `USERS_FILTERS` (template + metadata; used by table and list) ─────────
 
 function UsersFilterFields(ctx: FilterTemplateContext<UsersFilterKey>) {
   return (
@@ -148,24 +102,24 @@ function UsersFilterFields(ctx: FilterTemplateContext<UsersFilterKey>) {
  */
 const USERS_FILTERS = {
   enabled: true,
-  title: "Filter users",
+  title: messages.users.filterTitle,
   triggerLabel: "Filters",
   definitions: usersFilterDefinitions,
   template: UsersFilterFields,
 } as const;
 
-// ─── 6. Row action column (desktop table only; not used by mobile cards) ─────
+// ─── 5. Row action column (desktop table only; not used by mobile cards) ─────
 
 function UserDetailNavLink({ user }: { user: User }) {
   return (
     <Button
-      href={`/users/${user.id}`}
+      href={`/users/${encodeURIComponent(String(user.id))}`}
       variant="outline"
       iconOnly
       aria-label={`View profile for ${user.name}`}
       tooltip={`View ${user.name}`}
     >
-      👁
+      <IconEye className="h-4 w-4" />
     </Button>
   );
 }
@@ -196,21 +150,16 @@ const USERS_TABLE_ACTIONS = {
   rowActions: (user: User) => <UserRowActions user={user} />,
 };
 
-// ─── 7. Search (single `q` param upstream; `fields` = hint / non-server client use) ─
+// ─── 6. Search (`GET /api/users` uses a single `q`; role/status via filters) ─
 
-/**
- * Upstream: `GET /users/search?q=` — one text query (name, email, username, …).
- * Role and status are applied with **Filters**, not via `q`.
- */
 const USERS_SEARCH: NonNullable<TableConfig<User, UsersFilterKey>["search"]> = {
   enabled: true,
   label: "Search users",
-  placeholder:
-    "Search by name, email, or username. Refine role and status with Filters.",
+  placeholder: messages.users.searchPlaceholder,
   fields: ["name", "email"],
 };
 
-// ─── 8. Sorting (shared defaults; list adds `mobileFields` for sort dropdown) ─
+// ─── 7. Sorting (shared defaults; list adds `mobileFields` for sort dropdown) ─
 
 const USERS_SORT_CORE: NonNullable<TableConfig<User, UsersFilterKey>["sorting"]> = {
   enabled: true,
@@ -229,8 +178,8 @@ const USERS_MOBILE_SORT_FIELDS = [
 // ─── 9. Empty state strings (table + list empty / no-results variants) ──────
 
 const USERS_EMPTY: NonNullable<TableConfig<User, UsersFilterKey>["emptyState"]> = {
-  noDataTitle: EMPTY_USERS_TITLE,
-  noDataDescription: EMPTY_USERS_DESCRIPTION,
+  noDataTitle: messages.users.emptyListTitle,
+  noDataDescription: messages.users.emptyListDescription,
 };
 
 /** Search + empty copy reused on both breakpoints. */
@@ -300,7 +249,10 @@ export const usersMobileListConfig: ListConfig<User, UsersFilterKey> =
 
 export const usersMobileStateConfig = {
   emptyComponent: (
-    <EmptyState title={EMPTY_USERS_TITLE} description={EMPTY_USERS_DESCRIPTION} />
+    <EmptyState
+      title={messages.users.emptyListTitle}
+      description={messages.users.emptyListDescription}
+    />
   ),
   /**
    * Override the generic cards `LoadingState` with a skeleton tuned to the
@@ -310,15 +262,18 @@ export const usersMobileStateConfig = {
   loadingComponent: <UsersMobileCardsSkeleton />,
 };
 
-// ─── 14. Card body helper (not part of TableConfig / ListConfig) ─────────────
+// ─── 14. Card / row: view profile (icon button, same pattern as desktop row) ─
 
-export function renderUserProfileLink(userId: string | number) {
+export function renderViewProfileButton(user: Pick<User, "id" | "name">) {
   return (
-    <Link
-      href={`/users/${encodeURIComponent(String(userId))}`}
-      className="inline-block text-sm font-medium text-primary hover:underline"
+    <Button
+      href={`/users/${encodeURIComponent(String(user.id))}`}
+      variant="outline"
+      iconOnly
+      aria-label={`View profile for ${user.name}`}
+      tooltip={`View ${user.name}`}
     >
-      View profile
-    </Link>
+      <IconEye className="h-4 w-4" />
+    </Button>
   );
 }

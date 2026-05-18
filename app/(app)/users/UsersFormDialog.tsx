@@ -5,13 +5,15 @@ import { useRouter } from "next/navigation";
 import Modal from "@/components/shared/modal/Modal";
 import UserForm from "@/components/forms/UserForm";
 import { Button } from "@/components/ui/Button";
-import type { DummyJsonUserFormData } from "@/lib/validation/user.schema";
+import { useSnackbar } from "@/context/snackbar-context";
+import { messages } from "@/lib/constants/messages";
+import type { UserProfileFormInput } from "@/lib/validation/user.schema";
 import {
   detailToFormDefaults,
   jsonRecordToFormDefaults,
-  mapUpstreamUserJsonToUser,
+  mapJsonToListUser,
 } from "@/lib/users/json-to-user";
-import type { UpstreamUserDetail } from "@/lib/users/types";
+import type { UserProfileDto } from "@/lib/users/types";
 import type { User } from "@/lib/users/types";
 
 const USER_MUTATE_DIALOG_FORM_ID = "user-mutate-dialog-form";
@@ -23,7 +25,7 @@ type UsersFormDialogProps = {
   /** Edit started from the users table (fetch full record). */
   editUserId?: string | null;
   /** Edit started from profile page — skip fetch. */
-  initialDetail?: UpstreamUserDetail | null;
+  initialDetail?: UserProfileDto | null;
   onSuccess?: (user: User, kind: "create" | "update") => void;
 };
 
@@ -36,10 +38,11 @@ export default function UsersFormDialog({
   onSuccess,
 }: UsersFormDialogProps) {
   const router = useRouter();
+  const { showSnackbar } = useSnackbar();
   const [serverError, setServerError] = useState<string | null>(null);
   const [formSubmitting, setFormSubmitting] = useState(false);
   const [fetchedDefaults, setFetchedDefaults] = useState<
-    Partial<DummyJsonUserFormData> | undefined
+    Partial<UserProfileFormInput> | undefined
   >();
 
   const detailDefaults = useMemo(
@@ -62,14 +65,14 @@ export default function UsersFormDialog({
         const j = (await r.json()) as unknown;
         if (cancelled) return;
         if (!r.ok) {
-          setServerError("Could not load user for editing.");
+          setServerError(messages.users.loadForEditFailed);
           setFetchedDefaults(undefined);
           return;
         }
         const d = jsonRecordToFormDefaults(j);
         setFetchedDefaults(d ?? undefined);
       } catch {
-        if (!cancelled) setServerError("Could not load user for editing.");
+        if (!cancelled) setServerError(messages.users.loadForEditFailed);
       }
     })();
     return () => {
@@ -80,7 +83,8 @@ export default function UsersFormDialog({
   const defaultsForForm =
     mode === "create" ? undefined : detailDefaults ?? fetchedDefaults;
 
-  const title = mode === "create" ? "Add new user" : "Edit user";
+  const title =
+    mode === "create" ? messages.users.addUser : messages.users.editUser;
   const formMountKey = useMemo(
     () =>
       `${mode}-${initialDetail?.id ?? editUserId ?? "new"}-${
@@ -92,7 +96,7 @@ export default function UsersFormDialog({
   const showUserForm = mode === "create" || !!defaultsForForm;
 
   const handleSubmit = useCallback(
-    async (data: DummyJsonUserFormData) => {
+    async (data: UserProfileFormInput) => {
       setServerError(null);
       try {
         const url =
@@ -113,25 +117,40 @@ export default function UsersFormDialog({
             "message" in payload &&
             typeof (payload as { message: unknown }).message === "string"
               ? (payload as { message: string }).message
-              : "Request failed.";
+              : messages.users.requestFailed;
           setServerError(msg);
           return;
         }
-        const user = mapUpstreamUserJsonToUser(payload, data.status);
+        const user = mapJsonToListUser(payload, data.status);
         if (!user) {
-          setServerError("Unexpected response from user service.");
+          setServerError(messages.users.unexpectedServiceResponse);
           return;
         }
+        showSnackbar({
+          message:
+            mode === "create"
+              ? messages.users.createdSuccess
+              : messages.users.updatedSuccess,
+          tone: "success",
+        });
         onSuccess?.(user, mode === "create" ? "create" : "update");
         onOpenChange(false);
         if (initialDetail) {
           router.refresh();
         }
       } catch {
-        setServerError("Something went wrong. Try again.");
+        setServerError(messages.users.tryAgain);
       }
     },
-    [mode, editUserId, initialDetail, onOpenChange, onSuccess, router]
+    [
+      mode,
+      editUserId,
+      initialDetail,
+      onOpenChange,
+      onSuccess,
+      router,
+      showSnackbar,
+    ]
   );
 
   return (

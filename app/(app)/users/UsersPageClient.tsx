@@ -8,7 +8,7 @@ import { Button } from "@/components/ui/Button";
 import { useUsers } from "@/lib/hooks/useUsers";
 import type { User } from "@/lib/users/types";
 import {
-  renderUserProfileLink,
+  renderViewProfileButton,
   usersMobileStateConfig,
 } from "./tableConfigs";
 import {
@@ -43,7 +43,7 @@ function UserMobileCard({ user }: { user: User }) {
               ✎
             </Button>
           ) : null}
-          {renderUserProfileLink(user.id)}
+          {renderViewProfileButton(user)}
         </div>
       </CardContent>
     </Card>
@@ -94,7 +94,7 @@ export default function UsersPageClient() {
   return (
     <UsersMutateProvider value={mutateValue}>
       <section className="space-y-4" aria-labelledby="users-title">
-        <header className="flex items-center justify-between gap-3">
+        <header className="flex flex-row items-center justify-between gap-3">
           <h1
             id="users-title"
             className="min-w-0 text-display-sm font-semibold text-primary"

@@ -10,10 +10,7 @@ import { useReportWebVitals } from "next/web-vitals";
 /**
  * Logs Core Web Vitals in development (TTFB, FCP, LCP, INP, CLS, and FID when emitted).
  * Mounted from `Providers` only when `NODE_ENV === "development"`.
- *
- * For lab / field checks in staging or production, use `npm run lighthouse:audit`
- * (or `lighthouse:ci`) against a running server — Lighthouse reports LCP, CLS,
- * Total Blocking Time (related to interactivity), and TTFB.
+ * For lab scores, use Chrome DevTools → Lighthouse (or your browser’s equivalent).
  */
 export function WebVitalsReporter() {
   useReportWebVitals((metric) => {

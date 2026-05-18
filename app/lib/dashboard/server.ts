@@ -1,21 +1,23 @@
+import { unstable_noStore } from "next/cache";
+import { messages } from "@/lib/constants/messages";
 import {
   httpErrPublicMessage,
   isHttpOk,
   type HttpResult,
 } from "@/lib/http-result";
-import { mapUpstreamListRow } from "@/lib/users/map-row";
-import type { UpstreamUserListItem } from "@/lib/users/types";
+import { mapUserListDtoToRow } from "@/lib/users/map-row";
+import type { UserListDto } from "@/lib/users/types";
 import {
-  directoryDocToListItem,
-  listAllDirectoryUsers,
-} from "@/lib/users/directory-repository";
+  listAllUserRecords,
+  userRecordToListDto,
+} from "@/lib/users/user-repository";
 
 async function fetchUsersForDashboard(): Promise<
-  HttpResult<{ users: UpstreamUserListItem[]; total: number }>
+  HttpResult<{ users: UserListDto[]; total: number }>
 > {
   try {
-    const rows = await listAllDirectoryUsers();
-    const users = rows.map((r) => directoryDocToListItem(r.id, r.data));
+    const rows = await listAllUserRecords();
+    const users = rows.map((r) => userRecordToListDto(r.id, r.data));
     return {
       ok: true,
       status: 200,
@@ -25,7 +27,8 @@ async function fetchUsersForDashboard(): Promise<
     return {
       ok: false,
       kind: "network",
-      message: e instanceof Error ? e.message : "Network error.",
+      message:
+        e instanceof Error ? e.message : messages.users.listLoadFailed,
     };
   }
 }
@@ -44,11 +47,11 @@ export type DashboardSnapshot = {
 };
 
 function buildActivities(
-  users: ReturnType<typeof mapUpstreamListRow>[]
+  users: ReturnType<typeof mapUserListDtoToRow>[]
 ): DashboardActivityItem[] {
   return users.slice(0, 8).map((u) => ({
     id: `user-${u.id}`,
-    label: `${u.name} joined the directory (${u.role}, ${u.status}).`,
+    label: `${u.name} joined (${u.role}, ${u.status}).`,
     href: `/users/${u.id}`,
   }));
 }
@@ -57,6 +60,7 @@ export async function fetchDashboardSnapshot(): Promise<
   | { ok: true; data: DashboardSnapshot }
   | { ok: false; message: string }
 > {
+  unstable_noStore();
   const usersR = await fetchUsersForDashboard();
 
   if (!isHttpOk(usersR)) {
@@ -64,7 +68,7 @@ export async function fetchDashboardSnapshot(): Promise<
   }
 
   const { users: raw, total: catalogTotal } = usersR.data;
-  const mapped = raw.map(mapUpstreamListRow);
+  const mapped = raw.map(mapUserListDtoToRow);
   const activeInSample = mapped.filter((u) => u.status === "active").length;
   const inactiveInSample = mapped.length - activeInSample;
 

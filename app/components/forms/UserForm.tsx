@@ -1,12 +1,14 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useMemo, useRef } from "react";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { messages } from "@/lib/constants/messages";
 import {
-  dummyJsonUserFormSchema,
-  defaultDummyJsonUserFormValues,
-  type DummyJsonUserFormData,
+  userProfileFormSchema,
+  defaultUserProfileFormInput,
+  USER_PHONE_DIGIT_MAX,
+  type UserProfileFormInput,
 } from "@/lib/validation/user.schema";
 import FormField from "@/components/ui/FormField";
 import Input from "@/components/ui/Input";
@@ -15,16 +17,21 @@ import Dropdown from "@/components/shared/dropdown/Dropdown";
 import DropdownOption from "@/components/shared/dropdown/DropdownOption";
 
 type UserFormProps = {
-  defaultValues?: Partial<DummyJsonUserFormData>;
+  defaultValues?: Partial<UserProfileFormInput>;
   submitLabel: string;
   submittingLabel: string;
-  onSubmit: (data: DummyJsonUserFormData) => Promise<void>;
+  onSubmit: (data: UserProfileFormInput) => Promise<void>;
   /** When `footer`, omit the inline submit button; use a sibling `button form={formId}`. */
   submitPlacement?: "inline" | "footer";
   /** Required when `submitPlacement` is `footer`. */
   formId?: string;
   onSubmittingChange?: (isSubmitting: boolean) => void;
 };
+
+function normalizePhoneDigits(value: unknown): string {
+  if (typeof value !== "string" || value === "") return "";
+  return value.replace(/\D/g, "").slice(0, USER_PHONE_DIGIT_MAX);
+}
 
 export default function UserForm({
   defaultValues,
@@ -38,14 +45,25 @@ export default function UserForm({
   const errorRef = useRef<HTMLDivElement | null>(null);
   const formRef = useRef<HTMLFormElement | null>(null);
 
+  const mergedDefaultValues = useMemo(() => {
+    const merged: UserProfileFormInput = {
+      ...defaultUserProfileFormInput,
+      ...defaultValues,
+    };
+    merged.phone = normalizePhoneDigits(
+      defaultValues?.phone ?? defaultUserProfileFormInput.phone
+    );
+    return merged;
+  }, [defaultValues]);
+
   const {
     register,
     handleSubmit,
     control,
     formState: { errors, isSubmitting },
-  } = useForm<DummyJsonUserFormData>({
-    resolver: zodResolver(dummyJsonUserFormSchema),
-    defaultValues: { ...defaultDummyJsonUserFormValues, ...defaultValues },
+  } = useForm<UserProfileFormInput>({
+    resolver: zodResolver(userProfileFormSchema),
+    defaultValues: mergedDefaultValues,
   });
 
   useEffect(() => {
@@ -79,7 +97,7 @@ export default function UserForm({
           role="alert"
           className="rounded border border-red-500 bg-red-50 p-3 text-sm text-red-700"
         >
-          Please fix the errors in the form before submitting.
+          {messages.users.formFixErrors}
         </div>
       )}
 
@@ -120,12 +138,38 @@ export default function UserForm({
             {...register("email")}
           />
         </FormField>
-        <FormField label="Phone" htmlFor="uf-phone">
-          <Input
-            id="uf-phone"
-            autoComplete="tel"
-            error={errors.phone?.message}
-            {...register("phone")}
+        <FormField
+          label="Phone"
+          htmlFor="uf-phone"
+          helperText="Optional. Numbers only, 8–15 digits (include country code if needed)."
+        >
+          <Controller
+            name="phone"
+            control={control}
+            render={({ field }) => (
+              <Input
+                id="uf-phone"
+                type="text"
+                inputMode="numeric"
+                pattern="[0-9]*"
+                autoComplete="tel-national"
+                placeholder="15551234567"
+                maxLength={USER_PHONE_DIGIT_MAX}
+                error={errors.phone?.message}
+                name={field.name}
+                ref={field.ref}
+                value={
+                  typeof field.value === "string" ? field.value : ""
+                }
+                onBlur={field.onBlur}
+                onChange={(e) => {
+                  const digits = e.target.value
+                    .replace(/\D/g, "")
+                    .slice(0, USER_PHONE_DIGIT_MAX);
+                  field.onChange(digits);
+                }}
+              />
+            )}
           />
         </FormField>
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
@@ -179,7 +223,7 @@ export default function UserForm({
               )}
             />
           </FormField>
-          <FormField label="Status (listing)">
+          <FormField label="Status">
             <Controller
               name="status"
               control={control}
@@ -223,9 +267,18 @@ export default function UserForm({
               {...register("address.state")}
             />
           </FormField>
-          <FormField label="Postal code" htmlFor="uf-zip">
+          <FormField
+            label="Postal code"
+            htmlFor="uf-zip"
+            helperText="Letters, numbers, one space or hyphen between groups (3–16 characters)."
+          >
             <Input
               id="uf-zip"
+              inputMode="text"
+              autoComplete="postal-code"
+              spellCheck={false}
+              placeholder="e.g. 110001 or SW1A 1AA"
+              maxLength={16}
               error={errors.address?.zip?.message}
               {...register("address.zip")}
             />

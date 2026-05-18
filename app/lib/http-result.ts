@@ -1,3 +1,5 @@
+import { messages } from "@/lib/constants/messages";
+
 export type HttpOk<T> = { ok: true; status: number; data: T };
 
 export type HttpErr =
@@ -21,15 +23,15 @@ export function isHttpOk<T>(r: HttpResult<T>): r is HttpOk<T> {
 export function httpErrPublicMessage(err: HttpErr): string {
   switch (err.kind) {
     case "aborted":
-      return "Request was cancelled.";
+      return messages.common.requestCancelled;
     case "network":
-      return err.message || "Network error.";
+      return err.message || `${messages.http.networkError}.`;
     case "http":
-      return `Request failed (${err.status} ${err.statusText || ""}).`.trim();
+      return messages.http.requestFailed(err.status, err.statusText || "");
     case "decode":
       return err.message;
   }
-  return "Unexpected error.";
+  return messages.common.unexpectedError;
 }
 
 export async function responseToJsonResult<T>(
@@ -48,11 +50,19 @@ export async function responseToJsonResult<T>(
   }
   const trimmed = text.trim();
   if (!trimmed) {
-    return { ok: false, kind: "decode", message: "Empty response body." };
+    return {
+      ok: false,
+      kind: "decode",
+      message: messages.http.emptyResponse,
+    };
   }
   try {
     return { ok: true, status: res.status, data: JSON.parse(trimmed) as T };
   } catch {
-    return { ok: false, kind: "decode", message: "Invalid JSON in response." };
+    return {
+      ok: false,
+      kind: "decode",
+      message: messages.http.invalidJson,
+    };
   }
 }

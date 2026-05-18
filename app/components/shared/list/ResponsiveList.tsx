@@ -2,6 +2,7 @@ import ConfigurableTable, { type TableConfig } from "../table/core/ConfigurableT
 import { EmptyState } from "../feedback/EmptyState";
 import { ErrorState } from "../feedback/ErrorState";
 import { LoadingState } from "../feedback/LoadingState";
+import { messages } from "@/lib/constants/messages";
 import type { Column } from "../table/core/Table";
 import List, { type ListConfig } from "./List";
 
@@ -63,7 +64,10 @@ export default function ResponsiveList<T, K extends string = never>({
           }
           errorComponent={
             mobileStateConfig?.errorComponent ?? (
-              <ErrorState message={error ?? "Something went wrong"} onRetry={onRetry} />
+              <ErrorState
+                message={error ?? messages.common.somethingWentWrong}
+                onRetry={onRetry}
+              />
             )
           }
           emptyComponent={mobileStateConfig?.emptyComponent ?? <EmptyState />}

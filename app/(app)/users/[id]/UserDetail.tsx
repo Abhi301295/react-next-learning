@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/components/ui/Card";
 import { Button } from "@/components/ui/Button";
-import type { UpstreamUserDetail } from "@/lib/users/types";
+import type { UserProfileDto } from "@/lib/users/types";
 import UsersFormDialog from "@/(app)/users/UsersFormDialog";
 
 function profilePhotoSrc(raw: string | undefined): string | null {
@@ -30,7 +30,7 @@ function websiteHref(website: string) {
 export default function UserDetail({
   user,
 }: {
-  user: UpstreamUserDetail;
+  user: UserProfileDto;
 }) {
   const [editOpen, setEditOpen] = useState(false);
   const phoneHrefDigits = user.phone
@@ -41,8 +41,8 @@ export default function UserDetail({
 
   return (
     <article className="space-y-4" aria-labelledby="user-heading">
-      <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
-        <div className="space-y-1">
+      <header className="flex flex-row items-start justify-between gap-3">
+        <div className="min-w-0 flex-1 space-y-1 pr-2">
           <h1
             id="user-heading"
             className="text-display-sm font-semibold text-primary"
@@ -51,8 +51,16 @@ export default function UserDetail({
           </h1>
           <p className="text-sm text-subtle">Profile · User ID {user.id}</p>
         </div>
-        <Button type="button" variant="outline" onClick={() => setEditOpen(true)}>
-          Edit user
+        <Button
+          type="button"
+          variant="outline"
+          iconOnly
+          className="shrink-0"
+          onClick={() => setEditOpen(true)}
+          aria-label={`Edit ${user.name}`}
+          tooltip={`Edit ${user.name}`}
+        >
+          ✎
         </Button>
       </header>
 
